@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import HelloWorld from "./components/HelloWorld.vue";
+import MentorTracker from "./components/MentorTracker.vue";
+import Downloads from "./components/Downloads.vue";
+import AssignmentList from "./views/AssignmentList.vue";
 /*import TheWelcome from "./components/TheWelcome.vue";*/
 
 import { ref, onMounted } from "vue";
@@ -7,6 +10,12 @@ import axios from "axios";
 
 // A reactive variable to store the message from the backend
 const backendMessage = ref("Loading...");
+
+// Define the routes for the application  -- delete this later
+const routes = [
+  { path: "/mentor-tracking", component: MentorTracker },
+  { path: "/downloads", component: Downloads },
+];
 
 // This runs after the component is ready
 onMounted(async () => {
