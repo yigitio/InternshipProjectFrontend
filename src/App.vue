@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import HelloWorld from "./components/HelloWorld.vue";
-import MentorTracker from "./components/MentorTracker.vue";
-import Downloads from "./components/Downloads.vue";
 import AssignmentList from "./views/AssignmentList.vue";
 /*import TheWelcome from "./components/TheWelcome.vue";*/
 
@@ -13,8 +11,8 @@ const backendMessage = ref("Loading...");
 
 // Define the routes for the application  -- delete this later
 const routes = [
-  { path: "/mentor-tracking", component: MentorTracker },
-  { path: "/downloads", component: Downloads },
+  // { path: "/mentor-tracking", component: MentorTracker },
+  // { path: "/downloads", component: Downloads },
 ];
 
 // This runs after the component is ready
