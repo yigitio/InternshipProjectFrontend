@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import { addAssignment, updateAssignment } from "@/utils/assignmentService";
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { addAssignment, updateAssignment } from '@/utils/assignmentService';
 
 const interns = ref<{ id: number; name: string }[]>([]);
 const mentors = ref<{ id: number; name: string }[]>([]);
@@ -10,26 +10,26 @@ const mentors = ref<{ id: number; name: string }[]>([]);
 const form = ref({
   internId: 0,
   mentorId: 0,
-  assignmentName: "",
-  assignmentDesc: "",
-  dueDate: "",
-  priority: "",
-  assignedAt: "",
-  completedAt: "",
+  assignmentName: '',
+  assignmentDesc: '',
+  dueDate: '',
+  priority: '',
+  assignedAt: '',
+  completedAt: '',
 });
 
 // Sayfa yüklendiğinde intern ve mentorları çek
 onMounted(async () => {
-  const internRes = await axios.get("http://localhost:8080/api/interns");
+  const internRes = await axios.get('http://localhost:8080/api/interns');
   interns.value = internRes.data.map((i: any) => ({
     id: i.id,
-    name: i.name + " " + i.surname,
+    name: i.name + ' ' + i.surname,
   }));
 
-  const mentorRes = await axios.get("http://localhost:8080/api/mentors");
+  const mentorRes = await axios.get('http://localhost:8080/api/mentors');
   mentors.value = mentorRes.data.map((m: any) => ({
     id: m.id,
-    name: m.name + " " + m.surname,
+    name: m.name + ' ' + m.surname,
   }));
 });
 
@@ -37,10 +37,10 @@ onMounted(async () => {
 const submitAssignment = async () => {
   try {
     await addAssignment(form.value);
-    alert("Görev başarıyla eklendi!");
+    alert('Görev başarıyla eklendi!');
   } catch (err) {
     console.error(err);
-    alert("Görev eklenirken hata oluştu.");
+    alert('Görev eklenirken hata oluştu.');
   }
 };
 </script>

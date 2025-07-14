@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted } from 'vue';
 import {
   fetchAssignments,
   deleteAssignment,
   type Assignment,
-} from "@/utils/assignmentService";
+} from '@/utils/assignmentService';
 
 const assignments = ref<Assignment[]>([]);
 

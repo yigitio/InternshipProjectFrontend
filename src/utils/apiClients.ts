@@ -1,11 +1,11 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from 'axios';
 
-const API_URL = "localhost:8080/api/mentors/api/greeting";
+const API_URL = 'localhost:8080/api/mentors/api/greeting';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 

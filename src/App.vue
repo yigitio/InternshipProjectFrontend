@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
-import AssignmentList from "./views/AssignmentList.vue";
+import HelloWorld from './components/HelloWorld.vue';
+import AssignmentList from './views/AssignmentList.vue';
 /*import TheWelcome from "./components/TheWelcome.vue";*/
 
-import { ref, onMounted } from "vue";
-import axios from "axios";
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 // A reactive variable to store the message from the backend
-const backendMessage = ref("Loading...");
+const backendMessage = ref('Loading...');
 
 // Define the routes for the application  -- delete this later
 const routes = [
@@ -20,11 +20,11 @@ onMounted(async () => {
   try {
     // Call your Java backend's endpoint
     const response = await axios.get(
-      "http://localhost:8080/api/mentors/api/greeting"
+      'http://localhost:8080/api/mentors/api/greeting'
     );
     backendMessage.value = response.data.message; // Update the variable
   } catch (error) {
-    backendMessage.value = "Failed to connect to backend.";
+    backendMessage.value = 'Failed to connect to backend.';
     console.error(error);
   }
 });

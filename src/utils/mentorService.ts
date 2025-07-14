@@ -1,12 +1,12 @@
-import axiosInstance from "@/utils/apiClients";
-import Mentor from "@/models/mentor";
-import { AxiosResponse } from "axios";
+import axiosInstance from '@/utils/apiClients';
+import Mentor from '@/models/mentor';
+import { AxiosResponse } from 'axios';
 
 class MentorService {
   // get All Employees
   getAllMentors = (): Promise<Mentor[]> => {
     return axiosInstance
-      .get("/mentors")
+      .get('/mentors')
       .then((response: AxiosResponse<Mentor[]>) => response.data);
   };
   getEmployeeById = (id: any): Promise<Mentor> => {
@@ -27,7 +27,7 @@ class MentorService {
   };
   save = (emp: any): Promise<Mentor> => {
     return axiosInstance
-      .post("/mentors", emp)
+      .post('/mentors', emp)
       .then((response: AxiosResponse<Mentor>) => response.data);
   };
 }

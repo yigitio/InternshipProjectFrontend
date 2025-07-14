@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export interface Assignment {
   id?: number;
@@ -13,7 +13,7 @@ export interface Assignment {
   status?: string;
 }
 
-const BASE_URL = "http://localhost:8080/api/assignments";
+const BASE_URL = 'http://localhost:8080/api/assignments';
 
 export const fetchAssignments = async (): Promise<Assignment[]> => {
   const response = await axios.get(BASE_URL);
