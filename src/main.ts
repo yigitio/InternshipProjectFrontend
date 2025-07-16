@@ -1,5 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import router from './router';
+import msalPlugin from './plugins/msal'; // kendi yazdığın msal plugin
 
-createApp(App).use(router).mount('#app');
+const app = createApp(App);
+app.use(msalPlugin);
+app.mount('#app');

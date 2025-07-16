@@ -1,18 +1,32 @@
-<template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-  </div>
-</template>
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
+import { getInternsWithAuth } from '@/utils/apiClients';
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+// ✨ Burada tip tanımlıyoruz
+interface Intern {
+  id: number;
+  name: string;
+  // email?: string;
+}
 
-export default defineComponent({
-  name: 'HomeView',
-  components: {
-    HelloWorld,
-  },
+const interns = ref<Intern[]>([]);
+
+onMounted(async () => {
+  try {
+    interns.value = await getInternsWithAuth();
+  } catch (error) {
+    console.error('Stajyerleri alırken hata:', error);
+  }
 });
 </script>
+
+<template>
+  <div>
+    <h2>Stajyerler</h2>
+    <ul>
+      <li v-for="intern in interns" :key="intern.id">
+        {{ intern.name }}
+      </li>
+    </ul>
+  </div>
+</template>
