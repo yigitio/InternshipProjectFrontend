@@ -28,7 +28,9 @@ onMounted(() => {
     <ul>
       <li v-for="item in assignments" :key="item.id">
         {{ item.assignmentDesc }}
-        <button @click="removeAssignment(item.id)">Sil</button>
+        <button v-if="item.id !== undefined" @click="removeAssignment(item.id)">
+          Sil
+        </button>
       </li>
     </ul>
   </div>
