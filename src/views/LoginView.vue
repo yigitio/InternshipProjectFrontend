@@ -8,11 +8,22 @@
 <script setup lang="ts">
 import { useMsal } from 'vue3-msal-plugin';
 import { loginRequest } from '@/utils/authConfig';
+import { useRouter } from 'vue-router';
 
 const { instance } = useMsal();
+const router = useRouter();
 
-function login() {
-  instance.loginRedirect(loginRequest);
+async function login() {
+  try {
+    // Popup ile login
+    const resp = await instance.loginPopup(loginRequest);
+    // Başarılıysa hesabı aktif et
+    instance.setActiveAccount(resp.account);
+    // Home sayfasına git
+    router.push({ name: 'Home' });
+  } catch (e) {
+    console.error('Login hatası:', e);
+  }
 }
 </script>
 
