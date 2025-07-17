@@ -1,3 +1,4 @@
+// src/router/index.ts
 import {
   createRouter,
   createWebHistory,
@@ -11,10 +12,8 @@ import AssignmentForm from '@/views/AssignmentForm.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    // Kök URL’ye girince Auth’a bak, varsa Home, yoksa Login
-    redirect: () => {
-      return msalApp.getActiveAccount() ? { name: 'Home' } : { name: 'Login' };
-    },
+    redirect: () =>
+      msalApp.getActiveAccount() ? { name: 'Home' } : { name: 'Login' },
   },
   {
     path: '/login',
@@ -38,7 +37,20 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+router.beforeEach(to => {
+  const isAuthenticated = !!msalApp.getActiveAccount();
+
+  if (to.name !== 'Login' && !isAuthenticated) {
+    return { name: 'Login' };
+  }
+  if (to.name === 'Login' && isAuthenticated) {
+    return { name: 'Home' };
+  }
+});
+
+export default router;
