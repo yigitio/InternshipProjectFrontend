@@ -8,6 +8,7 @@
         class="lighthouse-img"
       />
       <h1>Lantern'a Hoşgeldiniz!</h1>
+      <p class="subtitle"></p>
       <button class="login-button" @click="login">GİRİŞ YAP</button>
     </div>
   </div>
