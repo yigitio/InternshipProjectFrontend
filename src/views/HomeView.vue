@@ -3,15 +3,20 @@
     <AppSidebar />
 
     <div class="home-content">
-      <!-- Üst bar -->
-      <div class="topbar">
-        <router-link to="/profile" class="profile-button">
-          <img src="@/assets/avatar.png" alt="Profile" />
-        </router-link>
-        <button @click="handleLogout" class="logout-button">Çıkış Yap</button>
+      <!-- SAĞ ÜST DAİRE PROFİL FOTOĞRAFI -->
+      <div
+        class="profile-container"
+        @mouseenter="showMenu = true"
+        @mouseleave="showMenu = false"
+      >
+        <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
+        <div v-if="showMenu" class="dropdown-menu">
+          <router-link to="/profile">👤 Profil</router-link>
+          <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
+        </div>
       </div>
 
-      <!-- İçerik -->
+      <!-- Sayfa içeriği -->
       <div class="main-view">
         <router-view />
       </div>
@@ -23,6 +28,9 @@
 import { useRouter } from 'vue-router';
 import AppSidebar from '@/components/AppSidebar.vue';
 import { msalInstance } from '@/plugins/msal';
+import { ref } from 'vue';
+
+const showMenu = ref(false);
 
 const router = useRouter();
 
@@ -44,48 +52,58 @@ function handleLogout() {
   display: flex;
 }
 
+/* Sidebar sonrası içerik */
 .home-content {
   flex-grow: 1;
   margin-left: 220px;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  min-height: 100vh;
 }
 
-.topbar {
-  height: 60px;
-  background-color: #f5f5f5;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* SAĞ ÜST PROFİL ALANI */
+.profile-container {
+  position: absolute;
+  top: 12px;
+  right: 16px;
 }
 
-.profile-button img {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px; /* kare köşeli ama yuvarlatılmış */
+.profile-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%; /* TAMAMEN CIRCLE */
   object-fit: cover;
   border: 2px solid #1abc9c;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-.profile-button img:hover {
-  transform: scale(1.05);
+/* Hover ile açılan menü */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  min-width: 140px;
+  z-index: 999;
 }
 
-.logout-button {
-  margin-left: 16px;
-  background: transparent;
-  border: none;
-  font-size: 1rem;
+.dropdown-menu a,
+.dropdown-menu router-link {
+  display: block;
+  padding: 10px;
   color: #333;
-  cursor: pointer;
-  transition: color 0.2s ease;
+  text-decoration: none;
+  transition: background 0.2s;
 }
 
-.logout-button:hover {
-  color: #e74c3c;
+.dropdown-menu a:hover,
+.dropdown-menu router-link:hover {
+  background-color: #f0f0f0;
+}
+
+.main-view {
+  padding: 20px;
 }
 </style>
