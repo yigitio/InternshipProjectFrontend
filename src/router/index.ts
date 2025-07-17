@@ -8,6 +8,7 @@ import LoginView from '@/views/LoginView.vue';
 import HomeView from '@/views/HomeView.vue';
 import { msalApp } from '@/main';
 import AssignmentForm from '@/views/AssignmentForm.vue';
+import ProfileView from '@/views/ProfileView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -24,6 +25,13 @@ const routes: RouteRecordRaw[] = [
     path: '/home',
     name: 'Home',
     component: HomeView,
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+      },
+    ],
     beforeEnter: () => {
       if (!msalApp.getActiveAccount()) {
         return { name: 'Login' };
