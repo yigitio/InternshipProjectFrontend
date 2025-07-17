@@ -1,36 +1,29 @@
 <template>
-  <div class="login-container">
-    <h2>Azure Login</h2>
-    <button @click="signIn">Giriş Yap</button>
+  <div class="login-page">
+    <h1>Azure AD Giriş</h1>
+    <button @click="login">Giriş Yap</button>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { inject } from 'vue';
-import type { PublicClientApplication } from '@azure/msal-browser';
+<script setup lang="ts">
+import { useMsal } from 'vue3-msal-plugin';
+import { loginRequest } from '@/utils/authConfig';
 
-const msalInstance = inject<PublicClientApplication>('msalInstance');
+const { instance } = useMsal();
 
-const signIn = async () => {
-  try {
-    await msalInstance?.loginRedirect({
-      scopes: ['user.read'],
-    });
-  } catch (err) {
-    console.error('Login error:', err);
-  }
-};
+function login() {
+  instance.loginRedirect(loginRequest);
+}
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 10vh;
+.login-page {
+  text-align: center;
+  margin-top: 100px;
 }
 button {
   padding: 10px 20px;
   font-size: 16px;
+  cursor: pointer;
 }
 </style>

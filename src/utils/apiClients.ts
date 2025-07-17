@@ -1,5 +1,19 @@
 import axios from 'axios';
 import { msalInstance } from '@/plugins/msal';
+import { msalApp } from '@/main';
+import { loginRequest } from '@/utils/authConfig';
+
+const api = axios.create({ baseURL: '/api' });
+
+api.interceptors.request.use(async config => {
+  const account = msalApp.getActiveAccount();
+  if (account) {
+    const resp = await msalApp.acquireTokenSilent({ ...loginRequest, account });
+    config.headers = config.headers || {};
+    config.headers['Authorization'] = `Bearer ${resp.accessToken}`;
+  }
+  return config;
+});
 
 export const axiosInstance = axios.create({
   baseURL: 'http://localhost:8080',
@@ -18,8 +32,4 @@ axiosInstance.interceptors.request.use(async config => {
   return config;
 });
 
-// Eğer elle istek atmak istersen bu hâl hazırda çalışır
-export const getInternsWithAuth = async () => {
-  const response = await axiosInstance.get('/api/interns');
-  return response.data;
-};
+export default api;

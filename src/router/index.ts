@@ -1,84 +1,46 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from 'vue-router';
+import LoginView from '@/views/LoginView.vue';
+import HomeView from '@/views/HomeView.vue';
+import RedirectView from '@/views/RedirectView.vue';
+import { msalApp } from '@/main';
 
-import AboutView from '../views/AboutView.vue';
-import LoginView from '../views/LoginView.vue';
-import AssignmentList from '../views/AssignmentList.vue';
-import AssignmentForm from '../views/AssignmentForm.vue';
-import HomeView from '../views/HomeView.vue';
-import ProgramsView from '../views/ProgramsView.vue';
-import ReportView from '../views/ReportView.vue';
-import GoalsView from '../views/GoalsView.vue';
-import InternView from '../views/InternView.vue';
-import MentorView from '../views/MentorView.vue';
-import OfficeView from '../views/OfficeView.vue';
-import StaffView from '../views/StaffView.vue';
-
-const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/about',
-    name: 'about',
-    component: AboutView,
-  },
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'login',
+    name: 'Login',
     component: LoginView,
   },
   {
+    path: '/redirect',
+    name: 'Redirect',
+    component: RedirectView, // ← artık burada bir component var
+    beforeEnter: async () => {
+      await msalApp.handleRedirectPromise();
+      const acct = msalApp.getAllAccounts()[0];
+      if (acct) {
+        msalApp.setActiveAccount(acct);
+        return { name: 'Home' };
+      }
+      return { name: 'Login' };
+    },
+  },
+  {
     path: '/home',
-    name: 'home',
+    name: 'Home',
     component: HomeView,
-  },
-  {
-    path: '/assignmentlist',
-    name: 'assignmentlist',
-    component: AssignmentList,
-  },
-  {
-    path: '/assignment/new',
-    name: 'AssignmentForm',
-    component: AssignmentForm,
-  },
-  {
-    path: '/programs',
-    name: 'programs',
-    component: ProgramsView,
-  },
-  {
-    path: '/report',
-    name: 'report',
-    component: ReportView,
-  },
-  {
-    path: '/goals',
-    name: 'goals',
-    component: GoalsView,
-  },
-  {
-    path: '/office',
-    name: 'office',
-    component: OfficeView,
-  },
-  {
-    path: '/staff',
-    name: 'staff',
-    component: StaffView,
-  },
-  {
-    path: '/intern',
-    name: 'intern',
-    component: InternView,
-  },
-  {
-    path: '/mentor',
-    name: 'mentor',
-    component: MentorView,
+    beforeEnter: () => {
+      if (!msalApp.getActiveAccount()) {
+        return { name: 'Login' };
+      }
+    },
   },
 ];
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+export default createRouter({
+  history: createWebHistory(),
   routes,
 });
-
-export default router;
