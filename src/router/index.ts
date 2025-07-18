@@ -88,28 +88,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/assignmentForm',
-    name: 'AssignmentForm',
-    component: AssignmentForm,
-    beforeEnter: () => {
-      if (!msalApp.getActiveAccount()) {
-        return { name: 'Login' };
-      }
-    },
-  },
-  {
-    path: '/assignmentList',
-    name: 'AssignmentList',
-    component: AssignmentList,
-    beforeEnter: () => {
-      if (!msalApp.getActiveAccount()) {
-        return { name: 'Login' };
-      }
-    },
-  },
-  // ====================================
-  // Kayıt form rotaları:
-  {
     path: '/register/intern',
     name: 'RegisterIntern',
     component: InternView,
