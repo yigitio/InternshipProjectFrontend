@@ -12,6 +12,7 @@ import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
 import ReportView from '@/views/ReportView.vue';
 import AdminView from '@/views/AdminView.vue'; // 👈 eklendi
+import MentorHomeView from '@/views/MentorHomeView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -23,6 +24,23 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: 'Login',
     component: LoginView,
+  },
+  {
+    path: '/mentorhome',
+    name: 'MentorHome',
+    component: MentorHomeView,
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+      },
+      {
+        path: '/assignmentForm',
+        name: 'AssignmentForm',
+        component: AssignmentForm,
+      },
+    ],
   },
   {
     path: '/home',
