@@ -1,54 +1,6 @@
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { msalApp } from '@/main';
-import AppSidebar from '@/components/AppSidebar.vue';
-import type { AccountInfo } from '@azure/msal-browser';
-import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
-
-const router = useRouter();
-const showMenu = ref(false);
-const isMsalReady = ref(false);
-
-const account = ref<AccountInfo | null>(null);
-
-onMounted(() => {
-  const active = msalApp.getActiveAccount();
-  if (active) {
-    account.value = active;
-    isMsalReady.value = true;
-  }
-});
-
-const isAdmin = computed(() => {
-  const roles = (account.value?.idTokenClaims as any)?.roles || [];
-  return roles.includes('3');
-});
-
-async function handleLogout() {
-  if (!isMsalReady.value || !account.value) {
-    console.warn('MSAL instance not ready or no active account.');
-    return;
-  }
-
-  try {
-    await msalApp.logoutPopup();
-
-    // Çıkış sonrası local state sıfırlanmalı
-    account.value = null;
-    isMsalReady.value = false;
-
-    router.push({ name: 'Login' });
-  } catch (error) {
-    console.error('Logout error:', error);
-    alert('Çıkış yapılamadı!');
-  }
-}
-</script>
-
 <template>
   <div class="home-layout">
-    <AppSidebar />
+    <MentorAppSidebar />
 
     <div class="home-content">
       <!-- SAĞ ÜST DAİRE PROFİL FOTOĞRAFI -->
@@ -59,8 +11,7 @@ async function handleLogout() {
       >
         <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
         <div v-if="showMenu" class="dropdown-menu">
-          <router-link to="/home/profile">👤 Profil</router-link>
-          <router-link v-if="isAdmin" to="/home/admin">👑 Admin</router-link>
+          <router-link to="/mentorhome/profile">👤 Profil</router-link>
           <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
         </div>
       </div>
@@ -72,6 +23,29 @@ async function handleLogout() {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
+import { msalInstance } from '@/plugins/msal';
+import { ref } from 'vue';
+
+const showMenu = ref(false);
+
+const router = useRouter();
+
+function handleLogout() {
+  // 1) MSAL’in belleğindeki aktif hesabı temizle
+  msalInstance.setActiveAccount(null);
+
+  // 2) Local/session storage’daki tüm oturum verilerini sil
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // 3) Login sayfasına yönlendir
+  router.push({ name: 'Login' });
+}
+</script>
 
 <style scoped>
 .home-layout {
@@ -96,12 +70,13 @@ async function handleLogout() {
 .profile-img {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 50%; /* TAMAMEN CIRCLE */
   object-fit: cover;
   border: 2px solid #1abc9c;
   cursor: pointer;
 }
 
+/* Hover ile açılan menü */
 .dropdown-menu {
   position: absolute;
   right: 0;

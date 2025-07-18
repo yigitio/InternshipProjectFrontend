@@ -40,6 +40,11 @@ const routes: RouteRecordRaw[] = [
         component: ReportView,
       },
       {
+        path: '/assignmentList',
+        name: 'AssignmentList',
+        component: AssignmentList,
+      },
+      {
         path: 'admin', // 👈 Admin sayfası
         name: 'Admin',
         component: AdminView,
@@ -57,16 +62,6 @@ const routes: RouteRecordRaw[] = [
         return { name: 'Login' };
       }
     },
-  },
-  {
-    path: '/assignmentForm',
-    name: 'AssignmentForm',
-    component: AssignmentForm,
-  },
-  {
-    path: '/assignmentList',
-    name: 'AssignmentList',
-    component: AssignmentList,
   },
 ];
 

@@ -90,9 +90,6 @@ const submitAssignment = async () => {
       <label>Bitiş Tarihi:</label>
       <input v-model="form.dueDate" type="date" />
 
-      <label>Tamamlama Tarihi:</label>
-      <input v-model="form.completedAt" type="date" />
-
       <button type="submit">Görev Ekle</button>
     </form>
   </div>

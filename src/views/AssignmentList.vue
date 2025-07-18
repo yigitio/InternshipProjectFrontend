@@ -124,7 +124,7 @@ onMounted(() => {
 }
 h2 {
   margin-bottom: 1.5rem;
-  color: #ececec;
+  color: #242441;
 }
 table {
   width: 100%;
@@ -132,7 +132,7 @@ table {
   text-align: left;
 }
 thead {
-  background-color: #2c3e50;
+  background-color: #a15c2d;
   color: #ecf0f1;
 }
 th,
@@ -142,11 +142,11 @@ td {
   vertical-align: middle;
 }
 tbody tr {
-  background-color: #34495e;
+  background-color: #f58220;
   transition: background-color 0.2s ease-in-out;
 }
 tbody tr:hover {
-  background-color: #46627f;
+  background-color: #a15c2d;
 }
 .error-message,
 .empty-state {
@@ -159,7 +159,7 @@ tbody tr:hover {
 
 /* --- YENİ EKLENEN STİL --- */
 select {
-  background-color: #4a637a;
+  background-color: #242441;
   color: white;
   border: 1px solid #7f8c8d;
   padding: 8px;
