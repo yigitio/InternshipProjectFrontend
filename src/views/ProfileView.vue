@@ -9,7 +9,6 @@
         <p><strong>Üniversite:</strong> {{ intern.university }}</p>
         <p><strong>Bölüm:</strong> {{ intern.department }}</p>
         <p><strong>Mentor:</strong> {{ intern.mentorName }}</p>
-        <p><strong>Çalıştığı Departman:</strong> <em>(Yükleniyor...)</em></p>
       </div>
     </div>
   </div>
@@ -19,9 +18,12 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useMsal } from 'vue3-msal-plugin';
 
+// Vue Router kullanımı
 const router = useRouter();
 
+// Intern bilgileri
 const intern = ref({
   name: '',
   surname: '',
@@ -31,12 +33,15 @@ const intern = ref({
   mentorName: '',
 });
 
-const internId = localStorage.getItem('userId');
+// Azure üzerinden login olan kullanıcının email adresini al
+const { accounts } = useMsal();
+const email = accounts.value[0].username;
 
+// Sayfa yüklendiğinde backend'den intern bilgilerini çek
 onMounted(async () => {
   try {
     const res = await axios.get(
-      `http://localhost:8080/api/interns/${internId}`
+      `http://localhost:8080/api/interns/email/${email}`
     );
     intern.value = {
       name: res.data.name,
@@ -44,7 +49,7 @@ onMounted(async () => {
       email: res.data.email,
       university: res.data.university,
       department: res.data.department,
-      mentorName: res.data.mentorName || 'Mentor atanmamış',
+      mentorName: res.data.mentorName,
     };
   } catch (err) {
     console.error('Profil bilgisi alınamadı:', err);
