@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import { addAssignment, updateAssignment } from '@/utils/assignmentService';
+// addAssignment'ı service dosyanızdan aldığınızı varsayıyorum, bu doğru bir yaklaşım.
+import { addAssignment } from '@/utils/assignmentService';
 
 const interns = ref<{ id: number; name: string }[]>([]);
 const mentors = ref<{ id: number; name: string }[]>([]);
+
+// --- YENİ EKLENEN KISIM ---
+// Dropdown menüsünde gösterilecek öncelik seçenekleri
+const priorityOptions = ['Urgent', 'High', 'Medium', 'Normal'];
+// -------------------------
 
 // Form verileri
 const form = ref({
@@ -13,7 +19,7 @@ const form = ref({
   assignmentName: '',
   assignmentDesc: '',
   dueDate: '',
-  priority: '',
+  priority: 'Normal', // <-- Varsayılan bir değer atandı
   assignedAt: '',
   completedAt: '',
 });
@@ -36,6 +42,7 @@ onMounted(async () => {
 // Yeni görev ekle
 const submitAssignment = async () => {
   try {
+    // form.value artık seçilen priority bilgisini de içerecek
     await addAssignment(form.value);
     alert('Görev başarıyla eklendi!');
   } catch (err) {
@@ -50,7 +57,7 @@ const submitAssignment = async () => {
     <h2>Yeni Görev Ekle</h2>
     <form @submit.prevent="submitAssignment">
       <label>Stajyer:</label>
-      <select v-model="form.internId">
+      <select v-model="form.internId" required>
         <option value="">Seçiniz</option>
         <option v-for="intern in interns" :key="intern.id" :value="intern.id">
           {{ intern.name }}
@@ -58,7 +65,7 @@ const submitAssignment = async () => {
       </select>
 
       <label>Mentor:</label>
-      <select v-model="form.mentorId">
+      <select v-model="form.mentorId" required>
         <option value="">Seçiniz</option>
         <option v-for="mentor in mentors" :key="mentor.id" :value="mentor.id">
           {{ mentor.name }}
@@ -72,8 +79,11 @@ const submitAssignment = async () => {
       <textarea v-model="form.assignmentDesc"></textarea>
 
       <label>Öncelik:</label>
-      <input v-model="form.priority" type="text" />
-
+      <select v-model="form.priority">
+        <option v-for="option in priorityOptions" :key="option" :value="option">
+          {{ option }}
+        </option>
+      </select>
       <label>Başlama Tarihi:</label>
       <input v-model="form.assignedAt" type="date" />
 
@@ -94,5 +104,15 @@ form {
   flex-direction: column;
   gap: 0.7rem;
   max-width: 400px;
+}
+
+/* Tüm form elemanlarının benzer görünmesi için eklendi */
+input,
+select,
+textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 </style>

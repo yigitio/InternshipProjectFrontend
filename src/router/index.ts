@@ -9,6 +9,7 @@ import HomeView from '@/views/HomeView.vue';
 import { msalApp } from '@/main';
 import AssignmentForm from '@/views/AssignmentForm.vue';
 import ProfileView from '@/views/ProfileView.vue';
+import AssignmentList from '@/views/AssignmentList.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -42,6 +43,11 @@ const routes: RouteRecordRaw[] = [
     path: '/assignmentForm',
     name: 'AssignmentForm',
     component: AssignmentForm,
+  },
+  {
+    path: '/assignmentList',
+    name: 'AssignmentList',
+    component: AssignmentList,
   },
 ];
 

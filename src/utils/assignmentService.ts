@@ -26,9 +26,10 @@ export const addAssignment = async (assignment: Assignment): Promise<void> => {
 
 export const updateAssignment = async (
   id: number,
-  assignment: Assignment
+  assignmentUpdate: Partial<Assignment>
 ): Promise<void> => {
-  await axios.put(`${BASE_URL}/${id}`, assignment);
+  // Backend'e de sadece değişen kısmı gönderiyoruz
+  await axios.put(`${BASE_URL}/${id}`, assignmentUpdate);
 };
 
 export const deleteAssignment = async (id: number): Promise<void> => {

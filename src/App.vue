@@ -18,20 +18,6 @@ const routes = [
   // { path: "/mentor-tracking", component: MentorTracker },
   // { path: "/downloads", component: Downloads },
 ];
-
-// This runs after the component is ready
-onMounted(async () => {
-  try {
-    // Call your Java backend's endpoint
-    const response = await axios.get(
-      'http://localhost:8080/api/mentors/api/greeting'
-    );
-    backendMessage.value = response.data.message; // Update the variable
-  } catch (error) {
-    backendMessage.value = 'Failed to connect to backend.';
-    console.error(error);
-  }
-});
 </script>
 <template>
   <router-view />
