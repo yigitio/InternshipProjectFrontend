@@ -19,15 +19,18 @@
 import { useMsal } from 'vue3-msal-plugin';
 import { loginRequest } from '@/utils/authConfig';
 import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
 
 const { instance } = useMsal();
 const router = useRouter();
+const { handlePostLogin } = useAuth();
 
 async function login() {
   try {
     const resp = await instance.loginPopup(loginRequest);
     instance.setActiveAccount(resp.account);
     router.push({ name: 'Home' });
+    await handlePostLogin();
   } catch (e) {
     console.error('Login hatası:', e);
   }

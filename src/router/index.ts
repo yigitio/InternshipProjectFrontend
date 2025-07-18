@@ -4,16 +4,19 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
+import { msalApp } from '@/main';
+
 import LoginView from '@/views/LoginView.vue';
 import HomeView from '@/views/HomeView.vue';
-import { msalApp } from '@/main';
-import AssignmentForm from '@/views/AssignmentForm.vue';
 import ProfileView from '@/views/ProfileView.vue';
-import AssignmentList from '@/views/AssignmentList.vue';
 import ReportView from '@/views/ReportView.vue';
 import AdminView from '@/views/AdminView.vue'; // 👈 eklendi
 import MentorHomeView from '@/views/MentorHomeView.vue';
-
+import AssignmentForm from '@/views/AssignmentForm.vue';
+import AssignmentList from '@/views/AssignmentList.vue';
+import InternView from '@/views/InternView.vue';
+import MentorView from '@/views/MentorView.vue';
+import CreateAccount from '@/views/CreateAccount.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -74,7 +77,52 @@ const routes: RouteRecordRaw[] = [
           }
         },
       },
+
+      { path: 'profile', name: 'Profile', component: ProfileView },
+      { path: 'report', name: 'Report', component: ReportView },
     ],
+    beforeEnter: () => {
+      if (!msalApp.getActiveAccount()) {
+        return { name: 'Login' };
+      }
+    },
+  },
+  {
+    path: '/assignmentForm',
+    name: 'AssignmentForm',
+    component: AssignmentForm,
+    beforeEnter: () => {
+      if (!msalApp.getActiveAccount()) {
+        return { name: 'Login' };
+      }
+    },
+  },
+  {
+    path: '/assignmentList',
+    name: 'AssignmentList',
+    component: AssignmentList,
+    beforeEnter: () => {
+      if (!msalApp.getActiveAccount()) {
+        return { name: 'Login' };
+      }
+    },
+  },
+  // ====================================
+  // Kayıt form rotaları:
+  {
+    path: '/register/intern',
+    name: 'RegisterIntern',
+    component: InternView,
+    beforeEnter: () => {
+      if (!msalApp.getActiveAccount()) {
+        return { name: 'Login' };
+      }
+    },
+  },
+  {
+    path: '/register',
+    name: 'RegisterCreateAccount',
+    component: CreateAccount,
     beforeEnter: () => {
       if (!msalApp.getActiveAccount()) {
         return { name: 'Login' };
