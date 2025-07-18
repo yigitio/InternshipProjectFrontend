@@ -11,6 +11,8 @@ import AssignmentForm from '@/views/AssignmentForm.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
 import ReportView from '@/views/ReportView.vue';
+import AdminView from '@/views/AdminView.vue'; // 👈 eklendi
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -36,6 +38,18 @@ const routes: RouteRecordRaw[] = [
         path: '/report',
         name: 'Report',
         component: ReportView,
+      },
+      {
+        path: 'admin', // 👈 Admin sayfası
+        name: 'Admin',
+        component: AdminView,
+        beforeEnter: () => {
+          const account = msalApp.getActiveAccount();
+          const roleClaim = account?.idTokenClaims?.roles?.[0];
+          if (roleClaim !== '3') {
+            return { name: 'Home' };
+          }
+        },
       },
     ],
     beforeEnter: () => {
