@@ -145,7 +145,7 @@ async function deleteRelation(id: number) {
 .admin-card h1 {
   font-size: 26px;
   margin-bottom: 24px;
-  color: #ffc107;
+  color: #f58220;
 }
 
 .form-group {
@@ -167,7 +167,7 @@ select {
 }
 
 .assign-button {
-  background-color: #ffc107;
+  background-color: #f58220;
   color: #242441;
   border: none;
   padding: 10px 20px;
@@ -192,7 +192,7 @@ select {
   margin-bottom: 12px;
   font-size: 18px;
   font-weight: 600;
-  color: #ffc107;
+  color: #f58220;
 }
 
 .relation-list {
