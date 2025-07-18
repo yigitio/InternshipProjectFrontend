@@ -136,7 +136,7 @@ async function deleteRelation(id: number) {
   max-width: 700px;
   margin: auto;
   padding: 32px;
-  background-color: #f58220;
+  background-color: #242441;
   border-radius: 16px;
   color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
