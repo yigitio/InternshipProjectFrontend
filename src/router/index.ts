@@ -10,7 +10,7 @@ import { msalApp } from '@/main';
 import AssignmentForm from '@/views/AssignmentForm.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
-
+import ReportView from '@/views/ReportView.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -31,6 +31,11 @@ const routes: RouteRecordRaw[] = [
         path: 'profile',
         name: 'Profile',
         component: ProfileView,
+      },
+      {
+        path: '/report',
+        name: 'Report',
+        component: ReportView,
       },
     ],
     beforeEnter: () => {

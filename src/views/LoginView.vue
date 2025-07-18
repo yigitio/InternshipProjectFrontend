@@ -3,13 +3,14 @@
     <div class="login-card">
       <img src="@/assets/etiya-logo.png" alt="Etiya" class="etiya-logo" />
       <img
-        src="@/assets/lighthouse.png"
+        src="@/assets/lighthouse-logo.png"
         alt="Lighthouse"
         class="lighthouse-img"
       />
       <h1>Lantern'a Hoşgeldiniz!</h1>
       <p class="subtitle"></p>
       <button class="login-button" @click="login">GİRİŞ YAP</button>
+      <div class="app-version">v1.0.0</div>
     </div>
   </div>
 </template>
@@ -44,7 +45,7 @@ async function login() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #3e0067, #8c0d78);
+  background: linear-gradient(135deg, #201b51, #242441);
 }
 
 /* 2. Kart kutusu */
@@ -89,13 +90,21 @@ h1 {
   padding: 12px;
   font-size: 16px;
   color: white;
-  background-color: #4c007d;
+  background-color: #242441;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 .login-button:hover {
-  background-color: #37005a;
+  background-color: #242441;
+}
+
+.app-version {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  letter-spacing: 1px;
 }
 </style>
