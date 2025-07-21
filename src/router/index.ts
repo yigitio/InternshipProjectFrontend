@@ -56,7 +56,7 @@ const routes: RouteRecordRaw[] = [
           !msalApp.getActiveAccount() ? { name: 'Login' } : true,
       },
       {
-        path: 'assignmentlist',
+        path: '/assignmentlist',
         name: 'AssignmentList',
         component: AssignmentList,
         beforeEnter: () =>
