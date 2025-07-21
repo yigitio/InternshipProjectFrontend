@@ -13,6 +13,9 @@ import HomeView from '@/views/HomeView.vue';
 import InternView from '@/views/InternView.vue';
 import CreateAccount from '@/views/CreateAccount.vue';
 import AdminView from '@/views/AdminView.vue';
+import ReportView from '@/views/ReportView.vue';
+import ProfileView from '@/views/ProfileView.vue';
+import AssignmentList from '@/views/AssignmentList.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -37,6 +40,27 @@ const routes: RouteRecordRaw[] = [
           if (!roles.includes('3')) return { name: 'Home' };
           return true;
         },
+      },
+      {
+        path: '/report',
+        name: 'Report',
+        component: ReportView,
+        beforeEnter: () =>
+          !msalApp.getActiveAccount() ? { name: 'Login' } : true,
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+        beforeEnter: () =>
+          !msalApp.getActiveAccount() ? { name: 'Login' } : true,
+      },
+      {
+        path: 'assignmentlist',
+        name: 'AssignmentList',
+        component: AssignmentList,
+        beforeEnter: () =>
+          !msalApp.getActiveAccount() ? { name: 'Login' } : true,
       },
     ],
   },
