@@ -12,6 +12,7 @@ import LoginView from '@/views/LoginView.vue';
 import HomeView from '@/views/HomeView.vue';
 import InternView from '@/views/InternView.vue';
 import CreateAccount from '@/views/CreateAccount.vue';
+import AdminView from '@/views/AdminView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -20,7 +21,20 @@ const routes: RouteRecordRaw[] = [
       msalApp.getActiveAccount() ? { name: 'Home' } : { name: 'Login' },
   },
   { path: '/login', name: 'Login', component: LoginView },
-  { path: '/home', name: 'Home', component: HomeView },
+  {
+    path: '/home',
+    name: 'Home',
+    component: HomeView,
+    children: [
+      {
+        path: 'admin',
+        name: 'Admin',
+        component: AdminView,
+        beforeEnter: () =>
+          !msalApp.getActiveAccount() ? { name: 'Login' } : true,
+      },
+    ],
+  },
   {
     path: '/register',
     name: 'Register',
@@ -33,7 +47,7 @@ const routes: RouteRecordRaw[] = [
       try {
         title = (await fetchJobTitle()).toLowerCase();
         console.log("KULLANICININ TITLE'I:", title);
-        title = 'mentor';
+        //title = 'mentor';
       } catch (e) {
         console.error('JobTitle alınamadı:', e);
         return { name: 'Home' };
