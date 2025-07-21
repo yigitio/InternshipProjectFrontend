@@ -1,89 +1,62 @@
-// src/router/index.ts
 import {
   createRouter,
   createWebHistory,
+  RouterView,
   type RouteRecordRaw,
 } from 'vue-router';
 import { msalApp } from '@/main';
+import api from '@/utils/apiClients';
+import { fetchJobTitle } from '@/utils/graphClient';
 
 import LoginView from '@/views/LoginView.vue';
 import HomeView from '@/views/HomeView.vue';
-import ProfileView from '@/views/ProfileView.vue';
-import ReportView from '@/views/ReportView.vue';
-import AdminView from '@/views/AdminView.vue'; // 👈 eklendi
-import MentorHomeView from '@/views/MentorHomeView.vue';
-import AssignmentForm from '@/views/AssignmentForm.vue';
-import AssignmentList from '@/views/AssignmentList.vue';
 import InternView from '@/views/InternView.vue';
-import MentorView from '@/views/MentorView.vue';
 import CreateAccount from '@/views/CreateAccount.vue';
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: () =>
       msalApp.getActiveAccount() ? { name: 'Home' } : { name: 'Login' },
   },
+  { path: '/login', name: 'Login', component: LoginView },
+  { path: '/home', name: 'Home', component: HomeView },
   {
-    path: '/login',
-    name: 'Login',
-    component: LoginView,
-  },
-  {
-    path: '/mentorhome',
-    name: 'MentorHome',
-    component: MentorHomeView,
-    children: [
-      {
-        path: 'profile',
-        name: 'Profile',
-        component: ProfileView,
-      },
-      {
-        path: '/assignmentForm',
-        name: 'AssignmentForm',
-        component: AssignmentForm,
-      },
-    ],
-  },
-  {
-    path: '/home',
-    name: 'Home',
-    component: HomeView,
-    children: [
-      {
-        path: 'profile',
-        name: 'Profile',
-        component: ProfileView,
-      },
-      {
-        path: '/report',
-        name: 'Report',
-        component: ReportView,
-      },
-      {
-        path: '/assignmentList',
-        name: 'AssignmentList',
-        component: AssignmentList,
-      },
-      {
-        path: 'admin', // 👈 Admin sayfası
-        name: 'Admin',
-        component: AdminView,
-        beforeEnter: () => {
-          const account = msalApp.getActiveAccount();
-          const roleClaim = account?.idTokenClaims?.roles?.[0];
-          if (roleClaim !== '3') {
-            return { name: 'Home' };
-          }
-        },
-      },
+    path: '/register',
+    name: 'Register',
+    component: RouterView,
+    async beforeEnter() {
+      const account = msalApp.getActiveAccount();
+      if (!account) return { name: 'Login' };
 
-      { path: 'profile', name: 'Profile', component: ProfileView },
-      { path: 'report', name: 'Report', component: ReportView },
-    ],
-    beforeEnter: () => {
-      if (!msalApp.getActiveAccount()) {
-        return { name: 'Login' };
+      let title = '';
+      try {
+        title = (await fetchJobTitle()).toLowerCase();
+        console.log("KULLANICININ TITLE'I:", title);
+        title = 'mentor';
+      } catch (e) {
+        console.error('JobTitle alınamadı:', e);
+        return { name: 'Home' };
+      }
+
+      const email = account.username;
+      // Eğer title içinde intern varsa
+      if (title.includes('intern')) {
+        // Bu kişi stajyer
+        const { data: exists } = await api.get<boolean>('/interns/exists', {
+          params: { email },
+        });
+        return exists
+          ? { name: 'Home' }
+          : { name: 'RegisterIntern', query: { email } };
+      } else {
+        // Bu kişi stajyer DEĞİL, mentor adayı
+        const { data: exists } = await api.get<boolean>('/mentors/exists', {
+          params: { email },
+        });
+        return exists
+          ? { name: 'Home' }
+          : { name: 'NotIntern', query: { email } };
       }
     },
   },
@@ -91,21 +64,13 @@ const routes: RouteRecordRaw[] = [
     path: '/register/intern',
     name: 'RegisterIntern',
     component: InternView,
-    beforeEnter: () => {
-      if (!msalApp.getActiveAccount()) {
-        return { name: 'Login' };
-      }
-    },
+    beforeEnter: () => (!msalApp.getActiveAccount() ? { name: 'Login' } : true),
   },
   {
-    path: '/register',
-    name: 'RegisterCreateAccount',
+    path: '/register/not-intern',
+    name: 'NotIntern',
     component: CreateAccount,
-    beforeEnter: () => {
-      if (!msalApp.getActiveAccount()) {
-        return { name: 'Login' };
-      }
-    },
+    beforeEnter: () => (!msalApp.getActiveAccount() ? { name: 'Login' } : true),
   },
 ];
 
@@ -115,14 +80,9 @@ const router = createRouter({
 });
 
 router.beforeEach(to => {
-  const isAuthenticated = !!msalApp.getActiveAccount();
-
-  if (to.name !== 'Login' && !isAuthenticated) {
-    return { name: 'Login' };
-  }
-  if (to.name === 'Login' && isAuthenticated) {
-    return { name: 'Home' };
-  }
+  const isAuth = !!msalApp.getActiveAccount();
+  if (to.name !== 'Login' && !isAuth) return { name: 'Login' };
+  if (to.name === 'Login' && isAuth) return { name: 'Home' };
 });
 
 export default router;

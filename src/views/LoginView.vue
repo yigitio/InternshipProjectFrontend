@@ -27,9 +27,13 @@ const { handlePostLogin } = useAuth();
 
 async function login() {
   try {
+    // MSAL popup ile giriş
     const resp = await instance.loginPopup(loginRequest);
+    // Aktif hesabı ayarla
     instance.setActiveAccount(resp.account);
-    router.push({ name: 'Home' });
+    // “/register” guard’ını tetikle (intern/mentor ayrımı yapılacak)
+    router.push({ name: 'Register' });
+    // Gerekli ek post-login işlemleri
     await handlePostLogin();
   } catch (e) {
     console.error('Login hatası:', e);
@@ -100,7 +104,7 @@ h1 {
   transition: background 0.3s ease;
 }
 .login-button:hover {
-  background-color: #242441;
+  background-color: #1e1e3f;
 }
 
 .app-version {
