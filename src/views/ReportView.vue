@@ -52,6 +52,12 @@ import AppSidebar from '@/components/AppSidebar.vue';
 </script>
 
 <style scoped>
+.home-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
 .home-content {
   display: flex;
   justify-content: center;
@@ -60,6 +66,8 @@ import AppSidebar from '@/components/AppSidebar.vue';
   min-height: 100vh;
   background: #f9f9f9;
   margin-left: 160px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .back-button:hover {
@@ -72,6 +80,7 @@ import AppSidebar from '@/components/AppSidebar.vue';
   border-radius: 12px;
   padding: 32px;
   max-width: 800px;
+  width: 100%;
   margin: 0 auto;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
@@ -88,6 +97,7 @@ import AppSidebar from '@/components/AppSidebar.vue';
   margin-bottom: 1rem;
   line-height: 1.6;
   color: #444;
+  font-size: 1.05rem;
 }
 
 /* Liste */
@@ -100,6 +110,7 @@ import AppSidebar from '@/components/AppSidebar.vue';
   margin-bottom: 0.75rem;
   font-size: 1rem;
   display: flex;
+  flex-wrap: wrap;
 }
 .report-list .label {
   min-width: 140px;
@@ -108,13 +119,56 @@ import AppSidebar from '@/components/AppSidebar.vue';
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .home-content {
     margin-left: 0;
     padding: 16px;
   }
   .card {
     padding: 24px 16px;
+    max-width: 95vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-layout {
+    flex-direction: column;
+  }
+  .home-content {
+    margin-left: 0;
+    padding: 12px;
+    min-height: auto;
+  }
+  .card {
+    padding: 16px 8px;
+    max-width: 100vw;
+  }
+  .card-title {
+    font-size: 1.3rem;
+  }
+  .card-body p {
+    font-size: 0.98rem;
+  }
+  .report-list .label {
+    min-width: 100px;
+    font-size: 0.98rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 8px 2px;
+    border-radius: 6px;
+  }
+  .card-title {
+    font-size: 1.1rem;
+  }
+  .report-list .label {
+    min-width: 80px;
+    font-size: 0.92rem;
+  }
+  .report-list li {
+    font-size: 0.92rem;
   }
 }
 </style>

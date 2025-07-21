@@ -1,5 +1,11 @@
 <template>
   <div class="admin-container">
+    <AppNotification
+      :message="notificationMessage"
+      :type="notificationType"
+      :show="notificationShow"
+      :duration="2200"
+    />
     <div class="admin-card">
       <h1>👑 Admin Paneli</h1>
       <p>Mentor ve Stajyer Eşleştirme Ekranı</p>
@@ -7,13 +13,9 @@
       <!-- Eşleştirme Formu -->
       <div class="form-group">
         <label>Mentor:</label>
-        <select v-model="selectedMentor">
+        <select v-model.number="selectedMentor">
           <option value="">Tümü</option>
-          <option
-            v-for="mentor in mentors"
-            :key="mentor.mentor_id"
-            :value="mentor.mentor_id"
-          >
+          <option v-for="mentor in mentors" :key="mentor.id" :value="mentor.id">
             {{ mentor.name }} {{ mentor.surname }}
           </option>
         </select>
@@ -21,13 +23,9 @@
 
       <div class="form-group">
         <label>Stajyer:</label>
-        <select v-model="selectedIntern">
+        <select v-model.number="selectedIntern">
           <option value="">Tümü</option>
-          <option
-            v-for="intern in interns"
-            :key="intern.intern_id"
-            :value="intern.intern_id"
-          >
+          <option v-for="intern in interns" :key="intern.id" :value="intern.id">
             {{ intern.name }} {{ intern.surname }}
           </option>
         </select>
@@ -49,11 +47,14 @@
       <ul class="relation-list">
         <li
           v-for="rel in filteredRelations"
-          :key="rel.id"
+          :key="rel.relation_id"
           class="relation-item"
         >
-          {{ rel.mentorName }} ↔ {{ rel.internName }}
-          <button class="delete-button" @click="deleteRelation(rel.id)">
+          {{ rel.mentor_name }} ↔ {{ rel.intern_name }}
+          <button
+            class="delete-button"
+            @click="deleteRelation(rel.relation_id)"
+          >
             Sil
           </button>
         </li>
@@ -65,13 +66,31 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import AppNotification from '@/components/AppNotification.vue';
 
 const mentors = ref<any[]>([]);
 const interns = ref<any[]>([]);
 const relations = ref<any[]>([]);
 
-const selectedMentor = ref('');
-const selectedIntern = ref('');
+const selectedMentor = ref<number | ''>('');
+const selectedIntern = ref<number | ''>('');
+
+// Notification state
+const notificationMessage = ref('');
+const notificationType = ref<'success' | 'error' | 'info'>('info');
+const notificationShow = ref(false);
+function showNotification(
+  message: string,
+  type: 'success' | 'error' | 'info' = 'info'
+) {
+  notificationShow.value = false; // Reset to allow retrigger
+  notificationMessage.value = message;
+  notificationType.value = type;
+  // Use nextTick to ensure the DOM updates before showing again
+  setTimeout(() => {
+    notificationShow.value = true;
+  }, 10);
+}
 
 const filteredRelations = computed(() => {
   return relations.value.filter(rel => {
@@ -80,6 +99,22 @@ const filteredRelations = computed(() => {
     const internMatch =
       selectedIntern.value === '' || rel.internId === selectedIntern.value;
     return mentorMatch && internMatch;
+  });
+});
+
+const enrichedRelations = computed(() => {
+  return relations.value.map(rel => {
+    const mentor = mentors.value.find(
+      m => String(m.id) === String(rel.mentor_id)
+    );
+    const intern = interns.value.find(
+      i => String(i.id) === String(rel.intern_id)
+    );
+    return {
+      ...rel,
+      mentorName: mentor ? `${mentor.name} ${mentor.surname}` : '❓',
+      internName: intern ? `${intern.name} ${intern.surname}` : '❓',
+    };
   });
 });
 
@@ -94,32 +129,41 @@ onMounted(async () => {
     interns.value = internRes.data;
     relations.value = relationRes.data;
   } catch (err) {
+    showNotification('Veriler alınamadı', 'error');
     console.error('Veriler alınamadı:', err);
   }
 });
 
+async function fetchRelations() {
+  const relationRes = await axios.get('http://localhost:8085/api/relations');
+  relations.value = relationRes.data;
+}
+
 async function assignMentor() {
   if (!selectedMentor.value || !selectedIntern.value) return;
   try {
-    const res = await axios.post('http://localhost:8085/api/relations', {
+    await axios.post('http://localhost:8085/api/relations', {
       mentorId: selectedMentor.value,
       internId: selectedIntern.value,
     });
-    alert('Eşleştirme başarıyla yapıldı!');
-    relations.value.push(res.data);
+    showNotification('Eşleştirme başarıyla yapıldı!', 'success');
+    await fetchRelations(); // Always reload from backend
     selectedMentor.value = '';
     selectedIntern.value = '';
   } catch (e) {
-    alert('Eşleştirme sırasında hata oluştu.');
+    showNotification('Eşleştirme sırasında hata oluştu.', 'error');
   }
 }
 
 async function deleteRelation(id: number) {
   try {
     await axios.delete(`http://localhost:8085/api/relations/${id}`);
-    relations.value = relations.value.filter(rel => rel.id !== id);
+    relations.value = relations.value.filter(rel => rel.relation_id !== id);
+    showNotification('Silme başarılı.', 'success');
+    // Or, for always up-to-date data:
+    // await fetchRelations();
   } catch (e) {
-    alert('Silme başarısız.');
+    showNotification('Silme başarısız.', 'error');
   }
 }
 </script>
@@ -199,7 +243,6 @@ select {
   list-style: none;
   padding: 0;
 }
-
 .relation-item {
   display: flex;
   justify-content: space-between;
@@ -208,20 +251,32 @@ select {
   padding: 10px 16px;
   margin-bottom: 10px;
   border-radius: 8px;
+  border-left: 6px solid #f58220;
+  box-shadow: 0 2px 8px rgba(245, 130, 32, 0.08);
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
-
+.relation-item:hover {
+  box-shadow: 0 4px 16px rgba(245, 130, 32, 0.18);
+  border-left: 8px solid #f58220;
+}
+.relation-item span,
+.relation-item strong {
+  color: #f58220;
+}
 .delete-button {
   background-color: #e53935;
   color: white;
-  border: none;
+  border: 2px solid #f58220;
   padding: 6px 12px;
   font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s;
+  font-weight: bold;
 }
-
 .delete-button:hover {
-  background-color: #c62828;
+  background-color: #f58220;
+  color: #242441;
+  border-color: #e53935;
 }
 </style>
