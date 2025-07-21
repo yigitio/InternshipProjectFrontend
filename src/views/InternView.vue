@@ -7,15 +7,11 @@
       <form @submit.prevent="onSubmit">
         <div class="field">
           <label>Ad:</label>
-          <input v-model="form.name" required placeholder="Adınızı giriniz" />
+          <input v-model="form.name" readonly />
         </div>
         <div class="field">
           <label>Soyad:</label>
-          <input
-            v-model="form.surname"
-            required
-            placeholder="Soyadınızı giriniz"
-          />
+          <input v-model="form.surname" readonly />
         </div>
         <div class="field">
           <label>Üniversite:</label>
@@ -34,6 +30,24 @@
           />
         </div>
         <div class="field">
+          <label>Staj Başlangıç Tarihi:</label>
+          <input
+            v-model="form.internshipStart"
+            type="date"
+            required
+            :max="form.internshipEnd || undefined"
+          />
+        </div>
+        <div class="field">
+          <label>Staj Bitiş Tarihi:</label>
+          <input
+            v-model="form.internshipEnd"
+            type="date"
+            required
+            :min="form.internshipStart || undefined"
+          />
+        </div>
+        <div class="field">
           <label>Email:</label>
           <input v-model="form.email" type="email" readonly />
         </div>
@@ -43,7 +57,9 @@
             v-model="form.phone"
             type="tel"
             required
+            maxlength="14"
             placeholder="05xx xxx xx xx"
+            @input="formatPhone"
           />
         </div>
         <button type="submit">Kaydı Tamamla</button>
@@ -65,18 +81,59 @@ const form = reactive({
   surname: '',
   university: '',
   department: '',
+  internshipStart: '',
+  internshipEnd: '',
   email: '',
   phone: '',
 });
 
+// Azure'dan ad ve soyad otomatik, readonly olacak şekilde ayarlanıyor
 onMounted(() => {
   const account = instance.getActiveAccount();
   if (account) {
+    const displayName = account.name || '';
+    const cleanedDisplayName = displayName.split('(')[0].trim();
+    const nameParts = cleanedDisplayName.split(' ').filter(Boolean);
+
+    if (nameParts.length === 1) {
+      form.name = nameParts[0];
+      form.surname = nameParts[0];
+    } else if (nameParts.length === 2) {
+      form.name = nameParts[0];
+      form.surname = nameParts[1];
+    } else {
+      form.name = nameParts.slice(0, -1).join(' ');
+      form.surname = nameParts[nameParts.length - 1];
+    }
     form.email = account.username;
   }
 });
+function formatPhone(e: Event) {
+  let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
+
+  // Her zaman 05 ile başlasın
+  if (!value.startsWith('05')) {
+    value = '05' + value.replace(/^0*/, '');
+  }
+  value = value.slice(0, 11); // 11 rakamdan fazlasını alma
+
+  // Format: 0511 111 11 11
+  let formatted = value;
+  if (value.length > 4) formatted = value.slice(0, 4) + ' ' + value.slice(4, 7);
+  if (value.length > 7) formatted += ' ' + value.slice(7, 9);
+  if (value.length > 9) formatted += ' ' + value.slice(9, 11);
+
+  // Sadece boşluklardan dolayı fazlalık olmaması için
+  form.phone = formatted.trim();
+}
 
 async function onSubmit() {
+  // Son kontrol: Telefon 05 ile başlasın ve 11 rakam olsun
+  const rawPhone = form.phone.replace(/\D/g, '');
+  if (!/^05\d{9}$/.test(rawPhone)) {
+    alert('Telefon numarası 05 ile başlamalı ve 11 rakam olmalı!');
+    return;
+  }
   const account = instance.getActiveAccount();
   if (!account) return router.replace({ name: 'Login' });
 
@@ -86,8 +143,10 @@ async function onSubmit() {
       surname: form.surname,
       university: form.university,
       department: form.department,
+      internshipStart: form.internshipStart,
+      internshipEnd: form.internshipEnd,
       email: form.email,
-      phoneNumber: form.phone, // <-- BE, DTO'daki alan ile uyumlu olmalı!
+      phoneNumber: rawPhone,
       role: 'Intern',
     });
     alert('Stajyer kaydın başarıyla alındı!');
@@ -100,7 +159,7 @@ async function onSubmit() {
 </script>
 
 <style scoped>
-/* MentorView ile aynı CSS'yi kullanabilirsin */
+/* Senin CSS'in aynen duruyor */
 .register-bg {
   min-height: 100vh;
   display: flex;

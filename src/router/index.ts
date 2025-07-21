@@ -95,7 +95,7 @@ const routes: RouteRecordRaw[] = [
       try {
         title = (await fetchJobTitle()).toLowerCase();
         console.log("KULLANICININ TITLE'I:", title);
-        title = 'mentor'; // DEBUG amaçlı sabitlemiştin, gerekirse sil
+        //title = 'mentor'; // DEBUG amaçlı sabitlemiştin, gerekirse sil
       } catch (e) {
         console.error('JobTitle alınamadı:', e);
         return { name: 'Home' };
