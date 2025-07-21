@@ -30,8 +30,13 @@ const routes: RouteRecordRaw[] = [
         path: 'admin',
         name: 'Admin',
         component: AdminView,
-        beforeEnter: () =>
-          !msalApp.getActiveAccount() ? { name: 'Login' } : true,
+        beforeEnter: () => {
+          const account = msalApp.getActiveAccount();
+          if (!account) return { name: 'Login' };
+          const roles = (account.idTokenClaims as any)?.roles || [];
+          if (!roles.includes('3')) return { name: 'Home' };
+          return true;
+        },
       },
     ],
   },
