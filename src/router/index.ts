@@ -95,7 +95,7 @@ const routes: RouteRecordRaw[] = [
       try {
         title = (await fetchJobTitle()).toLowerCase();
         console.log("KULLANICININ TITLE'I:", title);
-        //title = 'mentor';
+        title = 'mentor'; // DEBUG amaçlı sabitlemiştin, gerekirse sil
       } catch (e) {
         console.error('JobTitle alınamadı:', e);
         return { name: 'Home' };
@@ -116,9 +116,43 @@ const routes: RouteRecordRaw[] = [
         const { data: exists } = await api.get<boolean>('/mentors/exists', {
           params: { email },
         });
-        return exists
-          ? { name: 'Home' }
-          : { name: 'NotIntern', query: { email } };
+        if (exists) {
+          return { name: 'MentorHome' };
+        } else {
+          // --- BURADAN İTİBAREN EKLEDİĞİMİZ OTO KAYIT KODU ---
+          try {
+            const displayName = account.name || '';
+            const cleanedDisplayName = displayName.split('(')[0].trim();
+            const nameParts = cleanedDisplayName.split(' ').filter(Boolean);
+            let firstNames = '';
+            let lastName = '';
+            if (nameParts.length === 1) {
+              // Tek kelimeyse hem ad hem soyad aynı
+              firstNames = nameParts[0];
+              lastName = nameParts[0];
+            } else if (nameParts.length === 2) {
+              // İki kelimeyse ilki ad, ikincisi soyad
+              firstNames = nameParts[0];
+              lastName = nameParts[1];
+            } else {
+              // Üç veya daha fazla kelimeyse, son kelime soyad
+              lastName = nameParts[nameParts.length - 1];
+              firstNames = nameParts.slice(0, -1).join(' ');
+            }
+            await api.post('/mentors', {
+              name: firstNames,
+              surname: lastName,
+              email: email,
+              phoneNumber: '', // Azure'dan alınamıyor, boş gönderiyoruz
+            });
+            console.log('Mentor otomatik olarak kaydedildi:', email);
+          } catch (err) {
+            console.error('Mentor otomatik kaydı başarısız:', err);
+            // İstersen kullanıcıya uyarı gösterebilirsin
+          }
+          // Kayıttan sonra mentorhome'a yönlendir!
+          return { name: 'MentorHome' };
+        }
       }
     },
   },
