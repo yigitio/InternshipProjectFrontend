@@ -1,15 +1,49 @@
+<template>
+  <div class="home-layout">
+    <AppSidebar />
+
+    <div class="home-content">
+      <!-- SAĞ ÜST PROFİL ALANI -->
+      <div
+        class="profile-container"
+        @mouseenter="showMenu = true"
+        @mouseleave="showMenu = false"
+      >
+        <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
+        <div v-if="showMenu" class="dropdown-menu">
+          <router-link to="/home/profile">👤 Profil</router-link>
+          <router-link v-if="isAdmin" to="/home/admin">👑 Admin</router-link>
+          <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
+        </div>
+      </div>
+
+      <!-- SAYFA İÇERİĞİ -->
+      <div class="main-view">
+        <router-view v-slot="{ Component }">
+          <div v-if="Component">
+            <component :is="Component" />
+          </div>
+          <div v-else class="dashboard-wrapper">
+            <Dashboard />
+          </div>
+        </router-view>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { msalApp } from '@/main';
 import AppSidebar from '@/components/AppSidebar.vue';
 import type { AccountInfo } from '@azure/msal-browser';
-import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
+import Dashboard from '@/views/InternDashboard.vue';
 
 const router = useRouter();
+const route = useRoute();
 const showMenu = ref(false);
 const isMsalReady = ref(false);
-
 const account = ref<AccountInfo | null>(null);
 
 onMounted(() => {
@@ -33,11 +67,8 @@ async function handleLogout() {
 
   try {
     await msalApp.logoutPopup();
-
-    // Çıkış sonrası local state sıfırlanmalı
     account.value = null;
     isMsalReady.value = false;
-
     router.push({ name: 'Login' });
   } catch (error) {
     console.error('Logout error:', error);
@@ -46,51 +77,30 @@ async function handleLogout() {
 }
 </script>
 
-<template>
-  <div class="home-layout">
-    <AppSidebar />
-
-    <div class="home-content">
-      <!-- SAĞ ÜST DAİRE PROFİL FOTOĞRAFI -->
-      <div
-        class="profile-container"
-        @mouseenter="showMenu = true"
-        @mouseleave="showMenu = false"
-      >
-        <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
-        <div v-if="showMenu" class="dropdown-menu">
-          <router-link to="/home/profile">👤 Profil</router-link>
-          <router-link v-if="isAdmin" to="/home/admin">👑 Admin</router-link>
-          <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
-        </div>
-      </div>
-
-      <!-- Sayfa içeriği -->
-      <div class="main-view">
-        <router-view />
-      </div>
-    </div>
-  </div>
-</template>
-
 <style scoped>
 .home-layout {
   display: flex;
 }
 
-/* Sidebar sonrası içerik */
 .home-content {
   flex-grow: 1;
   margin-left: 220px;
   position: relative;
   min-height: 100vh;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 0px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-/* SAĞ ÜST PROFİL ALANI */
 .profile-container {
-  position: absolute;
+  position: fixed;
   top: 12px;
   right: 16px;
+  z-index: 1000;
 }
 
 .profile-img {
@@ -98,7 +108,7 @@ async function handleLogout() {
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #1abc9c;
+  border: 2px solid #242441;
   cursor: pointer;
 }
 
@@ -130,5 +140,13 @@ async function handleLogout() {
 
 .main-view {
   padding: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.dashboard-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 </style>

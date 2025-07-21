@@ -60,47 +60,39 @@ import AppSidebar from '@/components/AppSidebar.vue';
 
 .home-content {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start; /* sola hizalama */
+  align-items: flex-start; /* yukarı hizalama */
   padding: 24px;
-  min-height: 100vh;
-  background: #f9f9f9;
   margin-left: 160px;
   width: 100%;
   box-sizing: border-box;
+  background: white; /* Gri arka planı kaldırdık */
 }
 
-.back-button:hover {
-  background: #f0f0f0;
-}
-
-/* Kart stili */
 .card {
   background: #ffffff;
   border-radius: 12px;
-  padding: 32px;
-  max-width: 800px;
+  padding: 24px;
+  max-width: 600px; /* Daha küçük pencere */
   width: 100%;
-  margin: 0 auto;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  margin-top: 24px;
+  margin-left: 0; /* sola yaslı */
 }
 
-/* Başlık */
 .card-title {
-  font-size: 1.8rem;
-  margin-bottom: 24px;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
   color: #222;
 }
 
-/* Metin paragrafları */
 .card-body p {
   margin-bottom: 1rem;
   line-height: 1.6;
   color: #444;
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
-/* Liste */
 .report-list {
   list-style: none;
   padding: 0;
@@ -108,67 +100,37 @@ import AppSidebar from '@/components/AppSidebar.vue';
 }
 .report-list li {
   margin-bottom: 0.75rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: flex;
   flex-wrap: wrap;
 }
 .report-list .label {
-  min-width: 140px;
+  min-width: 130px;
   font-weight: 600;
   color: #000;
 }
 
-/* Responsive */
+/* Mobil uyum */
 @media (max-width: 1024px) {
   .home-content {
     margin-left: 0;
     padding: 16px;
   }
   .card {
-    padding: 24px 16px;
+    padding: 20px;
     max-width: 95vw;
   }
 }
-
 @media (max-width: 768px) {
   .home-layout {
     flex-direction: column;
   }
   .home-content {
-    margin-left: 0;
     padding: 12px;
-    min-height: auto;
   }
   .card {
-    padding: 16px 8px;
-    max-width: 100vw;
-  }
-  .card-title {
-    font-size: 1.3rem;
-  }
-  .card-body p {
-    font-size: 0.98rem;
-  }
-  .report-list .label {
-    min-width: 100px;
-    font-size: 0.98rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
-    padding: 8px 2px;
-    border-radius: 6px;
-  }
-  .card-title {
-    font-size: 1.1rem;
-  }
-  .report-list .label {
-    min-width: 80px;
-    font-size: 0.92rem;
-  }
-  .report-list li {
-    font-size: 0.92rem;
+    padding: 16px;
+    max-width: 100%;
   }
 }
 </style>
