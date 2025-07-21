@@ -16,6 +16,8 @@ import AdminView from '@/views/AdminView.vue';
 import ReportView from '@/views/ReportView.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
+import MentorHomeView from '@/views/MentorHomeView.vue';
+import AssignmentForm from '@/views/AssignmentForm.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -24,6 +26,23 @@ const routes: RouteRecordRaw[] = [
       msalApp.getActiveAccount() ? { name: 'Home' } : { name: 'Login' },
   },
   { path: '/login', name: 'Login', component: LoginView },
+  {
+    path: '/mentorhome',
+    name: 'MentorHome',
+    component: MentorHomeView,
+    children: [
+      {
+        path: 'profile',
+        name: 'MentorProfile',
+        component: ProfileView,
+      },
+      {
+        path: '/assignmentform',
+        name: 'AssignmentForm',
+        component: AssignmentForm,
+      },
+    ],
+  },
   {
     path: '/home',
     name: 'Home',
