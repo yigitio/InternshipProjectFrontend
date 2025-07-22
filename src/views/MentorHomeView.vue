@@ -12,6 +12,7 @@
         <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
         <div v-if="showMenu" class="dropdown-menu">
           <router-link to="/mentorhome/mentorprofile">👤 Profil</router-link>
+          <router-link to="/mentorhome/admin">⚙️ Admin Paneli</router-link>
           <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
         </div>
       </div>

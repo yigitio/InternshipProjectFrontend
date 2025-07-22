@@ -38,6 +38,18 @@ const routes: RouteRecordRaw[] = [
         component: MentorProfileView,
       },
       {
+        path: 'admin',
+        name: 'Admin',
+        component: AdminView,
+        beforeEnter: () => {
+          const account = msalApp.getActiveAccount();
+          if (!account) return { name: 'Login' };
+          const roles = (account.idTokenClaims as any)?.roles || [];
+          if (!roles.includes('3')) return { name: 'MentorHome' };
+          return true;
+        },
+      },
+      {
         path: '/assignmentform',
         name: 'AssignmentForm',
         component: AssignmentForm,
@@ -49,18 +61,6 @@ const routes: RouteRecordRaw[] = [
     name: 'Home',
     component: HomeView,
     children: [
-      {
-        path: 'admin',
-        name: 'Admin',
-        component: AdminView,
-        beforeEnter: () => {
-          const account = msalApp.getActiveAccount();
-          if (!account) return { name: 'Login' };
-          const roles = (account.idTokenClaims as any)?.roles || [];
-          if (!roles.includes('3')) return { name: 'Home' };
-          return true;
-        },
-      },
       {
         path: '/report',
         name: 'Report',

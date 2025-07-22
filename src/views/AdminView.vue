@@ -7,7 +7,7 @@
       :duration="2200"
     />
     <div class="admin-card">
-      <h1>👑 Admin Paneli</h1>
+      <h1>⚙️ Admin Paneli</h1>
       <p>Mentor ve Stajyer Eşleştirme Ekranı</p>
 
       <!-- Eşleştirme Formu -->

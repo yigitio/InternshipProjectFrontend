@@ -12,7 +12,6 @@
         <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
         <div v-if="showMenu" class="dropdown-menu">
           <router-link to="/home/profile">👤 Profil</router-link>
-          <router-link v-if="isAdmin" to="/home/admin">👑 Admin</router-link>
           <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
         </div>
       </div>
