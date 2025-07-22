@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 // addAssignment'ı service dosyanızdan aldığınızı varsayıyorum, bu doğru bir yaklaşım.
 import { addAssignment } from '@/utils/assignmentService';
-
+import { useMsal } from 'vue3-msal-plugin';
 const interns = ref<{ id: number; name: string }[]>([]);
-const mentors = ref<{ id: number; name: string }[]>([]);
+const currentMentor = ref<{ id: number; name: string } | null>(null);
+const router = useRouter();
 
 // --- YENİ EKLENEN KISIM ---
 // Dropdown menüsünde gösterilecek öncelik seçenekleri
@@ -24,19 +26,38 @@ const form = ref({
   completedAt: '',
 });
 
+const { accounts } = useMsal();
+const email = accounts.value[0].username;
+
 // Sayfa yüklendiğinde intern ve mentorları çek
 onMounted(async () => {
-  const internRes = await axios.get('http://localhost:8080/api/interns');
-  interns.value = internRes.data.map((i: any) => ({
-    id: i.id,
-    name: i.name + ' ' + i.surname,
-  }));
+  try {
+    const mentorRes = await axios.get(
+      `http://localhost:8080/api/mentors/email/${email}`
+    );
+    const mentorData = mentorRes.data;
 
-  const mentorRes = await axios.get('http://localhost:8080/api/mentors');
-  mentors.value = mentorRes.data.map((m: any) => ({
-    id: m.id,
-    name: m.name + ' ' + m.surname,
-  }));
+    currentMentor.value = {
+      id: mentorData.id,
+      name: mentorData.name + ' ' + mentorData.surname,
+    };
+
+    // Formdaki mentorId'yi otomatik olarak o anki mentorun ID'si yap
+    form.value.mentorId = mentorData.id;
+
+    // 3. Adım: Mentor ID'sini kullanarak sadece o mentora bağlı stajyerleri çek.
+    if (mentorData.id) {
+      const internRes = await axios.get(
+        `http://localhost:8080/api/interns/${mentorData.id}/interns`
+      );
+      interns.value = internRes.data.map((i: any) => ({
+        id: i.id,
+        name: i.name + ' ' + i.surname,
+      }));
+    }
+  } catch (error) {
+    console.error('Veri çekilirken bir hata oluştu:', error);
+  }
 });
 
 // Yeni görev ekle
@@ -67,8 +88,8 @@ const submitAssignment = async () => {
       <label>Mentor:</label>
       <select v-model="form.mentorId" required>
         <option value="">Seçiniz</option>
-        <option v-for="mentor in mentors" :key="mentor.id" :value="mentor.id">
-          {{ mentor.name }}
+        <option :value="currentMentor?.id">
+          {{ currentMentor?.name }}
         </option>
       </select>
 
