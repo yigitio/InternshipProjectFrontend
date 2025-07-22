@@ -1,3 +1,4 @@
+homeview
 <template>
   <div class="home-layout">
     <AppSidebar />
@@ -79,6 +80,8 @@ async function handleLogout() {
 <style scoped>
 .home-layout {
   display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .home-content {

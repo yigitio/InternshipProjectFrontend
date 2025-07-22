@@ -21,7 +21,7 @@
 
       <!-- Sayfa içeriği -->
       <div class="main-view">
-        <router-view />
+        <MentorDashboard />
       </div>
     </div>
   </div>
@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
+import MentorDashboard from '@/views/MentorDashboard.vue';
 import { ref, computed } from 'vue';
 import { msalApp } from '@/main';
 const showMenu = ref(false);
