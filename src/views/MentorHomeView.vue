@@ -12,7 +12,9 @@
         <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
         <div v-if="showMenu" class="dropdown-menu">
           <router-link to="/mentorhome/mentorprofile">👤 Profil</router-link>
-          <router-link to="/mentorhome/admin">⚙️ Admin Paneli</router-link>
+          <router-link v-if="isAdmin" to="/mentorhome/admin"
+            >⚙️ Admin Paneli</router-link
+          >
           <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
         </div>
       </div>
@@ -28,23 +30,17 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
-import { msalInstance } from '@/plugins/msal';
-import { ref } from 'vue';
-
+import { ref, computed } from 'vue';
+import { msalApp } from '@/main';
 const showMenu = ref(false);
 
-const router = useRouter();
+const account = msalApp.getActiveAccount();
+const roles = ((account?.idTokenClaims as any)?.roles as string[]) || [];
+const isAdmin = computed(() => roles.includes('3')); // '3' admin rolü ise
 
 function handleLogout() {
-  // 1) MSAL’in belleğindeki aktif hesabı temizle
-  msalInstance.setActiveAccount(null);
-
-  // 2) Local/session storage’daki tüm oturum verilerini sil
-  localStorage.clear();
-  sessionStorage.clear();
-
-  // 3) Login sayfasına yönlendir
-  router.push({ name: 'Login' });
+  // Logout işlemini burada yönetiyorsan aynen bırak
+  msalApp.logout();
 }
 </script>
 
