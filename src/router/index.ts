@@ -33,7 +33,7 @@ const routes: RouteRecordRaw[] = [
     component: MentorHomeView,
     children: [
       {
-        path: '/mentorprofile',
+        path: 'mentorprofile',
         name: 'MentorProfile',
         component: MentorProfileView,
       },
