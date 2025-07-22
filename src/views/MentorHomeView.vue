@@ -3,7 +3,7 @@
     <MentorAppSidebar />
 
     <div class="home-content">
-      <!-- SAĞ ÜST DAİRE PROFİL FOTOĞRAFI -->
+      <!-- SAĞ ÜST PROFİL FOTOĞRAFI -->
       <div
         class="profile-container"
         @mouseenter="showMenu = true"
@@ -21,26 +21,47 @@
 
       <!-- Sayfa içeriği -->
       <div class="main-view">
-        <MentorDashboard />
+        <router-view v-slot="{ Component }">
+          <div v-if="Component">
+            <component :is="Component" />
+          </div>
+          <div v-else class="dashboard-wrapper">
+            <MentorDashboard />
+          </div>
+        </router-view>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { msalApp } from '@/main';
+import type { AccountInfo } from '@azure/msal-browser';
+
 import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
 import MentorDashboard from '@/views/MentorDashboard.vue';
-import { ref, computed } from 'vue';
-import { msalApp } from '@/main';
-const showMenu = ref(false);
 
-const account = msalApp.getActiveAccount();
-const roles = ((account?.idTokenClaims as any)?.roles as string[]) || [];
-const isAdmin = computed(() => roles.includes('3')); // '3' admin rolü ise
+const router = useRouter();
+const showMenu = ref(false);
+const account = ref<AccountInfo | null>(null);
+const isMsalReady = ref(false);
+
+onMounted(() => {
+  const active = msalApp.getActiveAccount();
+  if (active) {
+    account.value = active;
+    isMsalReady.value = true;
+  }
+});
+
+const isAdmin = computed(() => {
+  const roles = (account.value?.idTokenClaims as any)?.roles || [];
+  return roles.includes('3');
+});
 
 function handleLogout() {
-  // Logout işlemini burada yönetiyorsan aynen bırak
   msalApp.logout();
 }
 </script>
@@ -48,33 +69,40 @@ function handleLogout() {
 <style scoped>
 .home-layout {
   display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Sidebar sonrası içerik */
 .home-content {
   flex-grow: 1;
   margin-left: 220px;
   position: relative;
   min-height: 100vh;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 0px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-/* SAĞ ÜST PROFİL ALANI */
 .profile-container {
-  position: absolute;
+  position: fixed;
   top: 12px;
   right: 16px;
+  z-index: 1000;
 }
 
 .profile-img {
   width: 32px;
   height: 32px;
-  border-radius: 50%; /* TAMAMEN CIRCLE */
+  border-radius: 50%;
   object-fit: cover;
   border: 2px solid #1abc9c;
   cursor: pointer;
 }
 
-/* Hover ile açılan menü */
 .dropdown-menu {
   position: absolute;
   right: 0;
@@ -103,5 +131,13 @@ function handleLogout() {
 
 .main-view {
   padding: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.dashboard-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 </style>
