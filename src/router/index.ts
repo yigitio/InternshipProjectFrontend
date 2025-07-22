@@ -95,8 +95,7 @@ const routes: RouteRecordRaw[] = [
       let title = '';
       try {
         title = (await fetchJobTitle()).toLowerCase();
-        console.log("KULLANICININ TITLE'I:", title);
-        title = 'mentor'; // DEBUG amaçlı sabitlemiştin, gerekirse sil
+        title = 'mentor';
       } catch (e) {
         console.error('JobTitle alınamadı:', e);
         return { name: 'Home' };
@@ -177,9 +176,28 @@ const router = createRouter({
 });
 
 router.beforeEach(to => {
-  const isAuth = !!msalApp.getActiveAccount();
-  if (to.name !== 'Login' && !isAuth) return { name: 'Login' };
-  if (to.name === 'Login' && isAuth) return { name: 'Home' };
+  const account = msalApp.getActiveAccount();
+  const isAuth = !!account;
+  // ID Token’da “roles” array’i var ve mentor rolü “2” ile geliyor
+  const roles = ((account?.idTokenClaims as any)?.roles as string[]) || [];
+
+  // 1) Eğer henüz login olunmadıysa her rota Login’e
+  if (!isAuth && to.name !== 'Login') {
+    return { name: 'Login' };
+  }
+
+  // 2) Login sayfasına erişmeye çalışan login’li kullanıcıyı
+  //    rolüne göre ilgili ana sayfaya (dashboard) yolla
+  if (to.name === 'Login' && isAuth) {
+    // ▶️ MentorHome’a, değilse normal Home’a
+    return roles.includes('2') ? { name: 'MentorHome' } : { name: 'Home' };
+  }
+
+  // 3) Mentor rolündeyken yanlışlıkla /home’a gidilmişse de
+  //    otomatik olarak MentorHome’a at
+  if (to.name === 'Home' && roles.includes('2')) {
+    return { name: 'MentorHome' };
+  }
 });
 
 export default router;

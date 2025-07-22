@@ -9,16 +9,16 @@ import { msalConfig } from '@/utils/authConfig';
 
 // 1) MSAL instance oluştur
 const msalApp = msalInstance(msalConfig as Configuration);
-
+(globalThis as any).msalApp = msalApp;
 // 2) Tek bir bootstrap fonksiyonu
 async function bootstrap() {
   // A) MSAL initialize & mevcut hesabı aktif et
   await msalApp.initialize();
+
   const existingAccounts = msalApp.getAllAccounts();
   if (existingAccounts.length > 0) {
     msalApp.setActiveAccount(existingAccounts[0]);
   }
-
   // B) Sadece oturumu başlat, yönlendirmeleri router yapsın!
   // Otomatik intern/mentor exists sorgusu, kayıt oluşturma YOK!
 

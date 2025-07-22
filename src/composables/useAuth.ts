@@ -9,6 +9,7 @@ export function useAuth() {
 
   async function handlePostLogin() {
     const account = instance.getActiveAccount();
+    console.log('🔑 PostLogin Claims:', account?.idTokenClaims);
     if (!account) return;
 
     const email = account.username;
