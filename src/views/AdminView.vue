@@ -37,34 +37,76 @@
 
       <!-- Eşleşme Listesi -->
       <h2 class="list-title">
-        Mevcut Eşleşmeler ({{ filteredRelations.length }})
+        Mevcut Eşleşmeler ({{ enrichedRelationsFiltered.length }})
       </h2>
 
-      <div v-if="filteredRelations.length === 0">
+      <div v-if="enrichedRelationsFiltered.length === 0">
         Hiçbir eşleşme bulunamadı.
       </div>
 
       <ul class="relation-list">
         <li
-          v-for="rel in filteredRelations"
+          v-for="rel in enrichedRelationsFiltered"
           :key="rel.relation_id"
           class="relation-item"
         >
-          {{ rel.mentor_name }} ↔ {{ rel.intern_name }}
-          <button
-            class="delete-button"
-            @click="deleteRelation(rel.relation_id)"
-          >
-            Sil
-          </button>
+          {{ rel.mentorName }} ↔ {{ rel.internName }}
+          <span style="margin-left: 8px">
+            <button
+              class="delete-button"
+              @click="deleteRelation(rel.relation_id)"
+            >
+              🗑️ Sil
+            </button>
+            <button class="edit-button" @click="openEditPopup(rel)">
+              ✏️ Düzenle
+            </button>
+          </span>
         </li>
       </ul>
+    </div>
+  </div>
+  <div v-if="editPopupVisible" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Düzenle</h3>
+      <div v-if="editRelation">
+        <p>
+          <strong>Mentor Email:</strong> {{ editRelation.mentorEmail || '...' }}
+        </p>
+        <p>
+          <strong>Stajyer Email:</strong>
+          {{ editRelation.internEmail || '...' }}
+        </p>
+        <p>
+          <strong>Başlangıç Tarihi:</strong>
+          {{ editRelation.start_date || '...' }}
+        </p>
+        <p>
+          <strong>Bitiş Tarihi:</strong>
+          {{ editRelation.end_date || '...' }}
+        </p>
+        <label>
+          <input
+            type="checkbox"
+            v-model="editRelation.is_active"
+            :true-value="1"
+            :false-value="0"
+          />
+          Aktif mi?
+        </label>
+        <div style="margin-top: 16px">
+          <button @click="saveEditRelation">Kaydet</button>
+          <button @click="closeEditPopup" style="margin-left: 8px">
+            Kapat
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import axios from 'axios';
 import AppNotification from '@/components/AppNotification.vue';
 
@@ -75,7 +117,7 @@ const relations = ref<any[]>([]);
 const selectedMentor = ref<number | ''>('');
 const selectedIntern = ref<number | ''>('');
 
-// Notification state
+// Bildirim state'i
 const notificationMessage = ref('');
 const notificationType = ref<'success' | 'error' | 'info'>('info');
 const notificationShow = ref(false);
@@ -83,25 +125,15 @@ function showNotification(
   message: string,
   type: 'success' | 'error' | 'info' = 'info'
 ) {
-  notificationShow.value = false; // Reset to allow retrigger
+  notificationShow.value = false; // Retrigger için sıfırla
   notificationMessage.value = message;
   notificationType.value = type;
-  // Use nextTick to ensure the DOM updates before showing again
   setTimeout(() => {
     notificationShow.value = true;
   }, 10);
 }
 
-const filteredRelations = computed(() => {
-  return relations.value.filter(rel => {
-    const mentorMatch =
-      selectedMentor.value === '' || rel.mentorId === selectedMentor.value;
-    const internMatch =
-      selectedIntern.value === '' || rel.internId === selectedIntern.value;
-    return mentorMatch && internMatch;
-  });
-});
-
+// Relation'ları mentor ve stajyer adıyla zenginleştir
 const enrichedRelations = computed(() => {
   return relations.value.map(rel => {
     const mentor = mentors.value.find(
@@ -117,6 +149,72 @@ const enrichedRelations = computed(() => {
     };
   });
 });
+
+// SADECE is_active === 1 olanlar ve seçili mentor/stajyer filtresi
+const enrichedRelationsFiltered = computed(() => {
+  return enrichedRelations.value
+    .filter(rel => rel.is_active === 1) // SADECE aktif olanlar (integer)
+    .filter(rel => {
+      const mentorMatch =
+        selectedMentor.value === '' || rel.mentor_id === selectedMentor.value;
+      const internMatch =
+        selectedIntern.value === '' || rel.intern_id === selectedIntern.value;
+      return mentorMatch && internMatch;
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+});
+
+const editPopupVisible = ref(false);
+const editRelation = ref<any | null>(null);
+
+function openEditPopup(rel: any) {
+  // Email ve tarihleri mentor/intern arrayinden çek
+  const mentor = mentors.value.find(m => m.id === rel.mentor_id);
+  const intern = interns.value.find(i => i.id === rel.intern_id);
+  // is_active her zaman integer olarak tutulacak
+  let isActiveInteger = rel.is_active;
+  if (typeof isActiveInteger === 'boolean') {
+    isActiveInteger = rel.is_active ? 1 : 0;
+  } else if (isActiveInteger === undefined || isActiveInteger === null) {
+    isActiveInteger = 1;
+  }
+  editRelation.value = {
+    ...rel,
+    mentorEmail: mentor?.email || '',
+    internEmail: intern?.email || '',
+    start_date: rel.start_date || '',
+    end_date: rel.end_date || '',
+    is_active: isActiveInteger,
+  };
+  editPopupVisible.value = true;
+}
+function closeEditPopup() {
+  editPopupVisible.value = false;
+  editRelation.value = null;
+}
+async function saveEditRelation() {
+  if (!editRelation.value) return;
+  try {
+    await axios.put(
+      `http://localhost:8085/api/relations/${editRelation.value.relation_id}`,
+      {
+        relationId: editRelation.value.relation_id,
+        internId: editRelation.value.intern_id,
+        mentorId: editRelation.value.mentor_id,
+        is_active: editRelation.value.is_active, // integer olarak gönderilecek
+        // Diğer alanlar gerekiyorsa ekle
+      }
+    );
+    await fetchRelations(); // Listeyi yenile
+    closeEditPopup();
+    showNotification('Güncelleme başarılı!', 'success');
+  } catch (e) {
+    showNotification('Güncelleme başarısız.', 'error');
+  }
+}
 
 onMounted(async () => {
   try {
@@ -145,9 +243,10 @@ async function assignMentor() {
     await axios.post('http://localhost:8085/api/relations', {
       mentorId: selectedMentor.value,
       internId: selectedIntern.value,
+      // is_active alanı backend tarafında default 1 olarak atanıyor olabilir.
     });
     showNotification('Eşleştirme başarıyla yapıldı!', 'success');
-    await fetchRelations(); // Always reload from backend
+    await fetchRelations();
     selectedMentor.value = '';
     selectedIntern.value = '';
   } catch (e) {
@@ -160,7 +259,7 @@ async function deleteRelation(id: number) {
     await axios.delete(`http://localhost:8085/api/relations/${id}`);
     relations.value = relations.value.filter(rel => rel.relation_id !== id);
     showNotification('Silme başarılı.', 'success');
-    // Or, for always up-to-date data:
+    // Her zaman güncel veri için:
     // await fetchRelations();
   } catch (e) {
     showNotification('Silme başarısız.', 'error');
@@ -278,5 +377,26 @@ select {
   background-color: #f58220;
   color: #242441;
   border-color: #e53935;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.modal-content {
+  background: #fff;
+  color: #242441;
+  padding: 32px 24px;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 </style>

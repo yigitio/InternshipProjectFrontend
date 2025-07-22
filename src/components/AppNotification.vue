@@ -43,7 +43,6 @@ watch(
   padding: 16px 32px;
   border-radius: 8px;
   color: #fff;
-  font-weight: 600;
   font-size: 1.1rem;
   z-index: 9999;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
@@ -51,14 +50,14 @@ watch(
   opacity: 0.98;
 }
 .notification.success {
-  background: #f58220;
+  background: #0ebc08;
   color: #242441;
 }
 .notification.error {
   background: #e53935;
 }
 .notification.info {
-  background: #242441;
+  background: #0eafc5;
 }
 .fade-enter-active,
 .fade-leave-active {
