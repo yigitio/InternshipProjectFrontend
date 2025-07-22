@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import axios from 'axios'; // <-- EKLENDİ
 import {
   fetchAssignments,
-  updateAssignment, // Bu fonksiyonu service dosyanızda oluşturmanız gerekecek
+  updateAssignment,
   type Assignment,
 } from '@/utils/assignmentService';
+import { useMsal } from 'vue3-msal-plugin';
 
 // Reaktif değişkenler
 const assignments = ref<Assignment[]>([]);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
+const { accounts } = useMsal();
+const email = accounts.value[0].username;
 
-// Dropdown menüsü için seçenekler (bu zaten kodunuzda vardı)
 const statusOptions = ['Pending', 'In Progress', 'Completed'];
 
-// Backend'den görevleri yükleyen fonksiyon
-const loadAssignments = async () => {
+// DÜZELTİLMİŞ FONKSİYON
+const loadAssignments = async (internId: number) => {
   try {
     isLoading.value = true;
     error.value = null;
-    assignments.value = await fetchAssignments();
+    assignments.value = await fetchAssignments(internId); // internId kullanılıyor
   } catch (err) {
     console.error('Görevler çekilirken bir hata oluştu:', err);
     error.value =
@@ -29,26 +32,43 @@ const loadAssignments = async () => {
   }
 };
 
-// --- YENİ EKLENEN FONKSİYON ---
-// Bir görevin durumunu güncelleyen fonksiyon
+// Bu fonksiyonunuz zaten doğruydu
 const handleStatusChange = async (assignment: Assignment) => {
   if (typeof assignment.id === 'undefined' || assignment.id === null) {
     console.error("Görev ID'si tanımsız, güncelleme yapılamaz.");
     alert('Geçersiz görev IDsi nedeniyle işlem yapılamadı.');
-    return; // Fonksiyonu burada sonlandır
+    return;
   }
   try {
     await updateAssignment(assignment.id, assignment);
   } catch (err) {
     console.error('Görev durumu güncellenirken hata oluştu:', err);
-    alert('Durum güncellenirken bir hata oluştu. Değişiklikler geri alınacak.');
-    await loadAssignments(); // Hata olursa listeyi eski haline getir
+    alert('Durum güncellenirken bir hata oluştu. Değişiklikler geri alınacak.'); // Hata durumunda listeyi yeniden yüklemek için ID'yi bilmemiz gerekir.
+    // Bu kısmı basitleştirebilir veya mevcut ID'yi saklayabilirsiniz.
+    // Şimdilik sadece sayfayı yenilemesini isteyebiliriz.
+    window.location.reload();
   }
 };
-// ----------------------------
 
-onMounted(() => {
-  loadAssignments();
+// DÜZELTİLMİŞ onMounted
+onMounted(async () => {
+  try {
+    const internRes = await axios.get(
+      `http://localhost:8080/api/interns/email/${email}`
+    );
+    const internData = internRes.data;
+    if (internData && internData.id) {
+      loadAssignments(internData.id);
+    } else {
+      error.value = 'Oturum açan kullanıcıya ait stajyer bilgisi bulunamadı.';
+      isLoading.value = false;
+    }
+  } catch (err) {
+    console.error('Stajyer bilgileri çekilirken hata oluştu:', err);
+    error.value =
+      'Stajyer bilgileri alınamadı, bu nedenle görevler listelenemiyor.';
+    isLoading.value = false;
+  }
 });
 </script>
 
@@ -66,7 +86,7 @@ onMounted(() => {
 
     <div v-else>
       <div v-if="assignments.length === 0" class="empty-state">
-        <p>Henüz atanmış bir görev bulunmüyor.</p>
+        <p>Henüz atanmış bir görev bulunmuyor.</p>
       </div>
 
       <table v-else>
@@ -77,6 +97,7 @@ onMounted(() => {
             <th>Başlangıç Tarihi</th>
             <th>Bitiş Tarihi</th>
             <th>Önem Derecesi</th>
+            <th>Mentor</th>
             <th>Statü</th>
           </tr>
         </thead>
@@ -94,6 +115,9 @@ onMounted(() => {
             </td>
             <td>
               {{ item.priority }}
+            </td>
+            <td>
+              {{ item.mentorName }}
             </td>
             <td>
               <select v-model="item.status" @change="handleStatusChange(item)">

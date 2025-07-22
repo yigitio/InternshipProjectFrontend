@@ -11,12 +11,24 @@ export interface Assignment {
   assignedAt?: string;
   completedAt?: string;
   status?: string;
+  mentorName?: string;
 }
 
 const BASE_URL = 'http://localhost:8080/api/assignments';
 
-export const fetchAssignments = async (): Promise<Assignment[]> => {
-  const response = await axios.get(BASE_URL);
+export const fetchAssignments = async (
+  internId: number
+): Promise<Assignment[]> => {
+  // 1. Fonksiyon artık bir 'internId' parametresi alıyor.
+  if (!internId) {
+    // internId yoksa boş bir liste döndürerek hatayı önle
+    console.error('fetchAssignments çağrıldı ancak internId tanımsız.');
+    return [];
+  }
+
+  // 2. API isteği, gelen internId'yi kullanarak doğru adrese yapılıyor.
+  // Bu adresin backend'deki AssignmentController'ınızdaki adresle eşleştiğinden emin olun.
+  const response = await axios.get(`/api/assignments/${internId}/assignments`);
   return response.data;
 };
 

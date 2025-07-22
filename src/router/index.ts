@@ -154,14 +154,9 @@ const routes: RouteRecordRaw[] = [
       { path: 'report', name: 'Report', component: ReportView },
       { path: 'profile', name: 'Profile', component: ProfileView },
       {
-        path: 'assignmentlist',
+        path: '/assignmentlist',
         name: 'AssignmentList',
         component: AssignmentList,
-      },
-      {
-        path: 'assignmentform',
-        name: 'AssignmentForm',
-        component: AssignmentForm,
       },
     ],
   },
