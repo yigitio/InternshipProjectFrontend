@@ -5,6 +5,8 @@ import AboutView from './views/AboutView.vue';
 import LoginView from './views/LoginView.vue';
 import HomeView from './views/HomeView.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
+import MentorProfileView from '@/views/MentorProfileView.vue';
+import MentorHomeView from '@/views/MentorHomeView.vue';
 /*import TheWelcome from "./components/TheWelcome.vue";*/
 
 import { ref, onMounted } from 'vue';

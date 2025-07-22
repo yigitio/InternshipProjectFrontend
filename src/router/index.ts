@@ -18,6 +18,7 @@ import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
 import MentorHomeView from '@/views/MentorHomeView.vue';
 import AssignmentForm from '@/views/AssignmentForm.vue';
+import MentorProfileView from '@/views/MentorProfileView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -32,9 +33,9 @@ const routes: RouteRecordRaw[] = [
     component: MentorHomeView,
     children: [
       {
-        path: 'profile',
+        path: '/mentorprofile',
         name: 'MentorProfile',
-        component: ProfileView,
+        component: MentorProfileView,
       },
       {
         path: '/assignmentform',
@@ -95,7 +96,7 @@ const routes: RouteRecordRaw[] = [
       try {
         title = (await fetchJobTitle()).toLowerCase();
         console.log("KULLANICININ TITLE'I:", title);
-        //title = 'mentor'; // DEBUG amaçlı sabitlemiştin, gerekirse sil
+        title = 'mentor'; // DEBUG amaçlı sabitlemiştin, gerekirse sil
       } catch (e) {
         console.error('JobTitle alınamadı:', e);
         return { name: 'Home' };
