@@ -15,37 +15,17 @@
       </template>
     </DashboardCard>
 
-    <DashboardCard title="To-Do List">
-      <div class="scroll-box">
-        <ul v-if="todoList.length">
-          <li v-for="item in todoList" :key="item.id" class="task-item">
-            <label class="task-label">
-              <input
-                type="checkbox"
-                :checked="item.done"
-                @change="toggleDone(item)"
-                class="task-checkbox"
-              />
-              <span :class="{ 'task-done': item.done }">
-                {{ item.task }}
-              </span>
-            </label>
-            <button @click="deleteTask(item.id)" class="task-delete">🗑</button>
-          </li>
-        </ul>
-        <p v-else class="empty-text">Henüz görev eklenmemiş.</p>
-      </div>
-      <div class="input-bottom">
-        <input
-          v-model="newTask"
-          @keyup.enter="addTask"
-          placeholder="Yeni görev ekle..."
-          class="input-field"
-        />
-      </div>
+    <DashboardCard title="Yapılacaklar">
+      <ul v-if="assignments.length">
+        <li v-for="a in assignments" :key="a.id">
+          <strong>{{ a.assignmentName }}</strong
+          >: {{ a.assignmentDesc }}
+        </li>
+      </ul>
+      <p v-else>Henüz görev atanmadı.</p>
     </DashboardCard>
 
-    <DashboardCard title="Önemli Maddeler">
+    <DashboardCard title="Notlarım">
       <div class="scroll-box">
         <ul v-if="notes.length">
           <li v-for="note in notes" :key="note.id" class="task-item">
@@ -78,17 +58,25 @@ import { useMsal } from 'vue3-msal-plugin';
 import PieChart from '@/components/PieChart.vue';
 import DashboardCard from '@/components/DashboardCard.vue';
 
-interface TodoItem {
-  id: number;
-  task: string;
-  done: boolean;
-  internEmail: string;
-}
-
 interface NoteItem {
   id: number;
   content: string;
   internEmail: string;
+}
+
+interface Assignment {
+  id: number;
+  assignmentName: string;
+  assignmentDesc: string;
+  status: string;
+  priority: string;
+  dueDate: string;
+  assignedAt: string;
+  completedAt: string;
+  internId: number;
+  internName: string;
+  mentorId: number;
+  mentorName: string;
 }
 
 const { accounts } = useMsal();
@@ -97,6 +85,9 @@ const email = accounts.value[0].username;
 const assignmentStats = ref<Record<string, { name: string; value: number }[]>>(
   {}
 );
+const assignments = ref<Assignment[]>([]);
+const notes = ref<NoteItem[]>([]);
+const newNote = ref('');
 const greetingMessage = ref('');
 
 onMounted(async () => {
@@ -107,7 +98,6 @@ onMounted(async () => {
 
   try {
     const res = await axios.get('http://localhost:8080/api/assignments/stats');
-
     const transformed = Object.fromEntries(
       Object.entries(res.data).map(([email, stats]) => {
         const chartData = Object.entries(stats as Record<string, number>).map(
@@ -116,7 +106,6 @@ onMounted(async () => {
         return [email, chartData];
       })
     );
-
     assignmentStats.value = transformed;
   } catch (err) {
     console.error('Assignment stats alınamadı:', err);
@@ -124,11 +113,11 @@ onMounted(async () => {
 
   try {
     const res = await axios.get(
-      `http://localhost:8080/api/todos/byEmail/${email}`
+      `http://localhost:8080/api/assignments/intern?email=${email}`
     );
-    todoList.value = res.data;
+    assignments.value = res.data;
   } catch (err) {
-    console.error('To-do list alınamadı:', err);
+    console.error('Atanan görevler alınamadı:', err);
   }
 
   try {
@@ -138,36 +127,6 @@ onMounted(async () => {
     console.error('Notlar alınamadı:', err);
   }
 });
-
-const todoList = ref<TodoItem[]>([]);
-const newTask = ref('');
-
-const addTask = async () => {
-  if (!newTask.value.trim()) return;
-  const res = await axios.post('http://localhost:8080/api/todos', {
-    task: newTask.value,
-    done: false,
-    internEmail: email,
-  });
-  todoList.value.push(res.data);
-  newTask.value = '';
-};
-
-const deleteTask = async (id: number) => {
-  await axios.delete(`http://localhost:8080/api/todos/${id}`);
-  todoList.value = todoList.value.filter(t => t.id !== id);
-};
-
-const toggleDone = async (item: TodoItem) => {
-  await axios.put(`http://localhost:8080/api/todos/${item.id}`, {
-    ...item,
-    done: !item.done,
-  });
-  item.done = !item.done;
-};
-
-const notes = ref<NoteItem[]>([]);
-const newNote = ref('');
 
 const addNote = async () => {
   if (!newNote.value.trim()) return;
@@ -189,28 +148,26 @@ const deleteNote = async (id: number) => {
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr); /* her satır eşit yüksek */
+  grid-template-rows: repeat(2, 1fr);
   gap: 12px;
   padding: 12px;
-  max-width: 900px; /* tüm dashboard'ı daraltır */
-  margin: 0 auto; /* ortalar */
-  height: calc(100vh - 140px); /* scroll olmadan sığar */
+  max-width: 900px;
+  margin: 0 auto;
+  height: calc(100vh - 140px);
   box-sizing: border-box;
 }
 
-/* Her DashboardCard bileşeni */
 .card {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 12px;
-  height: 100%; /* grid hücresinin tamamını kapla */
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-/* Responsive: 768px altı ekranlarda kartlar alt alta */
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -219,7 +176,6 @@ const deleteNote = async (id: number) => {
   }
 }
 
-/* Listeyi ve inputu birlikte kapsayan kutu */
 .scroll-box {
   flex-grow: 1;
   display: flex;
@@ -232,7 +188,6 @@ const deleteNote = async (id: number) => {
   max-height: 180px;
 }
 
-/* Input alanları */
 .input-field {
   width: 96%;
   padding: 6px 8px;
@@ -248,7 +203,6 @@ const deleteNote = async (id: number) => {
   border-color: #3b82f6;
 }
 
-/* Görev/madde öğeleri */
 .task-item {
   display: flex;
   justify-content: space-between;
@@ -262,23 +216,6 @@ const deleteNote = async (id: number) => {
 
 .task-item:hover {
   background-color: #f0f0f0;
-}
-
-.task-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.task-checkbox {
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
-}
-
-.task-done {
-  text-decoration: line-through;
-  color: #999;
 }
 
 .task-delete {
@@ -296,7 +233,6 @@ const deleteNote = async (id: number) => {
   margin: 10px 0;
 }
 
-/* Selamlama kartı */
 .greeting-box {
   display: flex;
   align-items: center;

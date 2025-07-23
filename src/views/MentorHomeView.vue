@@ -99,7 +99,7 @@ function handleLogout() {
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #1abc9c;
+  border: 2px solid #242441;
   cursor: pointer;
 }
 
