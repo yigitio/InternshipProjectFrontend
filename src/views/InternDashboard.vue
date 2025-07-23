@@ -1,7 +1,10 @@
 <template>
   <div class="dashboard-grid">
     <DashboardCard title="Assignment Durumu">
-      <PieChart :data="assignmentStats" />
+      <div v-if="assignmentStats[email]?.length">
+        <PieChart :data="assignmentStats[email]" />
+      </div>
+      <p v-else>Henüz bir assignment atanmadı.</p>
     </DashboardCard>
 
     <DashboardCard title="To-Do List">
@@ -83,7 +86,9 @@ interface NoteItem {
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
 
-const assignmentStats = ref<{ name: string; value: number }[]>([]);
+const assignmentStats = ref<Record<string, { name: string; value: number }[]>>(
+  {}
+);
 const greetingMessage = ref('');
 
 onMounted(async () => {
@@ -94,10 +99,17 @@ onMounted(async () => {
 
   try {
     const res = await axios.get('http://localhost:8080/api/assignments/stats');
-    assignmentStats.value = Object.entries(res.data).map(([name, value]) => ({
-      name,
-      value: Number(value),
-    }));
+
+    const transformed = Object.fromEntries(
+      Object.entries(res.data).map(([email, stats]) => {
+        const chartData = Object.entries(stats as Record<string, number>).map(
+          ([name, value]) => ({ name, value })
+        );
+        return [email, chartData];
+      })
+    );
+
+    assignmentStats.value = transformed;
   } catch (err) {
     console.error('Assignment stats alınamadı:', err);
   }
