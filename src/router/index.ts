@@ -62,7 +62,7 @@ const routes: RouteRecordRaw[] = [
       }
 
       // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
@@ -111,7 +111,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (!title.includes('intern')) {
         // mentor formu göremez
@@ -135,7 +135,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (title.includes('intern')) {
         // internler NotIntern formunu göremez
@@ -178,12 +178,12 @@ const routes: RouteRecordRaw[] = [
           const account = msalApp.getActiveAccount();
           if (!account) return { name: 'Login' };
           const roles = (account.idTokenClaims as any)?.roles || [];
-          if (!roles.includes('2')) return { name: 'MentorHome' };
+          if (!roles.includes('3')) return { name: 'MentorHome' };
           return true;
         },
       },
       {
-        path: 'assignmentform',
+        path: '/assignmentform',
         name: 'AssignmentForm',
         component: AssignmentForm,
       },
@@ -224,7 +224,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // TEST için zorla mentor branch’ine girmek istersen uncomment et:
-  //title = 'mentor';
+  title = 'mentor';
 
   if (to.name === 'Home' && !title.includes('intern')) {
     return { name: 'MentorHome' };
