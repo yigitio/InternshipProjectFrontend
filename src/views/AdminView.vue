@@ -44,26 +44,13 @@
         Hiçbir eşleşme bulunamadı.
       </div>
 
-      <ul class="relation-list">
-        <li
-          v-for="rel in enrichedRelationsFiltered"
-          :key="rel.relation_id"
-          class="relation-item"
-        >
-          {{ rel.mentorName }} ↔ {{ rel.internName }}
-          <span style="margin-left: 8px">
-            <button
-              class="delete-button"
-              @click="deleteRelation(rel.relation_id)"
-            >
-              🗑️ Sil
-            </button>
-            <button class="edit-button" @click="openEditPopup(rel)">
-              ✏️ Düzenle
-            </button>
-          </span>
-        </li>
-      </ul>
+      <!-- EŞLEŞMELERİN COMPONENT HALİ -->
+      <RelationList
+        v-if="enrichedRelationsFiltered.length > 0"
+        :relations="enrichedRelationsFiltered"
+        @delete="deleteRelation"
+        @edit="openEditPopup"
+      />
     </div>
   </div>
   <div v-if="editPopupVisible" class="modal-overlay">
@@ -106,9 +93,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import AppNotification from '@/components/AppNotification.vue';
+import RelationList from '@/components/RelationList.vue'; // EKLEDİK
 
 const mentors = ref<any[]>([]);
 const interns = ref<any[]>([]);
@@ -338,46 +326,7 @@ select {
   color: #f58220;
 }
 
-.relation-list {
-  list-style: none;
-  padding: 0;
-}
-.relation-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #35365c;
-  padding: 10px 16px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border-left: 6px solid #f58220;
-  box-shadow: 0 2px 8px rgba(245, 130, 32, 0.08);
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-.relation-item:hover {
-  box-shadow: 0 4px 16px rgba(245, 130, 32, 0.18);
-  border-left: 8px solid #f58220;
-}
-.relation-item span,
-.relation-item strong {
-  color: #f58220;
-}
-.delete-button {
-  background-color: #e53935;
-  color: white;
-  border: 2px solid #f58220;
-  padding: 6px 12px;
-  font-size: 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s;
-  font-weight: bold;
-}
-.delete-button:hover {
-  background-color: #f58220;
-  color: #242441;
-  border-color: #e53935;
-}
+/* Popup stilleri ve diğerleri aynı kalabilir */
 .modal-overlay {
   position: fixed;
   top: 0;
