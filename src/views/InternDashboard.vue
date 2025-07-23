@@ -1,10 +1,18 @@
 <template>
   <div class="dashboard-grid">
     <DashboardCard title="Assignment Durumu">
-      <div v-if="assignmentStats[email]?.length">
+      <template
+        v-if="
+          assignmentStats &&
+          assignmentStats[email] &&
+          assignmentStats[email].length
+        "
+      >
         <PieChart :data="assignmentStats[email]" />
-      </div>
-      <p v-else>Henüz bir assignment atanmadı.</p>
+      </template>
+      <template v-else>
+        <p>Henüz bir assignment atanmadı.</p>
+      </template>
     </DashboardCard>
 
     <DashboardCard title="To-Do List">
