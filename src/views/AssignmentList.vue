@@ -22,7 +22,13 @@ const loadAssignments = async (internId: number) => {
   try {
     isLoading.value = true;
     error.value = null;
-    assignments.value = await fetchAssignments(internId); // internId kullanılıyor
+    const fetchedAssignments: Assignment[] = await fetchAssignments(internId);
+    assignments.value = fetchedAssignments.map(assignment => {
+      if (!assignment.status) {
+        assignment.status = 'Pending';
+      }
+      return assignment;
+    });
   } catch (err) {
     console.error('Görevler çekilirken bir hata oluştu:', err);
     error.value =

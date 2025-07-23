@@ -12,6 +12,7 @@ const router = useRouter();
 // --- YENİ EKLENEN KISIM ---
 // Dropdown menüsünde gösterilecek öncelik seçenekleri
 const priorityOptions = ['Urgent', 'High', 'Medium', 'Normal'];
+const today = new Date().toISOString().split('T')[0];
 // -------------------------
 
 // Form verileri
@@ -22,8 +23,9 @@ const form = ref({
   assignmentDesc: '',
   dueDate: '',
   priority: 'Normal', // <-- Varsayılan bir değer atandı
-  assignedAt: '',
+  assignedAt: today,
   completedAt: '',
+  status: 'Pending',
 });
 
 const { accounts } = useMsal();
@@ -86,12 +88,7 @@ const submitAssignment = async () => {
       </select>
 
       <label>Mentor:</label>
-      <select v-model="form.mentorId" required>
-        <option value="">Seçiniz</option>
-        <option :value="currentMentor?.id">
-          {{ currentMentor?.name }}
-        </option>
-      </select>
+      <input :value="currentMentor?.name" type="text" disabled />
 
       <label>Görev Adı:</label>
       <input v-model="form.assignmentName" type="text" required />
@@ -106,7 +103,7 @@ const submitAssignment = async () => {
         </option>
       </select>
       <label>Başlama Tarihi:</label>
-      <input v-model="form.assignedAt" type="date" />
+      <input v-model="form.assignedAt" type="text" disabled />
 
       <label>Bitiş Tarihi:</label>
       <input v-model="form.dueDate" type="date" />
