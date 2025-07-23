@@ -9,6 +9,7 @@
     <!-- Menü -->
     <nav class="sidebar">
       <router-link to="/assignmentForm">Görev İşlemleri</router-link>
+      <router-link to="/assignmentTracking">Görev Takibi</router-link>
     </nav>
 
     <!-- Versiyon rozetini en alta ekliyoruz -->

@@ -21,6 +21,7 @@ import ReportView from '@/views/ReportView.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
 import AssignmentForm from '@/views/AssignmentForm.vue';
+import AssignmentTracking from '@/views/AssignmentTracking.vue';
 
 const routes: RouteRecordRaw[] = [
   // kök → Login yoksa Login, varsa Register akışına
@@ -62,7 +63,7 @@ const routes: RouteRecordRaw[] = [
       }
 
       // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      title = 'mentor';
+      //title = 'mentor';
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
@@ -111,7 +112,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      title = 'mentor';
+      //title = 'mentor';
 
       if (!title.includes('intern')) {
         // mentor formu göremez
@@ -135,7 +136,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      title = 'mentor';
+      //title = 'mentor';
 
       if (title.includes('intern')) {
         // internler NotIntern formunu göremez
@@ -187,6 +188,11 @@ const routes: RouteRecordRaw[] = [
         name: 'AssignmentForm',
         component: AssignmentForm,
       },
+      {
+        path: '/assignmenttracking',
+        name: 'AssignmentTracking',
+        component: AssignmentTracking,
+      },
     ],
   },
 ];
@@ -224,7 +230,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // TEST için zorla mentor branch’ine girmek istersen uncomment et:
-  title = 'mentor';
+  //title = 'mentor';
 
   if (to.name === 'Home' && !title.includes('intern')) {
     return { name: 'MentorHome' };
