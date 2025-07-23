@@ -2,9 +2,11 @@ import axios from 'axios';
 import { msalApp } from '@/main';
 import { loginRequest } from '@/utils/authConfig';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // <<< BUNU değiştirme: backend’in URL’si
-});
+const baseURL =
+  process.env.NODE_ENV === 'production'
+    ? 'ec2-13-60-255-68.eu-north-1.compute.amazonaws.com:8080/api'
+    : 'http://localhost:8080/api';
+const api = axios.create({ baseURL });
 
 api.interceptors.request.use(async config => {
   const account = msalApp.getActiveAccount();
@@ -15,6 +17,6 @@ api.interceptors.request.use(async config => {
   }
   return config;
 });
-export const axiosInstance = api;
 
 export default api;
+export const axiosInstance = api;
