@@ -60,9 +60,7 @@ const handleStatusChange = async (assignment: Assignment) => {
 // DÜZELTİLMİŞ onMounted
 onMounted(async () => {
   try {
-    const internRes = await axios.get(
-      `http://localhost:8080/api/interns/email/${email}`
-    );
+    const internRes = await axios.get(`/api/interns/by-email?email=${email}`);
     const internData = internRes.data;
     if (internData && internData.id) {
       loadAssignments(internData.id);

@@ -40,9 +40,7 @@ const email = accounts.value[0].username;
 // Sayfa yüklendiğinde backend'den intern bilgilerini çek
 onMounted(async () => {
   try {
-    const res = await axios.get(
-      `http://localhost:8080/api/interns/email/${email}`
-    );
+    const res = await axios.get(`/api/interns/by-email?email=${email}`);
     intern.value = {
       name: res.data.name,
       surname: res.data.surname,

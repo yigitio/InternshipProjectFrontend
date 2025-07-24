@@ -22,6 +22,7 @@ import ProfileView from '@/views/ProfileView.vue';
 import AssignmentList from '@/views/AssignmentList.vue';
 import AssignmentForm from '@/views/AssignmentForm.vue';
 import AssignmentTracking from '@/views/AssignmentTracking.vue';
+import OfficeView from '@/views/OfficeView.vue';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const routes: RouteRecordRaw[] = [
@@ -183,6 +184,7 @@ const routes: RouteRecordRaw[] = [
         name: 'AssignmentList',
         component: AssignmentList,
       },
+      { path: '/office', name: 'Office', component: OfficeView },
     ],
   },
   {

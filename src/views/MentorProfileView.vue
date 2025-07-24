@@ -32,9 +32,7 @@ const email = accounts.value[0].username;
 
 onMounted(async () => {
   try {
-    const res = await axios.get(
-      `http://localhost:8080/api/mentors/email/${email}`
-    );
+    const res = await axios.get(`/api/interns/by-email?email=${email}`);
     mentor.value = {
       name: res.data.name,
       surname: res.data.surname,
