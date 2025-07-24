@@ -124,9 +124,26 @@ const activeInterns = computed(() =>
   interns.value.filter(i => Number(i.isActive) === 1)
 );
 
-function makePassive() {
+async function makePassive() {
   if (!editRelation.value) return;
   editRelation.value.is_active = 0;
+
+  try {
+    await axios.put(
+      `http://localhost:8085/api/relations/${editRelation.value.relation_id}`,
+      {
+        relationId: editRelation.value.relation_id,
+        internId: editRelation.value.intern_id,
+        mentorId: editRelation.value.mentor_id,
+        is_active: 0,
+      }
+    );
+    await fetchRelations(); // Listeyi güncelle
+    closeEditPopup(); // Popup’ı kapat
+    showNotification('İlişki başarıyla pasifleştirildi!', 'success');
+  } catch (e) {
+    showNotification('Pasifleştirme sırasında hata oluştu.', 'error');
+  }
 }
 
 // Bildirim state'i
