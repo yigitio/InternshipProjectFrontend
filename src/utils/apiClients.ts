@@ -4,7 +4,7 @@ import { loginRequest } from '@/utils/authConfig';
 
 const baseURL =
   process.env.VUE_APP_BASE_URL === 'production'
-    ? 'ec2-13-60-255-68.eu-north-1.compute.amazonaws.com:8080/api'
+    ? 'http://ec2-13-60-18-136.eu-north-1.compute.amazonaws.com:8080/api'
     : 'http://localhost:8080/api';
 const api = axios.create({ baseURL });
 
