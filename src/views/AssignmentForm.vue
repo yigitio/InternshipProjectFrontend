@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { addAssignment } from '@/utils/assignmentService';
@@ -45,6 +45,34 @@ const form = ref({
   completedAt: '',
   status: 'To Do',
 });
+watch(
+  () => form.value.priority,
+  newPriority => {
+    // Eğer 'Optional' seçilirse, tarihi temizle ve kullanıcıya seçim yapma imkanı ver
+    if (newPriority === 'Optional') {
+      form.value.dueDate = '';
+      return; // Fonksiyonu burada sonlandır
+    }
+
+    // Otomatik tarih hesaplaması için gün sayılarını bir haritada tutalım
+    const daysToAddMap: { [key: string]: number } = {
+      Urgent: 1,
+      High: 2,
+      Medium: 4,
+      Low: 8,
+    };
+
+    const daysToAdd = daysToAddMap[newPriority];
+
+    if (daysToAdd) {
+      const startDate = new Date(form.value.assignedAt);
+      // Başlangıç tarihine ilgili gün sayısını ekle
+      startDate.setDate(startDate.getDate() + daysToAdd);
+      // Sonucu YYYY-MM-DD formatına çevirip formdaki dueDate'e ata
+      form.value.dueDate = startDate.toISOString().split('T')[0];
+    }
+  }
+);
 
 // Sayfa yüklendiğinde mevcut mentor ve ona bağlı stajyerleri çeker
 onMounted(async () => {
@@ -133,7 +161,12 @@ const submitAssignment = async () => {
       <input id="assignedAt" v-model="form.assignedAt" type="text" disabled />
 
       <label for="dueDate">Hedeflenen Bitiş Tarihi:</label>
-      <input id="dueDate" v-model="form.dueDate" type="date" />
+      <input
+        id="dueDate"
+        v-model="form.dueDate"
+        type="date"
+        :disabled="form.priority !== 'Optional'"
+      />
 
       <button type="submit">Görev Ekle</button>
     </form>
