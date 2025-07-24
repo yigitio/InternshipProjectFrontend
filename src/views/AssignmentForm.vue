@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { addAssignment } from '@/utils/assignmentService';
 import { useMsal } from 'vue3-msal-plugin';
+import AppNotification from '@/components/AppNotification.vue';
+import { formatDate } from '@/utils/formatters';
 
 // --- Reaktif Değişkenler ---
 const interns = ref<{ id: number; name: string }[]>([]);
@@ -11,9 +13,23 @@ const currentMentor = ref<{ id: number; name: string } | null>(null);
 const router = useRouter();
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
+const notificationMessage = ref('');
+const notificationType = ref<'success' | 'error' | 'info'>('info');
+const notificationShow = ref(false);
+function showNotification(
+  message: string,
+  type: 'success' | 'error' | 'info' = 'info'
+) {
+  notificationShow.value = false; // Retrigger için sıfırla
+  notificationMessage.value = message;
+  notificationType.value = type;
+  setTimeout(() => {
+    notificationShow.value = true;
+  }, 10);
+}
 
 // --- Form Seçenekleri ve Varsayılan Değerler ---
-const priorityOptions = ['Urgent', 'High', 'Medium', 'Normal'];
+const priorityOptions = ['Urgent', 'High', 'Medium', 'Low', 'Optional'];
 // Başlangıç tarihini bugünün tarihi olarak ayarlar (YYYY-MM-DD formatında)
 const today = new Date().toISOString().split('T')[0];
 
@@ -24,7 +40,7 @@ const form = ref({
   assignmentName: '',
   assignmentDesc: '',
   dueDate: '',
-  priority: 'Normal',
+  priority: 'Optional',
   assignedAt: today, // Başlangıç tarihi otomatik olarak bugün
   completedAt: '',
   status: 'To Do',
@@ -65,20 +81,28 @@ onMounted(async () => {
 const submitAssignment = async () => {
   try {
     await addAssignment(form.value);
-    alert('Görev başarıyla eklendi!');
+    showNotification('Görev başarıyla eklendi!', 'success');
     // İsteğe bağlı: Başarılı eklemeden sonra formu temizleyebilir veya başka bir sayfaya yönlendirebilirsiniz.
     // router.push('/mentor-dashboard');
   } catch (err) {
-    console.error('Görev eklenirken hata oluştu:', err);
-    alert('Görev eklenirken bir hata oluştu.');
+    showNotification('Görev eklenirken bir hata oluştu.', 'error');
   }
 };
 </script>
 
 <template>
   <div class="form-container">
+    <AppNotification
+      :message="notificationMessage"
+      :type="notificationType"
+      :show="notificationShow"
+      :duration="2200"
+    />
     <h2>Yeni Görev Ekle</h2>
     <form @submit.prevent="submitAssignment">
+      <label for="mentor">Mentor:</label>
+      <input id="mentor" :value="currentMentor?.name" type="text" disabled />
+
       <label for="intern">Stajyer:</label>
       <select id="intern" v-model="form.internId" required>
         <option value="0" disabled>Lütfen bir stajyer seçiniz</option>
@@ -86,9 +110,6 @@ const submitAssignment = async () => {
           {{ intern.name }}
         </option>
       </select>
-
-      <label for="mentor">Mentor:</label>
-      <input id="mentor" :value="currentMentor?.name" type="text" disabled />
 
       <label for="assignmentName">Görev Adı:</label>
       <input
@@ -111,7 +132,7 @@ const submitAssignment = async () => {
       <label for="assignedAt">Atanma Tarihi:</label>
       <input id="assignedAt" v-model="form.assignedAt" type="text" disabled />
 
-      <label for="dueDate">Bitiş Tarihi:</label>
+      <label for="dueDate">Hedeflenen Bitiş Tarihi:</label>
       <input id="dueDate" v-model="form.dueDate" type="date" />
 
       <button type="submit">Görev Ekle</button>

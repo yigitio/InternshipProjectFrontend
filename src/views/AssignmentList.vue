@@ -7,6 +7,7 @@ import {
   type Assignment,
 } from '@/utils/assignmentService';
 import { useMsal } from 'vue3-msal-plugin';
+import { formatDate } from '@/utils/formatters';
 
 // Reaktif değişkenler
 const assignments = ref<Assignment[]>([]);
@@ -97,7 +98,7 @@ onMounted(async () => {
             <th>Görev Adı</th>
             <th>Açıklama</th>
             <th>Atanma Tarihi</th>
-            <th>Bitiş Tarihi</th>
+            <th>Hedeflenen Bitiş Tarihi</th>
             <th>Önem Derecesi</th>
             <th>Mentor</th>
             <th>Statü</th>
@@ -107,13 +108,11 @@ onMounted(async () => {
           <tr v-for="item in assignments" :key="item.id">
             <td data-label="Görev Adı">{{ item.assignmentName || 'N/A' }}</td>
             <td data-label="Açıklama">{{ item.assignmentDesc }}</td>
-            <td data-label="Atanma Tarihi">{{ item.assignedAt }}</td>
-            <td data-label="Bitiş Tarihi">
-              {{
-                item.dueDate
-                  ? new Date(item.dueDate).toLocaleDateString()
-                  : 'N/A'
-              }}
+            <td data-label="Atanma Tarihi">
+              {{ formatDate(item.assignedAt) }}
+            </td>
+            <td data-label="Hedeflenen Bitiş Tarihi">
+              {{ formatDate(item.dueDate) }}
             </td>
             <td data-label="Önem Derecesi">{{ item.priority }}</td>
             <td data-label="Mentor">{{ item.mentorName }}</td>

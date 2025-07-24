@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useMsal } from 'vue3-msal-plugin';
+import AppNotification from '@/components/AppNotification.vue';
+import { formatDate } from '@/utils/formatters';
 
 // Backend'den gelecek Assignment nesnesinin tip tanımı
 interface Assignment {
@@ -9,6 +11,7 @@ interface Assignment {
   assignmentName: string;
   assignmentDesc: string;
   assignedAt: string;
+  startedAt: string;
   dueDate: string;
   status: 'To Do' | 'In Progress' | 'Completed';
   internName: string; // Stajyerin adı
@@ -22,12 +25,20 @@ const error = ref<string | null>(null);
 
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
-
-// Tarih formatlama için yardımcı fonksiyon
-const formatDate = (dateString: string) => {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('tr-TR'); // tr-TR formatı gg.aa.yyyy
-};
+const notificationMessage = ref('');
+const notificationType = ref<'success' | 'error' | 'info'>('info');
+const notificationShow = ref(false);
+function showNotification(
+  message: string,
+  type: 'success' | 'error' | 'info' = 'info'
+) {
+  notificationShow.value = false; // Retrigger için sıfırla
+  notificationMessage.value = message;
+  notificationType.value = type;
+  setTimeout(() => {
+    notificationShow.value = true;
+  }, 10);
+}
 
 const loadAssignments = async (mentorId: number) => {
   try {
@@ -36,9 +47,9 @@ const loadAssignments = async (mentorId: number) => {
       `/api/assignments/by-mentor/${mentorId}`
     );
     assignments.value = response.data;
+    showNotification('Güncelleme başarılı!', 'success');
   } catch (err) {
-    console.error('Görevler çekilirken hata oluştu:', err);
-    error.value = 'Görevler yüklenemedi.';
+    showNotification('Güncelleme başarısız.', 'error');
   } finally {
     isLoading.value = false;
   }
@@ -65,6 +76,12 @@ onMounted(async () => {
 
 <template>
   <div class="tracking-container">
+    <AppNotification
+      :message="notificationMessage"
+      :type="notificationType"
+      :show="notificationShow"
+      :duration="2200"
+    />
     <h2>Görev Takibi</h2>
 
     <div v-if="isLoading" class="state-message">Yükleniyor...</div>
@@ -78,6 +95,8 @@ onMounted(async () => {
       <table v-else>
         <thead>
           <tr>
+            <th>Atanma Tarihi</th>
+            <th>Hedeflenen Bitiş Tarihi</th>
             <th>Stajyer Adı</th>
             <th>Mentor Adı</th>
             <th>Görev Adı</th>
@@ -89,6 +108,12 @@ onMounted(async () => {
         </thead>
         <tbody>
           <tr v-for="assignment in assignments" :key="assignment.id">
+            <td data-label="Atanma Tarihi">
+              {{ formatDate(assignment.assignedAt) }}
+            </td>
+            <td data-label="Hedeflenen Bitiş Tarihi">
+              {{ formatDate(assignment.dueDate) }}
+            </td>
             <td data-label="Stajyer Adı">{{ assignment.internName }}</td>
             <td data-label="Mentor Adı">{{ assignment.mentorName }}</td>
             <td data-label="Görev Adı">{{ assignment.assignmentName }}</td>
@@ -97,7 +122,7 @@ onMounted(async () => {
               {{
                 assignment.status === 'In Progress' ||
                 assignment.status === 'Completed'
-                  ? formatDate(assignment.assignedAt)
+                  ? formatDate(assignment.startedAt)
                   : '-'
               }}
             </td>
