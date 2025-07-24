@@ -15,7 +15,11 @@
         <label>Mentor:</label>
         <select v-model.number="selectedMentor">
           <option value="">Tümü</option>
-          <option v-for="mentor in mentors" :key="mentor.id" :value="mentor.id">
+          <option
+            v-for="mentor in activeMentors"
+            :key="mentor.id"
+            :value="mentor.id"
+          >
             {{ mentor.name }} {{ mentor.surname }}
           </option>
         </select>
@@ -25,7 +29,11 @@
         <label>Stajyer:</label>
         <select v-model.number="selectedIntern">
           <option value="">Tümü</option>
-          <option v-for="intern in interns" :key="intern.id" :value="intern.id">
+          <option
+            v-for="intern in activeInterns"
+            :key="intern.id"
+            :value="intern.id"
+          >
             {{ intern.name }} {{ intern.surname }}
           </option>
         </select>
@@ -72,20 +80,24 @@
           <strong>Bitiş Tarihi:</strong>
           {{ editRelation.end_date || '...' }}
         </p>
-        <label>
-          <input
-            type="checkbox"
-            v-model="editRelation.is_active"
-            :true-value="1"
-            :false-value="0"
-          />
-          Aktif mi?
-        </label>
-        <div style="margin-top: 16px">
-          <button @click="saveEditRelation">Kaydet</button>
-          <button @click="closeEditPopup" style="margin-left: 8px">
-            Kapat
+        <div class="popup-actions-row">
+          <!-- Sol altta Pasifleştir -->
+          <button
+            class="pasifle-btn"
+            v-if="
+              editRelation.is_active === 1 || editRelation.is_active === true
+            "
+            @click="makePassive"
+          >
+            Pasifleştir
           </button>
+          <!-- Sağ altta Kaydet/Kapat -->
+          <div class="right-actions">
+            <button @click="saveEditRelation">Kaydet</button>
+            <button @click="closeEditPopup" style="margin-left: 8px">
+              Kapat
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -96,7 +108,7 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import AppNotification from '@/components/AppNotification.vue';
-import RelationList from '@/components/RelationList.vue'; // EKLEDİK
+import RelationList from '@/components/RelationList.vue';
 
 const mentors = ref<any[]>([]);
 const interns = ref<any[]>([]);
@@ -104,6 +116,19 @@ const relations = ref<any[]>([]);
 
 const selectedMentor = ref<number | ''>('');
 const selectedIntern = ref<number | ''>('');
+
+// SADECE is_active === 1 olanları göstermek için computed'lar:
+const activeMentors = computed(() =>
+  mentors.value.filter(m => Number(m.isActive) === 1)
+);
+const activeInterns = computed(() =>
+  interns.value.filter(i => Number(i.isActive) === 1)
+);
+
+function makePassive() {
+  if (!editRelation.value) return;
+  editRelation.value.is_active = 0;
+}
 
 // Bildirim state'i
 const notificationMessage = ref('');
@@ -113,7 +138,7 @@ function showNotification(
   message: string,
   type: 'success' | 'error' | 'info' = 'info'
 ) {
-  notificationShow.value = false; // Retrigger için sıfırla
+  notificationShow.value = false;
   notificationMessage.value = message;
   notificationType.value = type;
   setTimeout(() => {
@@ -141,7 +166,7 @@ const enrichedRelations = computed(() => {
 // SADECE is_active === 1 olanlar ve seçili mentor/stajyer filtresi
 const enrichedRelationsFiltered = computed(() => {
   return enrichedRelations.value
-    .filter(rel => rel.is_active === 1) // SADECE aktif olanlar (integer)
+    .filter(rel => Number(rel.is_active) === 1)
     .filter(rel => {
       const mentorMatch =
         selectedMentor.value === '' || rel.mentor_id === selectedMentor.value;
@@ -192,11 +217,10 @@ async function saveEditRelation() {
         relationId: editRelation.value.relation_id,
         internId: editRelation.value.intern_id,
         mentorId: editRelation.value.mentor_id,
-        is_active: editRelation.value.is_active, // integer olarak gönderilecek
-        // Diğer alanlar gerekiyorsa ekle
+        is_active: editRelation.value.is_active,
       }
     );
-    await fetchRelations(); // Listeyi yenile
+    await fetchRelations();
     closeEditPopup();
     showNotification('Güncelleme başarılı!', 'success');
   } catch (e) {
@@ -231,7 +255,6 @@ async function assignMentor() {
     await axios.post('http://localhost:8085/api/relations', {
       mentorId: selectedMentor.value,
       internId: selectedIntern.value,
-      // is_active alanı backend tarafında default 1 olarak atanıyor olabilir.
     });
     showNotification('Eşleştirme başarıyla yapıldı!', 'success');
     await fetchRelations();
@@ -247,7 +270,6 @@ async function deleteRelation(id: number) {
     await axios.delete(`http://localhost:8085/api/relations/${id}`);
     relations.value = relations.value.filter(rel => rel.relation_id !== id);
     showNotification('Silme başarılı.', 'success');
-    // Her zaman güncel veri için:
     // await fetchRelations();
   } catch (e) {
     showNotification('Silme başarısız.', 'error');
@@ -347,5 +369,41 @@ select {
   min-width: 320px;
   max-width: 90vw;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+.popup-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 24px;
+}
+.pasifle-btn {
+  background-color: #e53935;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pasifle-btn:hover {
+  background-color: #b71c1c;
+}
+.right-actions {
+  display: flex;
+  gap: 10px;
+}
+.right-actions button {
+  background: #f58220;
+  color: #242441;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.right-actions button:hover {
+  background: #e0ac00;
 }
 </style>
