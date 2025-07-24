@@ -22,7 +22,7 @@
           title="Düzenle"
         >
           <i class="fa-solid fa-pen"></i>
-          Düzenle
+          Detay
         </button>
       </div>
     </li>

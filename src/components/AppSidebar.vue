@@ -17,7 +17,7 @@
     </nav>
 
     <!-- Versiyon rozetini en alta ekliyoruz -->
-    <div class="sidebar-version">v1.0.0</div>
+    <div class="sidebar-version">v1.0.1</div>
   </div>
 </template>
 

@@ -63,7 +63,7 @@
   </div>
   <div v-if="editPopupVisible" class="modal-overlay">
     <div class="modal-content">
-      <h3>Düzenle</h3>
+      <h3>Eşleşme Detayları</h3>
       <div v-if="editRelation">
         <p>
           <strong>Mentor Email:</strong> {{ editRelation.mentorEmail || '...' }}
@@ -74,11 +74,11 @@
         </p>
         <p>
           <strong>Başlangıç Tarihi:</strong>
-          {{ editRelation.start_date || '...' }}
+          {{ editRelation.startDate || '...' }}
         </p>
         <p>
           <strong>Bitiş Tarihi:</strong>
-          {{ editRelation.end_date || '...' }}
+          {{ editRelation.endDate || '...' }}
         </p>
         <div class="popup-actions-row">
           <!-- Sol altta Pasifleştir -->
@@ -93,7 +93,6 @@
           </button>
           <!-- Sağ altta Kaydet/Kapat -->
           <div class="right-actions">
-            <button @click="saveEditRelation">Kaydet</button>
             <button @click="closeEditPopup" style="margin-left: 8px">
               Kapat
             </button>
@@ -198,8 +197,8 @@ function openEditPopup(rel: any) {
     ...rel,
     mentorEmail: mentor?.email || '',
     internEmail: intern?.email || '',
-    start_date: rel.start_date || '',
-    end_date: rel.end_date || '',
+    startDate: intern?.startDate || '',
+    endDate: intern?.endDate || '',
     is_active: isActiveInteger,
   };
   editPopupVisible.value = true;

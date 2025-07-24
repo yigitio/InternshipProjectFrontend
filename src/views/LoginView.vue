@@ -10,7 +10,7 @@
       <h1>Lantern'a Hoşgeldiniz!</h1>
       <p class="subtitle"></p>
       <button class="login-button" @click="login">GİRİŞ YAP</button>
-      <div class="app-version">v1.0.0</div>
+      <div class="app-version">v1.0.1</div>
     </div>
   </div>
 </template>
