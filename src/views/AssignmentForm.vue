@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { addAssignment } from '@/utils/assignmentService';
@@ -44,6 +44,9 @@ const form = ref({
   assignedAt: today, // Başlangıç tarihi otomatik olarak bugün
   completedAt: '',
   status: 'To Do',
+});
+const formattedAssignedAt = computed(() => {
+  return formatDate(form.value.assignedAt);
 });
 watch(
   () => form.value.priority,
@@ -158,7 +161,12 @@ const submitAssignment = async () => {
       </select>
 
       <label for="assignedAt">Atanma Tarihi:</label>
-      <input id="assignedAt" v-model="form.assignedAt" type="text" disabled />
+      <input
+        id="assignedAt"
+        :value="formattedAssignedAt"
+        type="text"
+        disabled
+      />
 
       <label for="dueDate">Hedeflenen Bitiş Tarihi:</label>
       <input
@@ -214,14 +222,34 @@ textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem; /* iOS'ta otomatik zoom'u engellemek için 16px (1rem) idealdir */
   width: 100%;
   box-sizing: border-box; /* Padding ve border'ın genişliğe dahil olmasını sağlar */
+
+  /* --- TUTARLILIK İÇİN YAZI TİPİ AYARLARI --- */
+  /* Modern ve hemen hemen her sistemde bulunan bir font ailesi belirliyoruz */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  /* Font boyutunun 16px (1rem) olduğundan emin oluyoruz */
+  font-size: 1rem;
+
+  /* Font kalınlığını normal (400) olarak ayarlıyoruz */
+  font-weight: 400;
+
+  /* Metin rengini standart bir koyu gri yapıyoruz */
+  color: #333333;
 }
 
-input:disabled {
+/* --- DEVRE DIŞI BIRAKILMIŞ ELEMANLAR İÇİN ÖZEL STİL --- */
+input:disabled,
+textarea:disabled {
   background-color: #e9ecef;
   cursor: not-allowed;
+
+  /* Tarayıcının varsayılan soluklaştırma efektini tamamen geçersiz kılıyoruz */
+  color: #333333;
+  -webkit-text-fill-color: #333333; /* Chrome/Safari için renk zorlaması */
+  opacity: 1; /* Opaklığı tam yaparak soluk görünümü engelliyoruz */
 }
 
 textarea {
