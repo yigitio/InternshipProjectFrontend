@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
       }
 
       // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
@@ -83,12 +83,35 @@ const routes: RouteRecordRaw[] = [
           params: { email },
         });
         if (!exists) {
-          // kayıt yoksa otomatik ekle
+          // 1) Parantez içi ibareleri at
+          const rawName = account.name ?? '';
+          const cleanName = rawName.replace(/\s*\(.*\)$/, '');
+
+          // 2) Boşluklardan böl, boş string’leri çıkar
+          const parts = cleanName.split(' ').filter(p => p.trim() !== '');
+
+          // 3) Fallback olarak: sonudur = son parça, isim = gerisi
+          const fallbackLast = parts.length > 1 ? parts[parts.length - 1] : '';
+          const fallbackFirst =
+            parts.length > 1
+              ? parts.slice(0, parts.length - 1).join(' ')
+              : parts[0] ?? '';
+
+          // 4) Önce token claim’lerinden dene, yoksa fallback
+          const claims = account.idTokenClaims as {
+            given_name?: string;
+            family_name?: string;
+            mobile_phone?: string;
+          };
+          const firstName = claims.given_name ?? fallbackFirst;
+          const lastName = claims.family_name ?? fallbackLast;
+
+          // 5) Mentor kaydını oluştur
           await api.post('/mentors', {
-            name: account.name?.split(' ')[0] ?? '',
-            surname: account.name?.split(' ').slice(-1)[0] ?? '',
+            name: firstName,
+            surname: lastName,
             email,
-            phoneNumber: '',
+            phoneNumber: claims.mobile_phone ?? '',
           });
         }
         // mentor dashboard’a
@@ -113,7 +136,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (!title.includes('intern')) {
         // mentor formu göremez
@@ -137,7 +160,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (title.includes('intern')) {
         // internler NotIntern formunu göremez
@@ -153,7 +176,7 @@ const routes: RouteRecordRaw[] = [
     name: 'Home',
     component: HomeView,
     children: [
-      { path: 'report', name: 'Report', component: ReportView },
+      { path: '/report', name: 'Report', component: ReportView },
       { path: 'profile', name: 'Profile', component: ProfileView },
       {
         path: '/assignmentlist',
@@ -231,7 +254,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // TEST için zorla mentor branch’ine girmek istersen uncomment et:
-  //title = 'mentor';
+  title = 'mentor';
 
   if (to.name === 'Home' && !title.includes('intern')) {
     return { name: 'MentorHome' };
