@@ -80,7 +80,9 @@ async function handleLogout() {
 <style scoped>
 .home-layout {
   display: flex;
-  height: 100vh;
+  height: 95vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   overflow: hidden;
 }
 

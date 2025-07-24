@@ -66,10 +66,11 @@ function goHome() {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  padding: 40px 20px;
-  margin-left: 220px; /* ❗ Sidebar genişliği kadar boşluk bırak */
-  min-height: 100vh;
+  padding-top: 40px;
+  margin-left: 80px;
+  height: 80vh;
   background-color: #fff;
+  overflow: auto;
 }
 
 .profile-card {

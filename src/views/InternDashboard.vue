@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-grid">
+    <!-- PieChart -->
     <DashboardCard title="Assignment Durumu">
       <template
         v-if="
@@ -15,38 +16,39 @@
       </template>
     </DashboardCard>
 
-    <DashboardCard title="Yapılacaklar">
-      <ul v-if="assignments.length">
-        <li v-for="a in assignments" :key="a.id">
-          <strong>{{ a.assignmentName }}</strong
-          >: {{ a.assignmentDesc }}
-        </li>
-      </ul>
-      <p v-else>Henüz görev atanmadı.</p>
-    </DashboardCard>
-
-    <DashboardCard title="Notlarım">
-      <div class="scroll-box">
-        <ul v-if="notes.length">
-          <li v-for="note in notes" :key="note.id" class="task-item">
-            <span>{{ note.content }}</span>
-            <button @click="deleteNote(note.id)" class="task-delete">🗑</button>
-          </li>
-        </ul>
-        <p v-else class="empty-text">Henüz madde eklenmemiş.</p>
-      </div>
-      <div class="input-bottom">
-        <input
-          v-model="newNote"
-          @keyup.enter="addNote"
-          placeholder="Yeni madde ekle..."
-          class="input-field"
-        />
-      </div>
-    </DashboardCard>
-
+    <!-- Greeting -->
     <DashboardCard title=" ">
       <div class="greeting-box">{{ greetingMessage }}</div>
+    </DashboardCard>
+
+    <!-- Yapılacaklar -->
+    <DashboardCard title="Yapılacaklar" class="assignment-full-card">
+      <div class="table-scroll">
+        <table class="assignment-table" v-if="assignments.length">
+          <thead>
+            <tr>
+              <th>Öncelik</th>
+              <th>Görev</th>
+              <th>Atanma</th>
+              <th>Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="a in assignments" :key="a.id">
+              <td>
+                <span
+                  :class="['priority-dot', a.priority.toLowerCase()]"
+                ></span>
+                {{ a.priority }}
+              </td>
+              <td>{{ a.assignmentName }}</td>
+              <td>{{ formatDate(a.assignedAt) }}</td>
+              <td>{{ a.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else>Henüz görev atanmadı.</p>
+      </div>
     </DashboardCard>
   </div>
 </template>
@@ -57,12 +59,6 @@ import axios from 'axios';
 import { useMsal } from 'vue3-msal-plugin';
 import PieChart from '@/components/PieChart.vue';
 import DashboardCard from '@/components/DashboardCard.vue';
-
-interface NoteItem {
-  id: number;
-  content: string;
-  internEmail: string;
-}
 
 interface Assignment {
   id: number;
@@ -86,15 +82,16 @@ const assignmentStats = ref<Record<string, { name: string; value: number }[]>>(
   {}
 );
 const assignments = ref<Assignment[]>([]);
-const notes = ref<NoteItem[]>([]);
-const newNote = ref('');
 const greetingMessage = ref('');
 
 onMounted(async () => {
   const hour = new Date().getHours();
-  if (hour < 12) greetingMessage.value = 'Günaydın!';
-  else if (hour < 18) greetingMessage.value = 'İyi günler!';
-  else greetingMessage.value = 'İyi akşamlar!';
+  greetingMessage.value =
+    hour < 12
+      ? 'Günaydın! ☀️'
+      : hour < 18
+      ? 'İyi günler! 🌤️'
+      : 'İyi akşamlar! 🌙​';
 
   try {
     const res = await axios.get('http://localhost:8080/api/assignments/stats');
@@ -115,33 +112,18 @@ onMounted(async () => {
     const res = await axios.get(
       `http://localhost:8080/api/assignments/intern?email=${email}`
     );
-    assignments.value = res.data;
+
+    assignments.value = res.data.sort((a: Assignment, b: Assignment) => {
+      return (
+        new Date(a.assignedAt).getTime() - new Date(b.assignedAt).getTime()
+      );
+    });
   } catch (err) {
     console.error('Atanan görevler alınamadı:', err);
   }
-
-  try {
-    const res = await axios.get(`http://localhost:8080/api/notes/${email}`);
-    notes.value = res.data;
-  } catch (err) {
-    console.error('Notlar alınamadı:', err);
-  }
 });
 
-const addNote = async () => {
-  if (!newNote.value.trim()) return;
-  const res = await axios.post('http://localhost:8080/api/notes', {
-    content: newNote.value,
-    internEmail: email,
-  });
-  notes.value.push(res.data);
-  newNote.value = '';
-};
-
-const deleteNote = async (id: number) => {
-  await axios.delete(`http://localhost:8080/api/notes/${id}`);
-  notes.value = notes.value.filter(n => n.id !== id);
-};
+const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
 </script>
 
 <style scoped>
@@ -152,8 +134,9 @@ const deleteNote = async (id: number) => {
   gap: 12px;
   padding: 12px;
   max-width: 900px;
-  margin: 0 auto;
+  margin: 0px;
   height: calc(100vh - 140px);
+  min-height: 300px;
   box-sizing: border-box;
 }
 
@@ -168,69 +151,48 @@ const deleteNote = async (id: number) => {
   flex-direction: column;
 }
 
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    height: auto;
-  }
+/* Tablo stil */
+.assignment-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.scroll-box {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 6px;
-  margin-bottom: 0;
-  max-height: 180px;
-}
-
-.input-field {
-  width: 96%;
-  padding: 6px 8px;
+.assignment-table th,
+.assignment-table td {
+  padding: 10px;
   font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  outline: none;
-  margin-top: 6px;
-  transition: border-color 0.2s ease;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
 
-.input-field:focus {
-  border-color: #3b82f6;
+/* Priority renkleri */
+.priority-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
 }
 
-.task-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin-bottom: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+.priority-dot.urgent {
+  background-color: red;
 }
 
-.task-item:hover {
-  background-color: #f0f0f0;
+.priority-dot.high {
+  background-color: orange;
 }
 
-.task-delete {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  color: #d11a2a;
+.priority-dot.medium {
+  background-color: gold;
 }
 
-.empty-text {
-  text-align: center;
-  color: #999;
-  font-size: 13px;
-  margin: 10px 0;
+.priority-dot.low {
+  background-color: green;
+}
+
+.priority-dot.optional {
+  background-color: lightgray;
 }
 
 .greeting-box {
@@ -241,5 +203,61 @@ const deleteNote = async (id: number) => {
   font-size: 1.2rem;
   font-weight: 600;
   color: #333;
+}
+
+.assignment-full-card {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-y: auto;
+  max-height: 250px;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+
+/* Scrollbar görünümü: Webkit */
+.table-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.table-scroll::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+.table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Responsive tablo sarmalayıcı */
+.table-scroll table {
+  min-width: 100%;
+}
+
+/* Mobil için responsive grid */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+  }
+
+  .assignment-full-card {
+    grid-column: span 1;
+  }
+
+  .table-scroll {
+    max-height: none;
+    overflow-x: auto;
+  }
+
+  .assignment-table {
+    min-width: 600px;
+  }
 }
 </style>

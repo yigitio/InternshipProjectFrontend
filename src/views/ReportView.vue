@@ -55,7 +55,8 @@ import AppSidebar from '@/components/AppSidebar.vue';
 .home-layout {
   display: flex;
   flex-direction: row;
-  min-height: 100vh;
+  height: 80vh;
+  box-sizing: border-box;
 }
 
 .home-content {
@@ -63,7 +64,7 @@ import AppSidebar from '@/components/AppSidebar.vue';
   justify-content: flex-start; /* sola hizalama */
   align-items: flex-start; /* yukarı hizalama */
   padding: 24px;
-  margin-left: 160px;
+  margin-left: 0px;
   width: 100%;
   box-sizing: border-box;
   background: white; /* Gri arka planı kaldırdık */
@@ -73,11 +74,11 @@ import AppSidebar from '@/components/AppSidebar.vue';
   background: #ffffff;
   border-radius: 12px;
   padding: 24px;
-  max-width: 600px; /* Daha küçük pencere */
+  max-width: 800px; /* Daha küçük pencere */
   width: 100%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   margin-top: 24px;
-  margin-left: 0; /* sola yaslı */
+  margin-left: 0px; /* sola yaslı */
 }
 
 .card-title {
@@ -87,7 +88,7 @@ import AppSidebar from '@/components/AppSidebar.vue';
 }
 
 .card-body p {
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
   line-height: 1.6;
   color: #444;
   font-size: 1rem;
@@ -105,7 +106,7 @@ import AppSidebar from '@/components/AppSidebar.vue';
   flex-wrap: wrap;
 }
 .report-list .label {
-  min-width: 130px;
+  min-width: 90px;
   font-weight: 600;
   color: #000;
 }
