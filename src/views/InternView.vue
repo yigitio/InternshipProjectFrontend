@@ -15,19 +15,29 @@
         </div>
         <div class="field">
           <label>Üniversite:</label>
-          <input
-            v-model="form.university"
-            required
-            placeholder="Üniversitenizi giriniz"
-          />
+          <select v-model="form.university" required @change="fetchDepartments">
+            <option value="" disabled selected>Üniversite Seçiniz</option>
+            <option v-for="uni in universities" :key="uni" :value="uni">
+              {{ uni }}
+            </option>
+          </select>
         </div>
         <div class="field">
           <label>Bölüm:</label>
-          <input
+          <select
             v-model="form.department"
             required
-            placeholder="Bölümünüzü giriniz"
-          />
+            :disabled="!departments.length"
+          >
+            <option value="" disabled selected>Bölüm Seçiniz</option>
+            <option
+              v-for="dep in departments"
+              :key="dep.ID"
+              :value="dep.PROGRAM_NAME"
+            >
+              {{ dep.PROGRAM_NAME }}
+            </option>
+          </select>
         </div>
         <div class="field">
           <label>Staj Başlangıç Tarihi:</label>
@@ -69,13 +79,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useMsal } from 'vue3-msal-plugin';
 import { useRouter } from 'vue-router';
 import api from '@/utils/apiClients';
 
 const { instance } = useMsal();
 const router = useRouter();
+
+const universities = ref<string[]>([]);
+const departments = ref<{ ID: number; PROGRAM_NAME: string }[]>([]);
+
 const form = reactive({
   name: '',
   surname: '',
@@ -88,7 +102,7 @@ const form = reactive({
 });
 
 // Azure'dan ad ve soyad otomatik, readonly olacak şekilde ayarlanıyor
-onMounted(() => {
+onMounted(async () => {
   const account = instance.getActiveAccount();
   if (account) {
     const displayName = account.name || '';
@@ -107,7 +121,31 @@ onMounted(() => {
     }
     form.email = account.username;
   }
+  // Üniversiteleri yükle
+  try {
+    const res = await api.get('/universities');
+    universities.value = res.data;
+  } catch (e) {
+    universities.value = [];
+  }
 });
+
+async function fetchDepartments() {
+  form.department = ''; // seçili bölümü temizle
+  if (!form.university) {
+    departments.value = [];
+    return;
+  }
+  try {
+    const res = await api.get('/departments', {
+      params: { university: form.university },
+    });
+    departments.value = res.data;
+  } catch (e) {
+    departments.value = [];
+  }
+}
+
 function formatPhone(e: Event) {
   let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
 
@@ -159,7 +197,7 @@ async function onSubmit() {
 </script>
 
 <style scoped>
-/* Senin CSS'in aynen duruyor */
+/* CSS'in aynı şekilde kalsın */
 .register-bg {
   min-height: 100vh;
   display: flex;
@@ -182,7 +220,7 @@ async function onSubmit() {
 .register-card {
   position: relative;
   z-index: 2;
-  width: 420px;
+  width: 440px;
   background: #fff;
   border-radius: 26px;
   box-shadow: 0 6px 32px 0 rgba(32, 42, 68, 0.14);
@@ -215,7 +253,7 @@ h2 {
 }
 .field {
   width: 100%;
-  margin-bottom: 19px;
+  margin-bottom: 12px;
   text-align: left;
 }
 label {
@@ -226,7 +264,8 @@ label {
   display: block;
   letter-spacing: 0.1px;
 }
-input {
+input,
+select {
   width: 100%;
   padding: 12px 16px;
   border: 2px solid #d4e2fa;
@@ -239,7 +278,8 @@ input {
   transition: border 0.17s;
   outline: none;
 }
-input:focus {
+input:focus,
+select:focus {
   border: 2px solid #3d5ae6;
   background: #fff;
 }
