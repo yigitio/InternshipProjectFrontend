@@ -15,7 +15,7 @@ const error = ref<string | null>(null);
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
 
-const statusOptions = ['Pending', 'In Progress', 'Completed'];
+const statusOptions = ['To Do', 'In Progress', 'Completed'];
 
 // DÜZELTİLMİŞ FONKSİYON
 const loadAssignments = async (internId: number) => {
@@ -25,7 +25,7 @@ const loadAssignments = async (internId: number) => {
     const fetchedAssignments: Assignment[] = await fetchAssignments(internId);
     assignments.value = fetchedAssignments.map(assignment => {
       if (!assignment.status) {
-        assignment.status = 'Pending';
+        assignment.status = 'To Do';
       }
       return assignment;
     });
@@ -80,19 +80,15 @@ onMounted(async () => {
 
 <template>
   <div class="assignment-container">
-    <h2>📋 Atanan Görevler</h2>
+    <h2>Atanan Görevler</h2>
 
-    <div v-if="isLoading">
-      <p>Yükleniyor...</p>
-    </div>
+    <div v-if="isLoading" class="state-message">Yükleniyor...</div>
 
-    <div v-else-if="error" class="error-message">
-      <p>{{ error }}</p>
-    </div>
+    <div v-else-if="error" class="state-message error">{{ error }}</div>
 
     <div v-else>
-      <div v-if="assignments.length === 0" class="empty-state">
-        <p>Henüz atanmış bir görev bulunmuyor.</p>
+      <div v-if="assignments.length === 0" class="state-message">
+        Henüz atanmış bir görev bulunmuyor.
       </div>
 
       <table v-else>
@@ -100,7 +96,7 @@ onMounted(async () => {
           <tr>
             <th>Görev Adı</th>
             <th>Açıklama</th>
-            <th>Başlangıç Tarihi</th>
+            <th>Atanma Tarihi</th>
             <th>Bitiş Tarihi</th>
             <th>Önem Derecesi</th>
             <th>Mentor</th>
@@ -109,23 +105,19 @@ onMounted(async () => {
         </thead>
         <tbody>
           <tr v-for="item in assignments" :key="item.id">
-            <td>{{ item.assignmentName || 'N/A' }}</td>
-            <td>{{ item.assignmentDesc }}</td>
-            <td>{{ item.assignedAt }}</td>
-            <td>
+            <td data-label="Görev Adı">{{ item.assignmentName || 'N/A' }}</td>
+            <td data-label="Açıklama">{{ item.assignmentDesc }}</td>
+            <td data-label="Atanma Tarihi">{{ item.assignedAt }}</td>
+            <td data-label="Bitiş Tarihi">
               {{
                 item.dueDate
                   ? new Date(item.dueDate).toLocaleDateString()
                   : 'N/A'
               }}
             </td>
-            <td>
-              {{ item.priority }}
-            </td>
-            <td>
-              {{ item.mentorName }}
-            </td>
-            <td>
+            <td data-label="Önem Derecesi">{{ item.priority }}</td>
+            <td data-label="Mentor">{{ item.mentorName }}</td>
+            <td data-label="Statü">
               <select v-model="item.status" @change="handleStatusChange(item)">
                 <option
                   v-for="status in statusOptions"
@@ -144,63 +136,106 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* Mevcut stil kodlarınız... */
 .assignment-container {
+  padding: 2rem;
   font-family: sans-serif;
   width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1rem;
+  box-sizing: border-box;
 }
+
 h2 {
+  color: #2c3e50;
   margin-bottom: 1.5rem;
-  color: #242441;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 thead {
-  background-color: #a15c2d;
-  color: #ecf0f1;
+  background-color: #242441;
+  color: white;
 }
+
 th,
 td {
   padding: 12px 15px;
-  border-bottom: 1px solid #4f4f4f;
-  vertical-align: middle;
-}
-tbody tr {
-  background-color: #f58220;
-  transition: background-color 0.2s ease-in-out;
-}
-tbody tr:hover {
-  background-color: #a15c2d;
-}
-.error-message,
-.empty-state {
-  background-color: #2a2a2a;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  color: #bdc3c7;
+  border: 1px solid #ddd;
+  text-align: left;
 }
 
-/* --- YENİ EKLENEN STİL --- */
-select {
-  background-color: #242441;
-  color: white;
-  border: 1px solid #7f8c8d;
-  padding: 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  min-width: 120px;
+tbody tr {
+  transition: background-color 0.2s ease;
 }
-select:focus {
-  outline: none;
-  border-color: #3498db;
+
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
 }
-/* ------------------------- */
+
+tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+.state-message {
+  padding: 2rem;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  color: #555;
+  margin-top: 1rem;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* --- MOBİL UYUMLULUK (MEDIA QUERY) --- */
+/* Ekran genişliği 768px veya daha az olduğunda bu stiller uygulanır */
+@media (max-width: 768px) {
+  thead {
+    /* Başlık satırını mobilde gizliyoruz çünkü başlıkları kartların içine taşıyacağız */
+    display: none;
+  }
+
+  tr {
+    /* Her satırı bir kart gibi göster */
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  td {
+    /* Hücreleri alt alta sırala */
+    display: block;
+    text-align: right; /* Veriyi sağa yasla */
+    position: relative;
+    padding-left: 50%; /* Başlık için solda yer aç */
+    border-bottom: 1px solid #eee;
+  }
+
+  td:last-child {
+    border-bottom: none;
+  }
+
+  /* Bu kısım sihrin gerçekleştiği yer */
+  td::before {
+    /* data-label içeriğini başlık olarak hücrenin başına ekle */
+    content: attr(data-label);
+    position: absolute;
+    left: 15px; /* Soldan boşluk */
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left; /* Başlığı sola yasla */
+    font-weight: bold;
+    color: #242441;
+  }
+}
 </style>

@@ -2,18 +2,20 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-// addAssignment'ı service dosyanızdan aldığınızı varsayıyorum, bu doğru bir yaklaşım.
 import { addAssignment } from '@/utils/assignmentService';
 import { useMsal } from 'vue3-msal-plugin';
+
+// --- Reaktif Değişkenler ---
 const interns = ref<{ id: number; name: string }[]>([]);
 const currentMentor = ref<{ id: number; name: string } | null>(null);
 const router = useRouter();
+const { accounts } = useMsal();
+const email = accounts.value[0].username;
 
-// --- YENİ EKLENEN KISIM ---
-// Dropdown menüsünde gösterilecek öncelik seçenekleri
+// --- Form Seçenekleri ve Varsayılan Değerler ---
 const priorityOptions = ['Urgent', 'High', 'Medium', 'Normal'];
+// Başlangıç tarihini bugünün tarihi olarak ayarlar (YYYY-MM-DD formatında)
 const today = new Date().toISOString().split('T')[0];
-// -------------------------
 
 // Form verileri
 const form = ref({
@@ -22,18 +24,16 @@ const form = ref({
   assignmentName: '',
   assignmentDesc: '',
   dueDate: '',
-  priority: 'Normal', // <-- Varsayılan bir değer atandı
-  assignedAt: today,
+  priority: 'Normal',
+  assignedAt: today, // Başlangıç tarihi otomatik olarak bugün
   completedAt: '',
-  status: 'Pending',
+  status: 'To Do',
 });
 
-const { accounts } = useMsal();
-const email = accounts.value[0].username;
-
-// Sayfa yüklendiğinde intern ve mentorları çek
+// Sayfa yüklendiğinde mevcut mentor ve ona bağlı stajyerleri çeker
 onMounted(async () => {
   try {
+    // Mentor bilgisini email ile al
     const mentorRes = await axios.get(
       `http://localhost:8080/api/mentors/email/${email}`
     );
@@ -42,14 +42,13 @@ onMounted(async () => {
     currentMentor.value = {
       id: mentorData.id,
       name: mentorData.name + ' ' + mentorData.surname,
-    };
+    }; // Formdaki mentorId'yi otomatik olarak o anki mentorun ID'si yap
 
-    // Formdaki mentorId'yi otomatik olarak o anki mentorun ID'si yap
-    form.value.mentorId = mentorData.id;
+    form.value.mentorId = mentorData.id; // Mentora bağlı stajyerleri çek
 
-    // 3. Adım: Mentor ID'sini kullanarak sadece o mentora bağlı stajyerleri çek.
     if (mentorData.id) {
       const internRes = await axios.get(
+        // Bu URL'in backend'inizle uyumlu olduğundan emin olun
         `http://localhost:8080/api/interns/${mentorData.id}/interns`
       );
       interns.value = internRes.data.map((i: any) => ({
@@ -62,51 +61,58 @@ onMounted(async () => {
   }
 });
 
-// Yeni görev ekle
+// Yeni görev ekleme fonksiyonu
 const submitAssignment = async () => {
   try {
-    // form.value artık seçilen priority bilgisini de içerecek
     await addAssignment(form.value);
     alert('Görev başarıyla eklendi!');
+    // İsteğe bağlı: Başarılı eklemeden sonra formu temizleyebilir veya başka bir sayfaya yönlendirebilirsiniz.
+    // router.push('/mentor-dashboard');
   } catch (err) {
-    console.error(err);
-    alert('Görev eklenirken hata oluştu.');
+    console.error('Görev eklenirken hata oluştu:', err);
+    alert('Görev eklenirken bir hata oluştu.');
   }
 };
 </script>
 
 <template>
-  <div>
+  <div class="form-container">
     <h2>Yeni Görev Ekle</h2>
     <form @submit.prevent="submitAssignment">
-      <label>Stajyer:</label>
-      <select v-model="form.internId" required>
-        <option value="">Seçiniz</option>
+      <label for="intern">Stajyer:</label>
+      <select id="intern" v-model="form.internId" required>
+        <option value="0" disabled>Lütfen bir stajyer seçiniz</option>
         <option v-for="intern in interns" :key="intern.id" :value="intern.id">
           {{ intern.name }}
         </option>
       </select>
 
-      <label>Mentor:</label>
-      <input :value="currentMentor?.name" type="text" disabled />
+      <label for="mentor">Mentor:</label>
+      <input id="mentor" :value="currentMentor?.name" type="text" disabled />
 
-      <label>Görev Adı:</label>
-      <input v-model="form.assignmentName" type="text" required />
+      <label for="assignmentName">Görev Adı:</label>
+      <input
+        id="assignmentName"
+        v-model="form.assignmentName"
+        type="text"
+        required
+      />
 
-      <label>Açıklama:</label>
-      <textarea v-model="form.assignmentDesc"></textarea>
+      <label for="assignmentDesc">Açıklama:</label>
+      <textarea id="assignmentDesc" v-model="form.assignmentDesc"></textarea>
 
-      <label>Öncelik:</label>
-      <select v-model="form.priority">
+      <label for="priority">Öncelik:</label>
+      <select id="priority" v-model="form.priority">
         <option v-for="option in priorityOptions" :key="option" :value="option">
           {{ option }}
         </option>
       </select>
-      <label>Başlama Tarihi:</label>
-      <input v-model="form.assignedAt" type="text" disabled />
 
-      <label>Bitiş Tarihi:</label>
-      <input v-model="form.dueDate" type="date" />
+      <label for="assignedAt">Atanma Tarihi:</label>
+      <input id="assignedAt" v-model="form.assignedAt" type="text" disabled />
+
+      <label for="dueDate">Bitiş Tarihi:</label>
+      <input id="dueDate" v-model="form.dueDate" type="date" />
 
       <button type="submit">Görev Ekle</button>
     </form>
@@ -114,20 +120,93 @@ const submitAssignment = async () => {
 </template>
 
 <style scoped>
+/* --- KAPSAYICI STİLLERİ --- */
+.form-container {
+  padding: 2rem; /* Geniş ekranlarda kenar boşluğu */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Formu yatayda ortalar */
+}
+
+/* --- BAŞLIK STİLİ --- */
+h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* --- FORM STİLLERİ (Masaüstü için temel) --- */
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  max-width: 400px;
+  gap: 0.8rem;
+  width: 100%; /* Genişliğini kapsayıcısına göre ayarlar */
+  max-width: 450px; /* Maksimum genişlik */
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Tüm form elemanlarının benzer görünmesi için eklendi */
+label {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
 input,
 select,
 textarea {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 1rem; /* iOS'ta otomatik zoom'u engellemek için 16px (1rem) idealdir */
+  width: 100%;
+  box-sizing: border-box; /* Padding ve border'ın genişliğe dahil olmasını sağlar */
+}
+
+input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 12px;
+  background-color: #242441; /* Ana renk */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #242441;
+}
+
+/* --- MOBİL UYUMLULUK (MEDIA QUERY) --- */
+/* Ekran genişliği 600px veya daha az olduğunda bu stiller uygulanır */
+@media (max-width: 600px) {
+  .form-container {
+    padding: 1rem; /* Mobil için kenar boşluğunu azalt */
+  }
+
+  form {
+    padding: 1.5rem; /* Form içi boşluğu azalt */
+    box-shadow: none; /* Mobilde gölgeyi kaldır */
+    border: 1px solid #eee;
+  }
+
+  h2 {
+    font-size: 1.5rem; /* Başlık fontunu biraz küçült */
+  }
 }
 </style>

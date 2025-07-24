@@ -10,7 +10,7 @@ interface Assignment {
   assignmentDesc: string;
   assignedAt: string;
   dueDate: string;
-  status: 'Pending' | 'In Progress' | 'Completed';
+  status: 'To Do' | 'In Progress' | 'Completed';
   internName: string; // Stajyerin adı
   completedAt: string; // Bitiş tarihini tutmak için
   mentorName: string; // Mentorun adı
@@ -65,7 +65,7 @@ onMounted(async () => {
 
 <template>
   <div class="tracking-container">
-    <h2>Stajyer Görev Takibi</h2>
+    <h2>Görev Takibi</h2>
 
     <div v-if="isLoading" class="state-message">Yükleniyor...</div>
 
@@ -83,31 +83,32 @@ onMounted(async () => {
             <th>Görev Adı</th>
             <th>Açıklama</th>
             <th>Başlangıç Tarihi</th>
-            <th>Bitiş Tarihi</th>
+            <th>Tamamlanma Tarihi</th>
             <th>Statü</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="assignment in assignments" :key="assignment.id">
-            <td>{{ assignment.internName }}</td>
-            <td>{{ assignment.mentorName }}</td>
-            <td>{{ assignment.assignmentName }}</td>
-            <td>{{ assignment.assignmentDesc }}</td>
-            <td>
+            <td data-label="Stajyer Adı">{{ assignment.internName }}</td>
+            <td data-label="Mentor Adı">{{ assignment.mentorName }}</td>
+            <td data-label="Görev Adı">{{ assignment.assignmentName }}</td>
+            <td data-label="Açıklama">{{ assignment.assignmentDesc }}</td>
+            <td data-label="Başlangıç Tarihi">
               {{
-                assignment.status === 'In Progress'
+                assignment.status === 'In Progress' ||
+                assignment.status === 'Completed'
                   ? formatDate(assignment.assignedAt)
                   : '-'
               }}
             </td>
-            <td>
+            <td data-label="Tamamlanma Tarihi">
               {{
                 assignment.status === 'Completed'
                   ? formatDate(assignment.completedAt)
                   : '-'
               }}
             </td>
-            <td>{{ assignment.status }}</td>
+            <td data-label="Statü">{{ assignment.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -119,25 +120,46 @@ onMounted(async () => {
 .tracking-container {
   padding: 2rem;
   font-family: sans-serif;
+  width: 100%;
+  box-sizing: border-box;
 }
+
+h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 thead {
-  background-color: #34495e;
+  background-color: #242441;
   color: white;
 }
+
 th,
 td {
-  padding: 12px;
+  padding: 12px 15px;
   border: 1px solid #ddd;
   text-align: left;
 }
-tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
+
+tbody tr {
+  transition: background-color 0.2s ease;
 }
+
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+tbody tr:hover {
+  background-color: #e9ecef;
+}
+
 .state-message {
   padding: 2rem;
   text-align: center;
@@ -145,9 +167,56 @@ tbody tr:nth-child(even) {
   border-radius: 8px;
   font-size: 1.2rem;
   color: #555;
+  margin-top: 1rem;
 }
+
 .error {
   background-color: #ffebee;
   color: #c62828;
+}
+
+/* --- MOBİL UYUMLULUK (MEDIA QUERY) --- */
+/* Ekran genişliği 768px veya daha az olduğunda bu stiller uygulanır */
+@media (max-width: 768px) {
+  thead {
+    /* Başlık satırını mobilde gizliyoruz çünkü başlıkları kartların içine taşıyacağız */
+    display: none;
+  }
+
+  tr {
+    /* Her satırı bir kart gibi göster */
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  td {
+    /* Hücreleri alt alta sırala */
+    display: block;
+    text-align: right; /* Veriyi sağa yasla */
+    position: relative;
+    padding-left: 50%; /* Başlık için solda yer aç */
+    border-bottom: 1px solid #eee;
+  }
+
+  td:last-child {
+    border-bottom: none;
+  }
+
+  /* Bu kısım sihrin gerçekleştiği yer */
+  td::before {
+    /* data-label içeriğini başlık olarak hücrenin başına ekle */
+    content: attr(data-label);
+    position: absolute;
+    left: 15px; /* Soldan boşluk */
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left; /* Başlığı sola yasla */
+    font-weight: bold;
+    color: #242441;
+  }
 }
 </style>

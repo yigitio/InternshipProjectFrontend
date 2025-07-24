@@ -8,7 +8,7 @@
 
     <!-- Menü -->
     <nav class="sidebar">
-      <router-link to="/assignmentlist">Yapılacaklar</router-link>
+      <router-link to="/assignmentlist">Atanan Görevler</router-link>
       <router-link to="/programs">İndirilecek Program Listesi</router-link>
       <router-link to="/report">Stajyer Rapor Bilgileri</router-link>
       <router-link to="/goals">Haftalık Hedefler</router-link>
