@@ -1,4 +1,3 @@
-<!-- src/components/AppSidebar.vue -->
 <template>
   <div class="sidebar-container">
     <!-- Logo bölümü -->
@@ -10,15 +9,18 @@
     <nav class="sidebar">
       <router-link to="/assignmentForm">Görev İşlemleri</router-link>
       <router-link to="/assignmentTracking">Görev Takibi</router-link>
+      <!-- Admin sadece adminlerde gözükür -->
+      <router-link v-if="isAdmin === '3'" to="/mentorhome/admin">
+        Admin Paneli
+      </router-link>
     </nav>
 
-    <!-- Versiyon rozetini en alta ekliyoruz -->
     <div class="sidebar-version">v1.0.1</div>
   </div>
 </template>
 
 <script setup lang="ts">
-// (no changes needed here)
+defineProps<{ isAdmin: string }>();
 </script>
 
 <style scoped>

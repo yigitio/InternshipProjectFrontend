@@ -74,12 +74,13 @@
         </p>
         <p>
           <strong>Başlangıç Tarihi:</strong>
-          {{ editRelation.startDate || '...' }}
+          {{ formatDate(editRelation.startDate) }}
         </p>
         <p>
           <strong>Bitiş Tarihi:</strong>
-          {{ editRelation.endDate || '...' }}
+          {{ formatDate(editRelation.endDate) }}
         </p>
+
         <div class="popup-actions-row">
           <!-- Sol altta Pasifleştir -->
           <button
@@ -108,6 +109,7 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import AppNotification from '@/components/AppNotification.vue';
 import RelationList from '@/components/RelationList.vue';
+import { formatDate } from '@/utils/formatters';
 
 const mentors = ref<any[]>([]);
 const interns = ref<any[]>([]);

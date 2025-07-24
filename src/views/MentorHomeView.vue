@@ -1,6 +1,6 @@
 <template>
   <div class="home-layout">
-    <MentorAppSidebar />
+    <MentorAppSidebar :isAdmin="isAdmin ? '3' : ''" />
 
     <div class="home-content">
       <!-- SAĞ ÜST PROFİL FOTOĞRAFI -->
@@ -12,9 +12,6 @@
         <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
         <div v-if="showMenu" class="dropdown-menu">
           <router-link to="/mentorhome/mentorprofile">👤 Profil</router-link>
-          <router-link v-if="isAdmin" to="/mentorhome/admin"
-            >⚙️ Admin Paneli</router-link
-          >
           <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
         </div>
       </div>
