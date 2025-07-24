@@ -115,7 +115,7 @@ onMounted(async () => {
 
     assignments.value = res.data.sort((a: Assignment, b: Assignment) => {
       return (
-        new Date(a.assignedAt).getTime() - new Date(b.assignedAt).getTime()
+        new Date(b.assignedAt).getTime() - new Date(a.assignedAt).getTime()
       );
     });
   } catch (err) {
@@ -193,6 +193,9 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
 
 .priority-dot.optional {
   background-color: lightgray;
+}
+.priority-dot.normal {
+  background-color: #5c6bc0;
 }
 
 .greeting-box {
