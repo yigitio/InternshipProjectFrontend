@@ -110,6 +110,7 @@ import AppNotification from '@/components/AppNotification.vue';
 import RelationList from '@/components/RelationList.vue';
 import { formatDate } from '@/utils/formatters';
 import apiClient from '@/utils/apiClients';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const mentors = ref<any[]>([]);
 const interns = ref<any[]>([]);
