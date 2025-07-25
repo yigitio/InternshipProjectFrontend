@@ -23,6 +23,7 @@ import AssignmentList from '@/views/AssignmentList.vue';
 import AssignmentForm from '@/views/AssignmentForm.vue';
 import AssignmentTracking from '@/views/AssignmentTracking.vue';
 import OfficeView from '@/views/OfficeView.vue';
+import StaffView from '@/views/StaffView.vue';
 import MentorAnnouncementForm from '@/views/MentorAnnouncementForm.vue';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -66,7 +67,7 @@ const routes: RouteRecordRaw[] = [
       }
 
       // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      title = 'mentor';
+      //title = 'mentor';
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
@@ -138,7 +139,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      title = 'mentor';
+      //title = 'mentor';
 
       if (!title.includes('intern')) {
         // mentor formu göremez
@@ -162,7 +163,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      title = 'mentor';
+      //title = 'mentor';
 
       if (title.includes('intern')) {
         // internler NotIntern formunu göremez
@@ -186,6 +187,7 @@ const routes: RouteRecordRaw[] = [
         component: AssignmentList,
       },
       { path: '/office', name: 'Office', component: OfficeView },
+      { path: '/staff', name: 'Staff', component: StaffView },
     ],
   },
   {
@@ -262,7 +264,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // TEST için zorla mentor branch’ine girmek istersen uncomment et:
-  title = 'mentor';
+  //title = 'mentor';
 
   if (to.name === 'Home' && !title.includes('intern')) {
     return { name: 'MentorHome' };
