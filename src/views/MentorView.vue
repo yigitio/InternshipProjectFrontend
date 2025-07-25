@@ -42,7 +42,7 @@ async function onSubmit() {
   if (!account) return;
 
   try {
-    await api.post('/mentors', {
+    await api.post('/api/mentors', {
       ...form,
       email: account.username,
       role: 'Mentor',

@@ -109,7 +109,7 @@ const routes: RouteRecordRaw[] = [
           const lastName = claims.family_name ?? fallbackLast;
 
           // 5) Mentor kaydını oluştur
-          await api.post('/mentors', {
+          await api.post('/api/mentors', {
             name: firstName,
             surname: lastName,
             email,
