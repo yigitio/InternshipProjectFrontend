@@ -30,6 +30,8 @@
 </template>
 
 <script setup lang="ts">
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 defineProps<{
   relations: any[];
 }>();
