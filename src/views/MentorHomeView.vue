@@ -3,21 +3,21 @@
     <MentorAppSidebar :isAdmin="isAdmin ? '3' : ''" />
 
     <div class="home-content">
-      <!-- SAĞ ÜST PROFİL FOTOĞRAFI -->
-      <div
-        class="profile-container"
-        @mouseenter="showMenu = true"
-        @mouseleave="showMenu = false"
-      >
-        <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
-        <div v-if="showMenu" class="dropdown-menu">
-          <router-link to="/mentorhome/mentorprofile">👤 Profil</router-link>
-          <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
-        </div>
-      </div>
-
-      <!-- Sayfa içeriği -->
       <div class="main-view">
+        <!-- SAĞ ÜST PROFİL FOTOĞRAFI -->
+        <div
+          class="profile-container"
+          @mouseenter="showMenu = true"
+          @mouseleave="showMenu = false"
+        >
+          <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
+          <div v-if="showMenu" class="dropdown-menu">
+            <router-link to="/mentorhome/mentorprofile">👤 Profil</router-link>
+            <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
+          </div>
+        </div>
+
+        <!-- Dinamik Sayfa Bileşeni -->
         <router-view v-slot="{ Component }">
           <div v-if="Component">
             <component :is="Component" />
@@ -66,7 +66,7 @@ function handleLogout() {
 <style scoped>
 .home-layout {
   display: flex;
-  height: 100vh;
+  height: 95vh;
   overflow: hidden;
 }
 
@@ -74,14 +74,27 @@ function handleLogout() {
   flex-grow: 1;
   margin-left: 220px;
   position: relative;
-  min-height: 100vh;
   background: white;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 0px;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+.main-view {
+  position: relative;
+  padding: 20px;
+  width: 100%;
+  max-width: 1000px;
+  height: 100vh;
+  overflow-y: scroll; /* Scroll açık */
+
+  /* Scroll barı gizle */
+  scrollbar-width: none; /* Firefox */
+}
+.main-view::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 .profile-container {
@@ -124,12 +137,6 @@ function handleLogout() {
 .dropdown-menu a:hover,
 .dropdown-menu router-link:hover {
   background-color: #f0f0f0;
-}
-
-.main-view {
-  padding: 20px;
-  width: 100%;
-  max-width: 1000px;
 }
 
 .dashboard-wrapper {
