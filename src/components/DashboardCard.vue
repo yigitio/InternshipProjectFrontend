@@ -1,6 +1,6 @@
 <template>
-  <div class="card">
-    <h2 class="text-lg font-bold mb-2">{{ title }}</h2>
+  <div class="dashboard-card">
+    <h2 class="dashboard-title" v-if="title">{{ title }}</h2>
     <slot />
   </div>
 </template>
@@ -13,13 +13,18 @@ defineProps<{ title: string }>();
 
 <style scoped>
 .dashboard-card {
-  height: 100%;
-  display: grid;
+  display: flex;
   flex-direction: column;
   justify-content: flex-start;
   background: white;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 40px rgba(36, 36, 65, 0.05);
+}
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  margin-top: 6px;
 }
 </style>

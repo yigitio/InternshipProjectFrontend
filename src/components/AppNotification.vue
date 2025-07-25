@@ -35,23 +35,25 @@ watch(
 <style scoped>
 .notification {
   position: fixed;
-  top: 32px;
-  left: 50%;
+  top: 48px;
+  left: 60%;
   transform: translateX(-50%);
-  min-width: 220px;
-  max-width: 90vw;
-  padding: 16px 32px;
-  border-radius: 8px;
+  min-width: 180px;
+  max-width: 400px;
+  padding: 10px 20px;
+  border-radius: 6px;
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   z-index: 9999;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   text-align: center;
-  opacity: 0.98;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  background-color: #0eafc5;
 }
+
+/* Tip renkleri */
 .notification.success {
   background: #0ebc08;
-  color: #242441;
+  color: #fff;
 }
 .notification.error {
   background: #e53935;
@@ -59,9 +61,11 @@ watch(
 .notification.info {
   background: #0eafc5;
 }
+
+/* Geçiş animasyonu */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.4s;
+  transition: opacity 0.3s;
 }
 .fade-enter-from,
 .fade-leave-to {

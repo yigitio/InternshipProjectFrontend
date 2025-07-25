@@ -66,7 +66,7 @@ const routes: RouteRecordRaw[] = [
       }
 
       // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
@@ -138,7 +138,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (!title.includes('intern')) {
         // mentor formu göremez
@@ -162,7 +162,7 @@ const routes: RouteRecordRaw[] = [
         title = 'intern';
       }
       // TEST için:
-      //title = 'mentor';
+      title = 'mentor';
 
       if (title.includes('intern')) {
         // internler NotIntern formunu göremez
@@ -262,7 +262,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // TEST için zorla mentor branch’ine girmek istersen uncomment et:
-  //title = 'mentor';
+  title = 'mentor';
 
   if (to.name === 'Home' && !title.includes('intern')) {
     return { name: 'MentorHome' };

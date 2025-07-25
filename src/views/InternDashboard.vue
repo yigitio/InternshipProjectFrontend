@@ -1,59 +1,75 @@
 <template>
   <div class="dashboard-grid">
     <!-- PieChart -->
-    <DashboardCard title="Assignment Durumu">
-      <template
-        v-if="
-          assignmentStats &&
-          assignmentStats[email] &&
-          assignmentStats[email].length
-        "
-      >
-        <PieChart :data="assignmentStats[email]" />
-      </template>
-      <template v-else>
-        <p>Henüz bir assignment atanmadı.</p>
-      </template>
+    <DashboardCard title="Assignment Durumu" class="card-pie">
+      <PieChart :data="assignmentStats[email]" v-if="assignmentStats[email]" />
+      <p v-else>Henüz bir assignment atanmadı.</p>
     </DashboardCard>
 
-    <!-- Greeting and Announcements-->
-    <DashboardCard title=" ">
+    <!-- Greeting -->
+    <DashboardCard title="" class="card-greeting">
       <div class="greeting-box">{{ greetingMessage }}</div>
+    </DashboardCard>
 
-      <div class="announcement-scroll">
-        <h3>Duyurular</h3>
-        <ul v-if="announcements.length">
-          <li v-for="a in announcements" :key="a.createdAt">
-            <strong>{{ a.title }}</strong
-            >: {{ a.content }}
-          </li>
-        </ul>
-        <p v-else>Şu anda herhangi bir duyuru yok.</p>
+    <!-- Duyurular -->
+    <DashboardCard title="Duyurular" class="card-announcement">
+      <div class="announcement-table-scroll">
+        <table class="announcement-table" v-if="announcements.length">
+          <thead>
+            <tr>
+              <th>Duyuru</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="a in announcements" :key="a.createdAt">
+              <td>
+                <button class="announcement-title-btn" @click="togglePopup(a)">
+                  {{ a.title }}
+                </button>
+              </td>
+              <td>{{ formatDate(a.createdAt) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Popup gösterimi -->
+        <div v-if="selectedAnnouncement" class="popup-overlay">
+          <div class="popup-content">
+            <h4>{{ selectedAnnouncement.title }}</h4>
+            <p>{{ selectedAnnouncement.content }}</p>
+            <button @click="closePopup" class="popup-close">Kapat</button>
+          </div>
+        </div>
+
+        <p v-else-if="!announcements.length">
+          Şu anda herhangi bir duyuru yok.
+        </p>
       </div>
     </DashboardCard>
 
     <!-- Yapılacaklar -->
-    <DashboardCard title="Yapılacaklar" class="assignment-full-card">
+    <DashboardCard title="Yapılacaklar" class="card-todo">
       <div class="table-scroll">
         <table class="assignment-table" v-if="assignments.length">
           <thead>
             <tr>
-              <th>Öncelik</th>
               <th>Görev</th>
               <th>Atanma</th>
+              <th>Öncelik</th>
               <th>Durum</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="a in assignments" :key="a.id">
+              <td>{{ a.assignmentName }}</td>
+              <td>{{ formatDate(a.assignedAt) }}</td>
               <td>
                 <span
                   :class="['priority-dot', a.priority.toLowerCase()]"
                 ></span>
                 {{ a.priority }}
               </td>
-              <td>{{ a.assignmentName }}</td>
-              <td>{{ formatDate(a.assignedAt) }}</td>
               <td>{{ a.status }}</td>
             </tr>
           </tbody>
@@ -100,16 +116,35 @@ const assignmentStats = ref<Record<string, { name: string; value: number }[]>>(
 );
 const assignments = ref<Assignment[]>([]);
 const greetingMessage = ref('');
+const internName = ref('');
 const announcements = ref<Announcement[]>([]);
+const selectedAnnouncement = ref<Announcement | null>(null);
+
+const togglePopup = (a: Announcement) => {
+  selectedAnnouncement.value = a;
+};
+
+const closePopup = () => {
+  selectedAnnouncement.value = null;
+};
 
 onMounted(async () => {
   const hour = new Date().getHours();
-  greetingMessage.value =
-    hour < 12
-      ? 'Günaydın! ☀️'
-      : hour < 18
-      ? 'İyi günler! 🌤️'
-      : 'İyi akşamlar! 🌙​';
+  const baseGreeting =
+    hour < 12 ? 'Günaydın' : hour < 18 ? 'İyi günler' : 'İyi akşamlar';
+
+  try {
+    const internRes = await apiClient.get(
+      `/api/interns/by-email?email=${email}`
+    );
+    internName.value = internRes.data.name;
+    greetingMessage.value = `${baseGreeting}, ${internName.value}! ${
+      hour < 18 ? '🌤️' : '🌙'
+    }`;
+  } catch (err) {
+    console.error('İsim alınamadı:', err);
+    greetingMessage.value = `${baseGreeting}! 🌤️`;
+  }
 
   try {
     const res = await apiClient.get<Announcement[]>(
@@ -154,26 +189,66 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
 <style scoped>
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'pie greeting'
+    'pie announcement'
+    'todo todo';
   gap: 12px;
   padding: 12px;
-  max-width: 900px;
-  margin: 0px;
-  height: calc(100vh - 140px);
-  min-height: 300px;
+  max-width: 1100px;
+  margin: auto;
   box-sizing: border-box;
 }
 
-.card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  padding: 12px;
-  height: 100%;
+/* Grid bölgeleri */
+.card-pie {
+  grid-area: pie;
+}
+.card-greeting {
+  grid-area: greeting;
+}
+.card-announcement {
+  grid-area: announcement;
+}
+.card-todo {
+  grid-area: todo;
+}
+
+/* Greeting kutusu */
+.greeting-box {
+  height: 50px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Duyurular scroll */
+.announcement-scroll {
+  margin-top: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+.announcement-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.announcement-scroll::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+.announcement-scroll ul {
+  list-style: none;
+  padding-left: 0;
+}
+.announcement-scroll li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
 }
 
 /* Tablo stil */
@@ -181,13 +256,30 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   width: 100%;
   border-collapse: collapse;
 }
-
 .assignment-table th,
 .assignment-table td {
   padding: 10px;
   font-size: 13px;
   border-bottom: 1px solid #ddd;
   text-align: left;
+}
+
+/* Scroll alanı sadece tabloya */
+.table-scroll {
+  overflow-y: auto;
+  max-height: 170px;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+.table-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.table-scroll::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
 }
 
 /* Priority renkleri */
@@ -199,50 +291,27 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   border-radius: 50%;
   vertical-align: middle;
 }
-
 .priority-dot.urgent {
   background-color: red;
 }
-
 .priority-dot.high {
   background-color: orange;
 }
-
 .priority-dot.medium {
   background-color: gold;
 }
-
 .priority-dot.low {
   background-color: green;
 }
-
 .priority-dot.optional {
   background-color: lightgray;
 }
 .priority-dot.normal {
   background-color: #5c6bc0;
 }
-
-.greeting-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 1%;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.assignment-full-card {
-  grid-column: span 2;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.table-scroll {
+.announcement-table-scroll {
   overflow-y: auto;
-  max-height: 250px;
+  max-height: 150px;
   border-top: 1px solid #eee;
   margin-top: 10px;
   padding-right: 6px;
@@ -250,93 +319,91 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   scrollbar-color: #c1c1c1 transparent;
 }
 
-/* Scrollbar görünümü: Webkit */
-.table-scroll::-webkit-scrollbar {
+.announcement-table-scroll::-webkit-scrollbar {
   width: 6px;
 }
-.table-scroll::-webkit-scrollbar-thumb {
-  background-color: #c1c1c1;
-  border-radius: 4px;
-}
-.table-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Responsive tablo sarmalayıcı */
-.table-scroll table {
-  min-width: 100%;
-}
-
-/* Mobil için responsive grid */
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    height: auto;
-  }
-
-  .assignment-full-card {
-    grid-column: span 1;
-  }
-
-  .table-scroll {
-    max-height: none;
-    overflow-x: auto;
-  }
-
-  .assignment-table {
-    min-width: 600px;
-  }
-}
-
-.top-info-box {
-  margin-bottom: 10px;
-  font-size: 1rem;
-  color: #333;
-}
-
-.greeting-text {
-  font-weight: 500;
-  font-size: 1.05rem;
-}
-
-.announcement-box {
-  border-top: 1px solid #ccc;
-  padding-top: 10px;
-}
-
-.announcement-scroll {
-  margin-top: 12px;
-  border-top: 1px solid #ccc;
-  padding-top: 10px;
-  max-height: 150px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 transparent;
-}
-
-/* Webkit scroll */
-.announcement-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.announcement-scroll::-webkit-scrollbar-thumb {
+.announcement-table-scroll::-webkit-scrollbar-thumb {
   background-color: #c1c1c1;
   border-radius: 4px;
 }
 
-.announcement-scroll h3 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
+.announcement-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
 }
 
-.announcement-scroll ul {
-  list-style: none;
-  padding-left: 0;
+.announcement-table th,
+.announcement-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
 
-.announcement-scroll li {
-  margin-bottom: 6px;
+.announcement-row:hover {
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+.announcement-title-btn {
+  background: none;
+  border: none;
+  color: #242441;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
   font-size: 0.95rem;
+}
+
+/* Popup dışı alan */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+/* Popup içeriği */
+.popup-content {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px;
+  max-width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease;
+}
+
+.popup-content h4 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.popup-close {
+  margin-top: 12px;
+  background: #242441;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

@@ -1,52 +1,151 @@
 <template>
   <div class="form-container">
-    <h2>Duyuru Ekle</h2>
-    <input v-model="title" placeholder="Başlık" class="input" />
-    <textarea v-model="content" placeholder="İçerik" class="textarea" />
-    <button @click="submitAnnouncement" class="submit-btn">Kaydet</button>
+    <AppNotification
+      :message="notificationMessage"
+      :type="notificationType"
+      :show="notificationShow"
+      :duration="2200"
+    />
+    <h2>Yeni Duyuru Ekle</h2>
+    <form @submit.prevent="submitAnnouncement">
+      <label for="title">Başlık:</label>
+      <input id="title" v-model="title" type="text" required />
+
+      <label for="content">İçerik:</label>
+      <textarea id="content" v-model="content" required />
+
+      <button type="submit">Duyuru Ekle</button>
+    </form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
+import apiClient from '@/utils/apiClients';
+import AppNotification from '@/components/AppNotification.vue';
 
 const title = ref('');
 const content = ref('');
 
+const notificationMessage = ref('');
+const notificationType = ref<'success' | 'error' | 'info'>('info');
+const notificationShow = ref(false);
+
+function showNotification(
+  message: string,
+  type: 'success' | 'error' | 'info' = 'info'
+) {
+  notificationShow.value = false;
+  notificationMessage.value = message;
+  notificationType.value = type;
+  setTimeout(() => {
+    notificationShow.value = true;
+  }, 10);
+}
+
 const submitAnnouncement = async () => {
   if (!title.value || !content.value) {
-    alert('Lütfen başlık ve içerik girin.');
+    showNotification('Lütfen başlık ve içerik girin.', 'error');
     return;
   }
 
-  await axios.post('http://localhost:8080/api/announcements', {
-    title: title.value,
-    content: content.value,
-  });
+  try {
+    await apiClient.post('/api/announcements', {
+      title: title.value,
+      content: content.value,
+    });
 
-  alert('Duyuru eklendi!');
-  title.value = '';
-  content.value = '';
+    showNotification('Duyuru başarıyla eklendi!', 'success');
+    title.value = '';
+    content.value = '';
+  } catch (err) {
+    showNotification('Duyuru eklenirken bir hata oluştu.', 'error');
+    console.error(err);
+  }
 };
 </script>
 
 <style scoped>
 .form-container {
-  max-width: 500px;
-  margin: auto;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center;
 }
-.input,
-.textarea {
-  padding: 10px;
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
   width: 100%;
+  max-width: 450px;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-.submit-btn {
+
+label {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+input,
+textarea {
   padding: 10px;
-  background-color: #242444;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #333;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 12px;
+  background-color: #242441;
   color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #1e1e38;
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    padding: 1rem;
+  }
+
+  form {
+    padding: 1.5rem;
+    box-shadow: none;
+    border: 1px solid #eee;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 </style>
