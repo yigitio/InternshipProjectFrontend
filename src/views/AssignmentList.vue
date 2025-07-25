@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import axios from 'axios'; // <-- EKLENDİ
+import { ref, onMounted } from 'vue'; // <-- EKLENDİ
 import {
   fetchAssignments,
   updateAssignment,
@@ -8,6 +7,7 @@ import {
 } from '@/utils/assignmentService';
 import { useMsal } from 'vue3-msal-plugin';
 import { formatDate } from '@/utils/formatters';
+import apiClient from '@/utils/apiClients';
 
 // Reaktif değişkenler
 const assignments = ref<Assignment[]>([]);
@@ -60,7 +60,9 @@ const handleStatusChange = async (assignment: Assignment) => {
 // DÜZELTİLMİŞ onMounted
 onMounted(async () => {
   try {
-    const internRes = await axios.get(`/api/interns/by-email?email=${email}`);
+    const internRes = await apiClient.get(
+      `/api/interns/by-email?email=${email}`
+    );
     const internData = internRes.data;
     if (internData && internData.id) {
       loadAssignments(internData.id);

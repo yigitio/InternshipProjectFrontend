@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from '@/utils/apiClients';
 
 export interface Assignment {
   id?: number;
@@ -14,8 +14,6 @@ export interface Assignment {
   mentorName?: string;
 }
 
-const BASE_URL = '/api/assignments';
-
 export const fetchAssignments = async (
   internId: number
 ): Promise<Assignment[]> => {
@@ -28,12 +26,12 @@ export const fetchAssignments = async (
 
   // 2. API isteği, gelen internId'yi kullanarak doğru adrese yapılıyor.
   // Bu adresin backend'deki AssignmentController'ınızdaki adresle eşleştiğinden emin olun.
-  const response = await axios.get(`/api/assignments/${internId}/assignments`);
+  const response = await apiClient.get(`/assignments/${internId}/assignments`);
   return response.data;
 };
 
 export const addAssignment = async (assignment: Assignment): Promise<void> => {
-  await axios.post(BASE_URL, assignment);
+  await apiClient.post('/assignments', assignment);
 };
 
 export const updateAssignment = async (
@@ -41,9 +39,9 @@ export const updateAssignment = async (
   assignmentUpdate: Partial<Assignment>
 ): Promise<void> => {
   // Backend'e de sadece değişen kısmı gönderiyoruz
-  await axios.put(`${BASE_URL}/${id}`, assignmentUpdate);
+  await apiClient.put(`/assignments/${id}`, assignmentUpdate);
 };
 
 export const deleteAssignment = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/${id}`);
+  await apiClient.delete(`/assignments/${id}`);
 };

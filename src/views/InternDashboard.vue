@@ -55,10 +55,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useMsal } from 'vue3-msal-plugin';
 import PieChart from '@/components/PieChart.vue';
 import DashboardCard from '@/components/DashboardCard.vue';
+import apiClient from '@/utils/apiClients';
 
 interface Assignment {
   id: number;
@@ -94,7 +94,7 @@ onMounted(async () => {
       : 'İyi akşamlar! 🌙​';
 
   try {
-    const res = await axios.get('/api/assignments/stats');
+    const res = await apiClient.get('/api/assignments/stats');
     const transformed = Object.fromEntries(
       Object.entries(res.data).map(([email, stats]) => {
         const chartData = Object.entries(stats as Record<string, number>).map(
@@ -109,7 +109,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await axios.get(`/api/assignments/intern?email=${email}`);
+    const res = await apiClient.get(`/api/assignments/intern?email=${email}`);
 
     assignments.value = res.data.sort((a: Assignment, b: Assignment) => {
       return (

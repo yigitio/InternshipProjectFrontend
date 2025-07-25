@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import { addAssignment } from '@/utils/assignmentService';
 import { useMsal } from 'vue3-msal-plugin';
 import AppNotification from '@/components/AppNotification.vue';
 import { formatDate } from '@/utils/formatters';
+import apiClient from '@/utils/apiClients';
 
 // --- Reaktif Değişkenler ---
 const interns = ref<{ id: number; name: string }[]>([]);
@@ -81,7 +81,7 @@ watch(
 onMounted(async () => {
   try {
     // Mentor bilgisini email ile al
-    const mentorRes = await axios.get(`/api/mentors/email/${email}`);
+    const mentorRes = await apiClient.get(`/api/mentors/email/${email}`);
     const mentorData = mentorRes.data;
 
     currentMentor.value = {
@@ -92,7 +92,7 @@ onMounted(async () => {
     form.value.mentorId = mentorData.id; // Mentora bağlı stajyerleri çek
 
     if (mentorData.id) {
-      const internRes = await axios.get(
+      const internRes = await apiClient.get(
         // Bu URL'in backend'inizle uyumlu olduğundan emin olun
         `/api/interns/${mentorData.id}/interns`
       );

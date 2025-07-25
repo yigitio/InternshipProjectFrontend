@@ -10,7 +10,6 @@ import OfficeView from '@/views/OfficeView.vue';
 /*import TheWelcome from "./components/TheWelcome.vue";*/
 
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 
 // A reactive variable to store the message from the backend
 const backendMessage = ref('Loading...');

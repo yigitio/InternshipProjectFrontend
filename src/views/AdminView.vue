@@ -106,10 +106,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 import AppNotification from '@/components/AppNotification.vue';
 import RelationList from '@/components/RelationList.vue';
 import { formatDate } from '@/utils/formatters';
+import apiClient from '@/utils/apiClients';
 
 const mentors = ref<any[]>([]);
 const interns = ref<any[]>([]);
@@ -131,7 +131,7 @@ async function makePassive() {
   editRelation.value.is_active = 0;
 
   try {
-    await axios.put(`/api/relations/${editRelation.value.relation_id}`, {
+    await apiClient.put(`/api/relations/${editRelation.value.relation_id}`, {
       relationId: editRelation.value.relation_id,
       internId: editRelation.value.intern_id,
       mentorId: editRelation.value.mentor_id,
@@ -226,7 +226,7 @@ function closeEditPopup() {
 async function saveEditRelation() {
   if (!editRelation.value) return;
   try {
-    await axios.put(`/api/relations/${editRelation.value.relation_id}`, {
+    await apiClient.put(`/api/relations/${editRelation.value.relation_id}`, {
       relationId: editRelation.value.relation_id,
       internId: editRelation.value.intern_id,
       mentorId: editRelation.value.mentor_id,
@@ -243,9 +243,9 @@ async function saveEditRelation() {
 onMounted(async () => {
   try {
     const [mentorRes, internRes, relationRes] = await Promise.all([
-      axios.get('/api/mentors'),
-      axios.get('/api/interns'),
-      axios.get('/api/relations'),
+      apiClient.get('/api/mentors'),
+      apiClient.get('/api/interns'),
+      apiClient.get('/api/relations'),
     ]);
     mentors.value = mentorRes.data;
     interns.value = internRes.data;
@@ -257,14 +257,14 @@ onMounted(async () => {
 });
 
 async function fetchRelations() {
-  const relationRes = await axios.get('/api/relations');
+  const relationRes = await apiClient.get('/api/relations');
   relations.value = relationRes.data;
 }
 
 async function assignMentor() {
   if (!selectedMentor.value || !selectedIntern.value) return;
   try {
-    await axios.post('/api/relations', {
+    await apiClient.post('/api/relations', {
       mentorId: selectedMentor.value,
       internId: selectedIntern.value,
     });
@@ -279,7 +279,7 @@ async function assignMentor() {
 
 async function deleteRelation(id: number) {
   try {
-    await axios.delete(`/api/relations/${id}`);
+    await apiClient.delete(`/api/relations/${id}`);
     relations.value = relations.value.filter(rel => rel.relation_id !== id);
     showNotification('Silme başarılı.', 'success');
     // await fetchRelations();

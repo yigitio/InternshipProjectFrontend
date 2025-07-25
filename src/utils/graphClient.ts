@@ -1,5 +1,5 @@
 import { msalApp } from '@/main';
-import axios from 'axios';
+import apiClient from '@/utils/apiClients';
 
 export async function fetchJobTitle(): Promise<string> {
   const account = msalApp.getActiveAccount();
@@ -10,7 +10,7 @@ export async function fetchJobTitle(): Promise<string> {
     scopes: ['User.Read'],
   });
 
-  const resp = await axios.get(
+  const resp = await apiClient.get(
     'https://graph.microsoft.com/v1.0/me?$select=jobTitle',
     { headers: { Authorization: `Bearer ${result.accessToken}` } }
   );

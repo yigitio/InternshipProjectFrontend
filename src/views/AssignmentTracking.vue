@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useMsal } from 'vue3-msal-plugin';
 import AppNotification from '@/components/AppNotification.vue';
 import { formatDate } from '@/utils/formatters';
+import apiClient from '@/utils/apiClients';
 
 // Backend'den gelecek Assignment nesnesinin tip tanımı
 interface Assignment {
@@ -43,7 +43,7 @@ function showNotification(
 const loadAssignments = async (mentorId: number) => {
   try {
     isLoading.value = true;
-    const response = await axios.get<Assignment[]>(
+    const response = await apiClient.get<Assignment[]>(
       `/api/assignments/by-mentor/${mentorId}`
     );
     assignments.value = response.data;
@@ -58,7 +58,7 @@ const loadAssignments = async (mentorId: number) => {
 onMounted(async () => {
   try {
     // Önce mentorun ID'sini email ile alıyoruz
-    const mentorRes = await axios.get(`/api/mentors/email/${email}`);
+    const mentorRes = await apiClient.get(`/api/mentors/email/${email}`);
     const mentorData = mentorRes.data;
 
     if (mentorData && mentorData.id) {

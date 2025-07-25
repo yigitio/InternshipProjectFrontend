@@ -14,8 +14,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import { useMsal } from 'vue3-msal-plugin';
+import apiClient from '@/utils/apiClients';
 
 // Vue Router kullanımı
 const router = useRouter();
@@ -32,7 +32,7 @@ const email = accounts.value[0].username;
 
 onMounted(async () => {
   try {
-    const res = await axios.get(`/api/interns/by-email?email=${email}`);
+    const res = await apiClient.get(`/api/interns/by-email?email=${email}`);
     mentor.value = {
       name: res.data.name,
       surname: res.data.surname,

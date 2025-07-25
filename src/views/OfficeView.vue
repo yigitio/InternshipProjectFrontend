@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useMsal } from 'vue3-msal-plugin';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import apiClient from '@/utils/apiClients';
 
 // Frontend'de kullanacağımız tip tanımı.
 // Bu, backend'deki OfficeResponse DTO'su ile birebir aynı yapıda.
@@ -46,7 +46,7 @@ onMounted(async () => {
     }
 
     // 2. ADIM: Access Token ile Graph API'ye İstek At
-    const graphResponse = await axios.get(
+    const graphResponse = await apiClient.get(
       'https://graph.microsoft.com/v1.0/me?$select=officeLocation',
       {
         headers: {
@@ -62,7 +62,7 @@ onMounted(async () => {
     }
 
     // 3. ADIM: Kendi Backend'imize İstek Atarak Ofis Detaylarını Al
-    const officeDetailsResponse = await axios.get<Office>(
+    const officeDetailsResponse = await apiClient.get<Office>(
       `/api/offices/by-name/${userOfficeLocation}`
     );
 
