@@ -51,7 +51,13 @@
     <!-- Yapılacaklar -->
     <DashboardCard title="Yapılacaklar" class="card-todo">
       <div class="table-scroll">
-        <table class="assignment-table" v-if="assignments.length">
+        <table
+          class="assignment-table"
+          v-if="
+            assignments.filter(a => a.status.toLowerCase() !== 'completed')
+              .length
+          "
+        >
           <thead>
             <tr>
               <th>Görev</th>
@@ -61,7 +67,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="a in assignments" :key="a.id">
+            <tr
+              v-for="a in assignments.filter(
+                a => a.status.toLowerCase() !== 'completed'
+              )"
+              :key="a.id"
+            >
               <td>{{ a.assignmentName }}</td>
               <td>{{ formatDate(a.assignedAt) }}</td>
               <td>
@@ -74,7 +85,7 @@
             </tr>
           </tbody>
         </table>
-        <p v-else>Henüz görev atanmadı.</p>
+        <p v-else>Henüz görev atanmadı ya da tüm görevler tamamlandı.</p>
       </div>
     </DashboardCard>
   </div>
@@ -150,7 +161,10 @@ onMounted(async () => {
     const res = await apiClient.get<Announcement[]>(
       '/api/announcements/recent'
     );
-    announcements.value = res.data;
+    announcements.value = res.data.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   } catch (err) {
     console.error('Duyurular alınamadı:', err);
   }
@@ -405,5 +419,10 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
     opacity: 1;
     transform: translateY(0);
   }
+}
+.assignment-table td:first-child {
+  white-space: normal;
+  word-break: break-word;
+  max-width: 200px;
 }
 </style>

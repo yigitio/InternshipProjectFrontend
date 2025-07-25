@@ -29,7 +29,7 @@ const renderChart = () => {
       datasets: [
         {
           data: props.data.map(d => d.value),
-          backgroundColor: ['#242441', '#f58220', '#8884d8', '#FFBB28'],
+          backgroundColor: ['#f58220', '#242441', '#8884d8', '#FFBB28'],
           borderColor: '#ffffff', // Beyaz çerçeve
           borderWidth: 2,
         },
