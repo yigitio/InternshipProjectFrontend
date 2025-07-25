@@ -65,7 +65,7 @@ const routes: RouteRecordRaw[] = [
       }
 
       // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      // title = 'mentor';
+      //title = 'mentor';
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
