@@ -14,7 +14,7 @@ export interface Assignment {
   mentorName?: string;
 }
 
-const BASE_URL = 'http://localhost:8080/api/assignments';
+const BASE_URL = '/api/assignments';
 
 export const fetchAssignments = async (
   internId: number

@@ -81,9 +81,7 @@ watch(
 onMounted(async () => {
   try {
     // Mentor bilgisini email ile al
-    const mentorRes = await axios.get(
-      `http://localhost:8080/api/mentors/email/${email}`
-    );
+    const mentorRes = await axios.get(`/api/mentors/email/${email}`);
     const mentorData = mentorRes.data;
 
     currentMentor.value = {
@@ -96,7 +94,7 @@ onMounted(async () => {
     if (mentorData.id) {
       const internRes = await axios.get(
         // Bu URL'in backend'inizle uyumlu olduğundan emin olun
-        `http://localhost:8080/api/interns/${mentorData.id}/interns`
+        `/api/interns/${mentorData.id}/interns`
       );
       interns.value = internRes.data.map((i: any) => ({
         id: i.id,

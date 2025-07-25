@@ -94,7 +94,7 @@ onMounted(async () => {
       : 'İyi akşamlar! 🌙​';
 
   try {
-    const res = await axios.get('http://localhost:8080/api/assignments/stats');
+    const res = await axios.get('/api/assignments/stats');
     const transformed = Object.fromEntries(
       Object.entries(res.data).map(([email, stats]) => {
         const chartData = Object.entries(stats as Record<string, number>).map(
@@ -109,9 +109,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await axios.get(
-      `http://localhost:8080/api/assignments/intern?email=${email}`
-    );
+    const res = await axios.get(`/api/assignments/intern?email=${email}`);
 
     assignments.value = res.data.sort((a: Assignment, b: Assignment) => {
       return (

@@ -58,9 +58,7 @@ const loadAssignments = async (mentorId: number) => {
 onMounted(async () => {
   try {
     // Önce mentorun ID'sini email ile alıyoruz
-    const mentorRes = await axios.get(
-      `http://localhost:8080/api/mentors/email/${email}`
-    );
+    const mentorRes = await axios.get(`/api/mentors/email/${email}`);
     const mentorData = mentorRes.data;
 
     if (mentorData && mentorData.id) {

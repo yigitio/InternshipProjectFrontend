@@ -1,22 +1,13 @@
+// src/services/apiClient.js or similar
+
 import axios from 'axios';
-import { msalApp } from '@/main';
-import { loginRequest } from '@/utils/authConfig';
 
-const baseURL =
-  process.env.VUE_APP_BASE_URL === 'production'
-    ? 'https://lanternlane.site/api'
-    : 'http://localhost:8080/api';
-const api = axios.create({ baseURL });
-
-api.interceptors.request.use(async config => {
-  const account = msalApp.getActiveAccount();
-  if (account) {
-    const resp = await msalApp.acquireTokenSilent({ account, ...loginRequest });
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${resp.accessToken}`;
-  }
-  return config;
+const apiClient = axios.create({
+  // This line reads the variable from your .env file
+  baseURL: process.env.VUE_APP_API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-export default api;
-export const axiosInstance = api;
+export default apiClient;

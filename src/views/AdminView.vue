@@ -131,15 +131,12 @@ async function makePassive() {
   editRelation.value.is_active = 0;
 
   try {
-    await axios.put(
-      `http://localhost:8085/api/relations/${editRelation.value.relation_id}`,
-      {
-        relationId: editRelation.value.relation_id,
-        internId: editRelation.value.intern_id,
-        mentorId: editRelation.value.mentor_id,
-        is_active: 0,
-      }
-    );
+    await axios.put(`/api/relations/${editRelation.value.relation_id}`, {
+      relationId: editRelation.value.relation_id,
+      internId: editRelation.value.intern_id,
+      mentorId: editRelation.value.mentor_id,
+      is_active: 0,
+    });
     await fetchRelations(); // Listeyi güncelle
     closeEditPopup(); // Popup’ı kapat
     showNotification('İlişki başarıyla pasifleştirildi!', 'success');
@@ -229,15 +226,12 @@ function closeEditPopup() {
 async function saveEditRelation() {
   if (!editRelation.value) return;
   try {
-    await axios.put(
-      `http://localhost:8085/api/relations/${editRelation.value.relation_id}`,
-      {
-        relationId: editRelation.value.relation_id,
-        internId: editRelation.value.intern_id,
-        mentorId: editRelation.value.mentor_id,
-        is_active: editRelation.value.is_active,
-      }
-    );
+    await axios.put(`/api/relations/${editRelation.value.relation_id}`, {
+      relationId: editRelation.value.relation_id,
+      internId: editRelation.value.intern_id,
+      mentorId: editRelation.value.mentor_id,
+      is_active: editRelation.value.is_active,
+    });
     await fetchRelations();
     closeEditPopup();
     showNotification('Güncelleme başarılı!', 'success');
@@ -249,9 +243,9 @@ async function saveEditRelation() {
 onMounted(async () => {
   try {
     const [mentorRes, internRes, relationRes] = await Promise.all([
-      axios.get('http://localhost:8085/api/mentors'),
-      axios.get('http://localhost:8085/api/interns'),
-      axios.get('http://localhost:8085/api/relations'),
+      axios.get('/api/mentors'),
+      axios.get('/api/interns'),
+      axios.get('/api/relations'),
     ]);
     mentors.value = mentorRes.data;
     interns.value = internRes.data;
@@ -263,14 +257,14 @@ onMounted(async () => {
 });
 
 async function fetchRelations() {
-  const relationRes = await axios.get('http://localhost:8085/api/relations');
+  const relationRes = await axios.get('/api/relations');
   relations.value = relationRes.data;
 }
 
 async function assignMentor() {
   if (!selectedMentor.value || !selectedIntern.value) return;
   try {
-    await axios.post('http://localhost:8085/api/relations', {
+    await axios.post('/api/relations', {
       mentorId: selectedMentor.value,
       internId: selectedIntern.value,
     });
@@ -285,7 +279,7 @@ async function assignMentor() {
 
 async function deleteRelation(id: number) {
   try {
-    await axios.delete(`http://localhost:8085/api/relations/${id}`);
+    await axios.delete(`/api/relations/${id}`);
     relations.value = relations.value.filter(rel => rel.relation_id !== id);
     showNotification('Silme başarılı.', 'success');
     // await fetchRelations();
