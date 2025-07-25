@@ -17,9 +17,9 @@ onMounted(async () => {
 
   let endpoint = '';
   if (typeof title === 'string' && title.toLowerCase() === 'intern') {
-    endpoint = `/interns/exists?email=${encodeURIComponent(email)}`;
+    endpoint = `/api/interns/exists?email=${encodeURIComponent(email)}`;
   } else {
-    endpoint = `/mentors/exists?email=${encodeURIComponent(email)}`;
+    endpoint = `/api/mentors/exists?email=${encodeURIComponent(email)}`;
   }
 
   try {

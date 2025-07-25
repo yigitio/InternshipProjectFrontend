@@ -69,7 +69,7 @@ const routes: RouteRecordRaw[] = [
 
       if (title.includes('intern')) {
         // İntern adayı → DB sorgula
-        const { data: exists } = await api.get<boolean>('/interns/exists', {
+        const { data: exists } = await api.get<boolean>('/api/interns/exists', {
           params: { email },
         });
         if (!exists) {
@@ -80,7 +80,7 @@ const routes: RouteRecordRaw[] = [
         return { name: 'Home' };
       } else {
         // Mentor adayı → DB sorgula
-        const { data: exists } = await api.get<boolean>('/mentors/exists', {
+        const { data: exists } = await api.get<boolean>('/api/mentors/exists', {
           params: { email },
         });
         if (!exists) {
