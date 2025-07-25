@@ -16,9 +16,20 @@
       </template>
     </DashboardCard>
 
-    <!-- Greeting -->
+    <!-- Greeting and Announcements-->
     <DashboardCard title=" ">
       <div class="greeting-box">{{ greetingMessage }}</div>
+
+      <div class="announcement-scroll">
+        <h3>Duyurular</h3>
+        <ul v-if="announcements.length">
+          <li v-for="a in announcements" :key="a.createdAt">
+            <strong>{{ a.title }}</strong
+            >: {{ a.content }}
+          </li>
+        </ul>
+        <p v-else>Şu anda herhangi bir duyuru yok.</p>
+      </div>
     </DashboardCard>
 
     <!-- Yapılacaklar -->
@@ -75,6 +86,12 @@ interface Assignment {
   mentorName: string;
 }
 
+interface Announcement {
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
 
@@ -83,6 +100,7 @@ const assignmentStats = ref<Record<string, { name: string; value: number }[]>>(
 );
 const assignments = ref<Assignment[]>([]);
 const greetingMessage = ref('');
+const announcements = ref<Announcement[]>([]);
 
 onMounted(async () => {
   const hour = new Date().getHours();
@@ -92,6 +110,15 @@ onMounted(async () => {
       : hour < 18
       ? 'İyi günler! 🌤️'
       : 'İyi akşamlar! 🌙​';
+
+  try {
+    const res = await apiClient.get<Announcement[]>(
+      '/api/announcements/recent'
+    );
+    announcements.value = res.data;
+  } catch (err) {
+    console.error('Duyurular alınamadı:', err);
+  }
 
   try {
     const res = await apiClient.get('/api/assignments/stats');
@@ -200,7 +227,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 1%;
   font-size: 1.2rem;
   font-weight: 600;
   color: #333;
@@ -260,5 +287,56 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   .assignment-table {
     min-width: 600px;
   }
+}
+
+.top-info-box {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.greeting-text {
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.announcement-box {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+.announcement-scroll {
+  margin-top: 12px;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+
+/* Webkit scroll */
+.announcement-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.announcement-scroll::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+.announcement-scroll h3 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.announcement-scroll ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.announcement-scroll li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
 }
 </style>

@@ -9,6 +9,7 @@
     <nav class="sidebar">
       <router-link to="/assignmentForm">Görev İşlemleri</router-link>
       <router-link to="/assignmentTracking">Görev Takibi</router-link>
+      <router-link to="/mentorhome/announcement">Duyuru İşlemleri</router-link>
       <!-- Admin sadece adminlerde gözükür -->
       <router-link v-if="isAdmin === '3'" to="/mentorhome/admin">
         Admin Paneli
