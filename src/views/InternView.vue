@@ -123,7 +123,7 @@ onMounted(async () => {
   }
   // Üniversiteleri yükle
   try {
-    const res = await api.get('/universities');
+    const res = await api.get('/api/universities');
     universities.value = res.data;
   } catch (e) {
     universities.value = [];
@@ -137,7 +137,7 @@ async function fetchDepartments() {
     return;
   }
   try {
-    const res = await api.get('/departments', {
+    const res = await api.get('/api/departments', {
       params: { university: form.university },
     });
     departments.value = res.data;
@@ -176,7 +176,7 @@ async function onSubmit() {
   if (!account) return router.replace({ name: 'Login' });
 
   try {
-    await api.post('/interns', {
+    await api.post('/api/interns', {
       name: form.name,
       surname: form.surname,
       university: form.university,
