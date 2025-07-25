@@ -47,7 +47,7 @@ onMounted(async () => {
 
     // 2. ADIM: Access Token ile Graph API'ye İstek At
     const graphResponse = await apiClient.get(
-      'https://graph.microsoft.com/v1.0/me?$select=officeLocation',
+      'https://graph.microsoft.com/v1.0/me?$select=officeLocation,streetAddress',
       {
         headers: {
           Authorization: `Bearer ${tokenResponse.accessToken}`,
@@ -56,8 +56,9 @@ onMounted(async () => {
     );
 
     const userOfficeLocation = graphResponse.data.officeLocation;
+    const userStreetAddress = graphResponse.data.streetAddress;
 
-    if (!userOfficeLocation) {
+    if (!userOfficeLocation || !userStreetAddress) {
       throw new Error('Azure AD kullanıcı profilinde ofis bilgisi bulunamadı.');
     }
 
@@ -67,7 +68,11 @@ onMounted(async () => {
     );
 
     // 4. ADIM: Ekranda göstermek için veriyi reaktif değişkene ata
-    officeInfo.value = officeDetailsResponse.data;
+    officeInfo.value = {
+      ...officeDetailsResponse.data,
+      name: userOfficeLocation,
+      address: userStreetAddress,
+    };
   } catch (err: any) {
     console.error('Ofis bilgileri alınırken hata oluştu:', err);
     error.value =
