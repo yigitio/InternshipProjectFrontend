@@ -63,7 +63,7 @@ async function onSubmit() {
   if (!account) return router.replace({ name: 'Login' });
 
   try {
-    await api.post('/mentors', {
+    await api.post('/api/mentors', {
       name: form.name,
       surname: form.surname,
       email: form.email,
