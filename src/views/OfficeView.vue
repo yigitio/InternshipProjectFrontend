@@ -2,10 +2,9 @@
 import { ref, onMounted } from 'vue';
 import { useMsal } from 'vue3-msal-plugin';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
-import apiClient from '@/utils/apiClients';
+import apiClient from '@/utils/apiClients'; // Your configured axios instance
 
-// Frontend'de kullanacağımız tip tanımı.
-// Bu, backend'deki OfficeResponse DTO'su ile birebir aynı yapıda.
+// This interface matches the OfficeResponse DTO from the backend
 interface Office {
   id: number;
   name: string;
@@ -18,7 +17,6 @@ const officeInfo = ref<Office | null>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 
-// MSAL'dan hem "accounts" hem de asıl işlem gücü olan "instance"ı alıyoruz
 const { instance, accounts } = useMsal();
 
 onMounted(async () => {
@@ -27,7 +25,7 @@ onMounted(async () => {
       throw new Error('Kullanıcı girişi yapılmamış.');
     }
 
-    // 1. ADIM: Microsoft Graph API için Access Token Al
+    // Step 1: Get Access Token
     const account = accounts.value[0];
     const tokenResponse = await instance
       .acquireTokenSilent({
@@ -45,9 +43,9 @@ onMounted(async () => {
       throw new Error('Access Token alınamadı.');
     }
 
-    // 2. ADIM: Access Token ile Graph API'ye İstek At
+    // Step 2: Get user's address from Microsoft Graph API
     const graphResponse = await apiClient.get(
-      'https://graph.microsoft.com/v1.0/me?$select=officeLocation,streetAddress',
+      'https://graph.microsoft.com/v1.0/me?$select=streetAddress',
       {
         headers: {
           Authorization: `Bearer ${tokenResponse.accessToken}`,
@@ -55,28 +53,34 @@ onMounted(async () => {
       }
     );
 
-    const userOfficeLocation = graphResponse.data.officeLocation;
     const userStreetAddress = graphResponse.data.streetAddress;
-
-    if (!userOfficeLocation || !userStreetAddress) {
-      throw new Error('Azure AD kullanıcı profilinde ofis bilgisi bulunamadı.');
+    if (!userStreetAddress) {
+      throw new Error(
+        'Azure AD kullanıcı profilinde adres bilgisi bulunamadı.'
+      );
     }
 
-    // 3. ADIM: Kendi Backend'imize İstek Atarak Ofis Detaylarını Al
+    // Step 3: Call your backend API with the user's address
     const officeDetailsResponse = await apiClient.get<Office>(
-      `/api/offices/by-name/${userOfficeLocation}`
+      '/api/offices/by-address',
+      {
+        params: {
+          address: userStreetAddress,
+        },
+      }
     );
 
-    // 4. ADIM: Ekranda göstermek için veriyi reaktif değişkene ata
-    officeInfo.value = {
-      ...officeDetailsResponse.data,
-      name: userOfficeLocation,
-      address: userStreetAddress,
-    };
+    // Step 4: Set the data for display
+    officeInfo.value = officeDetailsResponse.data;
   } catch (err: any) {
     console.error('Ofis bilgileri alınırken hata oluştu:', err);
-    error.value =
-      'Ofis bilgileri yüklenemedi. Lütfen sistem yöneticinizle görüşün veya daha sonra tekrar deneyin.';
+    // Check if the error is a 404 Not Found from our backend
+    if (err.response && err.response.status === 404) {
+      error.value = 'Size atanmış bir ofis bilgisi sistemde bulunamadı.';
+    } else {
+      error.value =
+        'Ofis bilgileri yüklenemedi. Lütfen sistem yöneticinizle görüşün.';
+    }
   } finally {
     isLoading.value = false;
   }
