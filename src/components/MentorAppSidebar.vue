@@ -98,10 +98,13 @@ defineProps<{ isAdmin: string }>();
 /* Versiyon */
 .sidebar-version {
   position: absolute;
+  left: 50%;
   bottom: 16px;
-  left: 16px;
+  transform: translateX(-50%);
   font-size: 13px;
   color: #ccc;
   letter-spacing: 1px;
+  text-align: center;
+  width: 100%;
 }
 </style>
