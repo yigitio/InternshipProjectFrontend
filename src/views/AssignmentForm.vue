@@ -45,6 +45,13 @@ const form = ref({
   completedAt: '',
   status: 'To Do',
 });
+const resetForm = () => {
+  form.value.internId = 0; // Stajyer seçimini sıfırla
+  form.value.assignmentName = ''; // Görev adını temizle
+  form.value.assignmentDesc = ''; // Açıklamayı temizle
+  form.value.priority = 'Optional'; // Önceliği varsayılana çek (bu aynı zamanda dueDate'i de temizler)
+  form.value.dueDate = ''; // Hedef tarihi temizle (watch tarafından yapılsa da garanti olsun)
+};
 const formattedAssignedAt = computed(() => {
   return formatDate(form.value.assignedAt);
 });
@@ -111,6 +118,7 @@ const submitAssignment = async () => {
   try {
     await addAssignment(form.value);
     showNotification('Görev başarıyla eklendi!', 'success');
+    resetForm();
     // İsteğe bağlı: Başarılı eklemeden sonra formu temizleyebilir veya başka bir sayfaya yönlendirebilirsiniz.
     // router.push('/mentor-dashboard');
   } catch (err) {
