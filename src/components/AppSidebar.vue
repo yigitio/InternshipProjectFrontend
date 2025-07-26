@@ -11,7 +11,7 @@
       <router-link to="/assignmentlist">Atanan Görevler</router-link>
       <router-link to="/report">Stajyer Rapor Bilgileri</router-link>
       <router-link to="/office">Ofis Bilgileri</router-link>
-      <router-link to="/staff">Çalışan Bilgileri</router-link>
+      <router-link to="/staff">Stajyer Destek Sorumluları</router-link>
     </nav>
 
     <!-- Versiyon rozetini en alta ekliyoruz -->
