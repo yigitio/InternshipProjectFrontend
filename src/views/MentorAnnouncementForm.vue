@@ -20,16 +20,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import apiClient from '@/utils/apiClients';
 import AppNotification from '@/components/AppNotification.vue';
+import { useMsal } from 'vue3-msal-plugin';
 
 const title = ref('');
 const content = ref('');
+const mentorId = ref<number | null>(null);
 
 const notificationMessage = ref('');
 const notificationType = ref<'success' | 'error' | 'info'>('info');
 const notificationShow = ref(false);
+
+const { accounts } = useMsal();
+const email = accounts.value[0].username;
 
 function showNotification(
   message: string,
@@ -43,9 +48,26 @@ function showNotification(
   }, 10);
 }
 
+onMounted(async () => {
+  try {
+    const res = await apiClient.get(
+      `/api/mentors/email/${encodeURIComponent(email)}`
+    );
+    mentorId.value = res.data.id;
+  } catch (err) {
+    console.error('Mentor ID alınamadı:', err);
+    showNotification('Mentor bilgisi alınamadı.', 'error');
+  }
+});
+
 const submitAnnouncement = async () => {
   if (!title.value || !content.value) {
     showNotification('Lütfen başlık ve içerik girin.', 'error');
+    return;
+  }
+
+  if (!mentorId.value) {
+    showNotification('Mentor ID bulunamadı.', 'error');
     return;
   }
 
@@ -53,6 +75,7 @@ const submitAnnouncement = async () => {
     await apiClient.post('/api/announcements', {
       title: title.value,
       content: content.value,
+      mentorId: mentorId.value,
     });
 
     showNotification('Duyuru başarıyla eklendi!', 'success');
@@ -72,12 +95,10 @@ const submitAnnouncement = async () => {
   flex-direction: column;
   align-items: center;
 }
-
 h2 {
   margin-bottom: 1.5rem;
   color: #333;
 }
-
 form {
   display: flex;
   flex-direction: column;
@@ -89,14 +110,12 @@ form {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
 label {
   font-weight: bold;
   margin-top: 0.5rem;
   font-size: 0.9rem;
   color: #555;
 }
-
 input,
 textarea {
   padding: 10px;
@@ -110,12 +129,10 @@ textarea {
   font-weight: 400;
   color: #333;
 }
-
 textarea {
   min-height: 100px;
   resize: vertical;
 }
-
 button {
   margin-top: 1rem;
   padding: 12px;
@@ -128,22 +145,18 @@ button {
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
 button:hover {
   background-color: #1e1e38;
 }
-
 @media (max-width: 600px) {
   .form-container {
     padding: 1rem;
   }
-
   form {
     padding: 1.5rem;
     box-shadow: none;
     border: 1px solid #eee;
   }
-
   h2 {
     font-size: 1.5rem;
   }

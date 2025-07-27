@@ -159,7 +159,7 @@ onMounted(async () => {
 
   try {
     const res = await apiClient.get<Announcement[]>(
-      '/api/announcements/recent'
+      `/api/announcements/recent?email=${email}`
     );
     announcements.value = res.data.sort(
       (a, b) =>
