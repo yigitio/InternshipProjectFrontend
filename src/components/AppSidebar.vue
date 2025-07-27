@@ -15,7 +15,10 @@
     </nav>
 
     <!-- Versiyon rozetini en alta ekliyoruz -->
-    <div class="sidebar-version">v1.0.1</div>
+    <div class="sidebar-bottom">
+      <router-link to="/home/about" class="about-link">Hakkında</router-link>
+      <div class="sidebar-version">v1.0.1</div>
+    </div>
   </div>
 </template>
 
@@ -93,17 +96,38 @@
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 10px;
 }
+/* Alt kısım */
+.sidebar-bottom {
+  margin-top: auto;
+  padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* ÖNEMLİ: soldan hizalı! */
+  padding-left: 20px; /* Üstteki menülerle aynı padding */
+}
 
-/* Versiyon */
+.about-link {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: block;
+}
+
+/* Versiyon tam alt-ortada */
 .sidebar-version {
+  width: 100%;
   position: absolute;
-  left: 50%;
   bottom: 16px;
+  left: 50%;
   transform: translateX(-50%);
   font-size: 13px;
   color: #ccc;
   letter-spacing: 1px;
   text-align: center;
-  width: 100%;
 }
 </style>

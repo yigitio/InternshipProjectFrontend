@@ -183,6 +183,11 @@ const routes: RouteRecordRaw[] = [
       { path: '/report', name: 'Report', component: ReportView },
       { path: 'profile', name: 'Profile', component: ProfileView },
       {
+        path: 'about', // /home/about
+        name: 'InternAbout',
+        component: () => import('@/views/AboutView.vue'),
+      },
+      {
         path: '/assignmentlist',
         name: 'AssignmentList',
         component: AssignmentList,
@@ -232,6 +237,11 @@ const routes: RouteRecordRaw[] = [
         path: 'intern-support',
         name: 'InternSupport',
         component: InternSupportView,
+      },
+      {
+        path: 'about', // /mentorhome/about
+        name: 'MentorAbout',
+        component: () => import('@/views/AboutView.vue'),
       },
     ],
   },

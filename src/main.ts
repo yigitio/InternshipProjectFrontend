@@ -7,6 +7,7 @@ import { msalPlugin, msalInstance } from 'vue3-msal-plugin';
 import type { Configuration } from '@azure/msal-browser';
 import { msalConfig } from '@/utils/authConfig';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@fortawesome/fontawesome-free/css/all.css'; // <--- BU ÇOK ÖNEMLİ
 
 // 1) MSAL instance oluştur ve globalThis’e ata
 const msalApp = msalInstance(msalConfig as Configuration);
