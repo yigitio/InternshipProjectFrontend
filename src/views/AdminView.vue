@@ -293,7 +293,7 @@ async function deleteRelation(id: number) {
 <style scoped>
 .admin-container {
   padding: 40px;
-  background-color: #f4f6fa;
+  background-color: #ffffff;
   min-height: 100vh;
   margin-left: 24px;
 }
