@@ -90,13 +90,13 @@ export default defineComponent({
 <style scoped>
 /* Stil kodların aynen kalabilir */
 .staff-section {
-  background: #f5f8fa;
+  background: #ffffff;
   padding: 4rem 1rem;
   text-align: center;
 }
 .team-title {
-  font-size: 3.25rem;
-  color: #005f99;
+  font-size: 1.25rem;
+  color: #242441;
   margin-bottom: 3rem;
   position: relative;
   display: inline-block;

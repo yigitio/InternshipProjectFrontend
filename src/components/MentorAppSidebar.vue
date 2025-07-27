@@ -111,13 +111,26 @@ defineProps<{ isAdmin: string }>();
 .about-link {
   color: white;
   text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 12px;
   padding: 10px 14px;
+  background-color: transparent;
+  margin-bottom: 8px;
   border-radius: 4px;
-  transition: background-color 0.2s;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  width: 84%; /* EKLENDİ: diğer öğelerle hizalanması için */
+}
+
+.about-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Aktif (seçili) 'Hakkında' linki için */
+.about-link.router-link-exact-active {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Versiyon */

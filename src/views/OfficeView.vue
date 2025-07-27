@@ -121,7 +121,7 @@ onMounted(async () => {
   justify-content: center;
   align-items: flex-start;
   min-height: 80vh;
-  background-color: #f4f7f9;
+  background-color: #ffffff;
 }
 .office-card {
   width: 100%;

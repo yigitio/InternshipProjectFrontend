@@ -140,6 +140,13 @@ onMounted(async () => {
   font-family: sans-serif;
   width: 100%;
   box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.assignment-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
 h2 {

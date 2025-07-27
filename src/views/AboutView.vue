@@ -32,31 +32,36 @@
 
 <style scoped>
 .about-container {
-  max-width: 650px;
-  margin: 50px auto;
+  max-width: 800px;
+  margin: 40px auto;
   background: #fff;
   color: #242441;
-  padding: 36px 28px;
+  padding: 28px 24px;
   border-radius: 18px;
   box-shadow: 0 4px 22px rgba(50, 40, 70, 0.11);
+  max-height: calc(100vh - 80px); /* Ekran taşmasını engeller */
+  overflow-y: auto; /* Fazla içerik olursa kaydırır ama genelde gerek kalmaz */
 }
+
 .about-container h1 {
-  color: #f58220;
-  font-size: 27px;
-  margin-bottom: 30px;
+  color: #242441;
+  font-size: 26px;
+  margin-bottom: 24px;
   text-align: center;
   font-weight: 700;
 }
+
 .about-content p {
   margin-bottom: 16px;
-  font-size: 17px;
-  line-height: 1.8;
+  font-size: 16px;
+  line-height: 1.6;
 }
+
 .about-version {
-  margin-top: 30px;
+  margin-top: 20px;
   text-align: right;
   font-size: 15px;
-  color: #f58220;
+  color: #242441;
   font-weight: bold;
   letter-spacing: 1px;
 }
