@@ -6,7 +6,7 @@
     <div class="form">
       <!-- 1. Satır: Stajyer Seçimi -->
       <div class="row">
-        <div class="field">
+        <div class="field full-width">
           <label>Stajyer:</label>
           <select v-model="selectedIntern">
             <option disabled value="">-- SEÇİN --</option>
@@ -25,12 +25,16 @@
       <div class="row">
         <div class="field">
           <label>İnsan Kaynakları Adı:</label>
-          <input v-model="hrName" @input="hrName = hrName.toUpperCase()" />
+          <input
+            class="name-input"
+            v-model="hrName"
+            @input="hrName = hrName.toUpperCase()"
+          />
         </div>
         <div class="field">
-          <label>İK Email (@etiya.com):</label>
+          <label>İnsan Kaynakları Email:</label>
           <div class="email-input">
-            <input v-model="hrLocal" @input="hrLocal = hrLocal.toUpperCase()" />
+            <input v-model="hrLocal" @input="hrLocal = hrLocal.toLowerCase()" />
             <span>@etiya.com</span>
           </div>
         </div>
@@ -40,12 +44,16 @@
       <div class="row">
         <div class="field">
           <label>Bilgi Teknolojileri Adı:</label>
-          <input v-model="itName" @input="itName = itName.toUpperCase()" />
+          <input
+            class="name-input"
+            v-model="itName"
+            @input="itName = itName.toUpperCase()"
+          />
         </div>
         <div class="field">
-          <label>IT Email (@etiya.com):</label>
+          <label>Bilgi Teknolojileri Email:</label>
           <div class="email-input">
-            <input v-model="itLocal" @input="itLocal = itLocal.toUpperCase()" />
+            <input v-model="itLocal" @input="itLocal = itLocal.toLowerCase()" />
             <span>@etiya.com</span>
           </div>
         </div>
@@ -57,8 +65,11 @@
       </div>
     </div>
 
-    <!-- Mevcut Atamalar Tablosu -->
-    <div v-if="selectedIntern && assignments.length" class="assignments-table">
+    <!-- Mevcut Atamalar Tablosu: sadece seçili intern varsa ve atama varsa -->
+    <div
+      v-if="selectedIntern !== null && assignments.length > 0"
+      class="assignments-table"
+    >
       <h3>Mevcut Atamalar</h3>
       <table>
         <thead>
@@ -105,16 +116,23 @@ interface Assignment {
 
 const interns = ref<Intern[]>([]);
 const assignments = ref<Assignment[]>([]);
-const selectedIntern = ref<number | ''>('');
-const hrName = ref(''),
-  hrLocal = ref('');
-const itName = ref(''),
-  itLocal = ref('');
+const selectedIntern = ref<number | null>(null);
 
+const hrName = ref('');
+const hrLocal = ref('');
+const itName = ref('');
+const itLocal = ref('');
+
+// Seçili intern değişince atamaları yükle veya temizle
 watch(selectedIntern, async id => {
-  assignments.value = id
-    ? (await api.get('/api/supervisors', { params: { internId: id } })).data
-    : [];
+  if (id === null) {
+    assignments.value = [];
+  } else {
+    const res = await api.get<Assignment[]>('/api/supervisors', {
+      params: { internId: id },
+    });
+    assignments.value = res.data;
+  }
 });
 
 onMounted(async () => {
@@ -123,23 +141,39 @@ onMounted(async () => {
     const { data: m } = await api.get<{ id: number }>(
       `/api/mentors/email/${encodeURIComponent(email)}`
     );
-    interns.value = (await api.get(`/api/interns/${m.id}/interns`)).data;
+    const resp = await api.get<Intern[]>(`/api/interns/${m.id}/interns`);
+    interns.value = resp.data;
+    assignments.value = [];
   } catch {
     alert('Veri çekerken hata oluştu.');
   }
 });
 
 async function assign() {
+  const hasHR = assignments.value.some(
+    a => a.departmentName === 'İnsan Kaynakları'
+  );
+  const hasIT = assignments.value.some(
+    a => a.departmentName === 'Bilgi Teknolojileri'
+  );
+  if (hasHR && hasIT) {
+    return alert(
+      'Bu stajyer için IK ve IT atamaları zaten tanımlı. Yeni atama yapamazsınız.'
+    );
+  }
   if (
-    !selectedIntern.value ||
+    selectedIntern.value === null ||
     !hrName.value ||
     !hrLocal.value ||
     !itName.value ||
     !itLocal.value
-  )
+  ) {
     return alert('Lütfen tüm alanları doldurun.');
+  }
+
   const hrEmail = `${hrLocal.value}@etiya.com`;
   const itEmail = `${itLocal.value}@etiya.com`;
+
   try {
     await api.post('/api/supervisors', {
       internId: selectedIntern.value,
@@ -153,11 +187,10 @@ async function assign() {
       supervisorName: itName.value,
       supervisorEmail: itEmail,
     });
-    assignments.value = (
-      await api.get('/api/supervisors', {
-        params: { internId: selectedIntern.value },
-      })
-    ).data;
+    const res = await api.get<Assignment[]>('/api/supervisors', {
+      params: { internId: selectedIntern.value },
+    });
+    assignments.value = res.data;
     hrName.value = hrLocal.value = itName.value = itLocal.value = '';
     alert('Eşleştirme başarıyla tamamlandı.');
   } catch {
@@ -166,10 +199,11 @@ async function assign() {
 }
 
 async function deleteAssignment(id: number) {
-  if (!confirm('Silmek istediğine emin misin?')) return;
+  if (!confirm('Silmek istediğine emin misiniz?')) return;
   try {
     await api.delete(`/api/supervisors/${id}`);
     assignments.value = assignments.value.filter(x => x.id !== id);
+    hrName.value = hrLocal.value = itName.value = itLocal.value = '';
   } catch {
     alert('Silme sırasında hata oluştu.');
   }
@@ -200,29 +234,52 @@ h1 {
   display: flex;
   flex-direction: column;
 }
+.full-width {
+  flex: 1 1 100%;
+}
 .field label {
   margin-bottom: 0.25rem;
   font-weight: 500;
 }
-input,
+
 select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  appearance: none;
+  font-size: 1rem;
+}
+
+.name-input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   text-transform: uppercase;
 }
+
 .email-input {
   display: flex;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.email-input input {
+  padding: 0.5rem;
+  border: none;
+  flex: 1;
+  text-transform: lowercase;
 }
 .email-input span {
   display: flex;
   align-items: center;
   padding: 0 0.6rem;
   background: #f0f0f0;
-  border: 1px solid #ccc;
-  border-left: none;
-  border-radius: 0 4px 4px 0;
+  border-left: 1px solid #ccc;
 }
+
+/* “Eşleştir” butonu */
 .assign-btn {
   background: #0052cc;
   color: #fff;
@@ -235,6 +292,7 @@ select {
   background: #003d99;
 }
 
+/* Atamalar tablosu */
 .assignments-table {
   background: #fff;
   padding: 1rem;
@@ -256,6 +314,8 @@ th {
   background: #f7f9fc;
   font-weight: 600;
 }
+
+/* “Sil” butonu */
 .delete-btn {
   background: #ff4d4d;
   color: #fff;
