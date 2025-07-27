@@ -281,7 +281,7 @@ select {
 
 /* “Eşleştir” butonu */
 .assign-btn {
-  background: #0052cc;
+  background: #242441;
   color: #fff;
   border: none;
   padding: 0.6rem 1.2rem;

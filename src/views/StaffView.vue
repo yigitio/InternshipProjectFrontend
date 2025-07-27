@@ -80,7 +80,7 @@ export default defineComponent({
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 .staff-section {
-  background: #f9f9fa;
+  background: #ffffff;
   padding: 4rem 1rem;
   text-align: center;
   font-family: 'Poppins', sans-serif;

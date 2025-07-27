@@ -12,7 +12,7 @@
     </DashboardCard>
 
     <!-- Duyurular -->
-    <DashboardCard title="Duyurular" class="card-announcement">
+    <DashboardCard title="Sana Özel Duyurular" class="card-announcement">
       <div class="announcement-table-scroll">
         <table class="announcement-table" v-if="announcements.length">
           <thead>
