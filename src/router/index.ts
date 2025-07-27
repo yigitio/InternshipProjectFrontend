@@ -28,14 +28,11 @@ import InternSupportView from '@/views/InternSupportView.vue';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const routes: RouteRecordRaw[] = [
-  // kök → Login yoksa Login, varsa Register akışına
   {
     path: '/',
     redirect: () =>
       msalApp.getActiveAccount() ? { name: 'Register' } : { name: 'Login' },
   },
-
-  // — Public sayfalar —
   {
     path: '/login',
     name: 'Login',
@@ -56,51 +53,34 @@ const routes: RouteRecordRaw[] = [
         return { name: 'Login' };
       }
       const email = account.username;
-
-      // Tek declare
       let title = '';
-      // Normal akış: Graph API’den çek
       try {
         title = (await fetchJobTitle()).toLowerCase();
       } catch {
-        title = 'intern'; // fallback
+        title = 'intern';
       }
-
-      // — TEST için zorla mentor akışını görmek istersen uncomment et:
-      //title = 'mentor';
-
+      // if (title === 'mentor') title = 'mentor'; // TEST için zorla mentor akışı
       if (title.includes('intern')) {
-        // İntern adayı → DB sorgula
         const { data: exists } = await api.get<boolean>('/api/interns/exists', {
           params: { email },
         });
         if (!exists) {
-          // kayıt yoksa form
           return { name: 'RegisterIntern', query: { email } };
         }
-        // kayıtlı intern → Home
         return { name: 'Home' };
       } else {
-        // Mentor adayı → DB sorgula
         const { data: exists } = await api.get<boolean>('/api/mentors/exists', {
           params: { email },
         });
         if (!exists) {
-          // 1) Parantez içi ibareleri at
           const rawName = account.name ?? '';
           const cleanName = rawName.replace(/\s*\(.*\)$/, '');
-
-          // 2) Boşluklardan böl, boş string’leri çıkar
           const parts = cleanName.split(' ').filter(p => p.trim() !== '');
-
-          // 3) Fallback olarak: sonudur = son parça, isim = gerisi
           const fallbackLast = parts.length > 1 ? parts[parts.length - 1] : '';
           const fallbackFirst =
             parts.length > 1
               ? parts.slice(0, parts.length - 1).join(' ')
               : parts[0] ?? '';
-
-          // 4) Önce token claim’lerinden dene, yoksa fallback
           const claims = account.idTokenClaims as {
             given_name?: string;
             family_name?: string;
@@ -108,8 +88,6 @@ const routes: RouteRecordRaw[] = [
           };
           const firstName = claims.given_name ?? fallbackFirst;
           const lastName = claims.family_name ?? fallbackLast;
-
-          // 5) Mentor kaydını oluştur
           await api.post('/api/mentors', {
             name: firstName,
             surname: lastName,
@@ -117,13 +95,10 @@ const routes: RouteRecordRaw[] = [
             phoneNumber: claims.mobile_phone ?? '',
           });
         }
-        // mentor dashboard’a
         return { name: 'MentorHome' };
       }
     },
   },
-
-  // — Kayıt form sayfaları (artık public değil) —
   {
     path: '/register/intern',
     name: 'RegisterIntern',
@@ -131,18 +106,13 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: async (to, from) => {
       const account = msalApp.getActiveAccount();
       if (!account) return { name: 'Login' };
-
       let title = '';
       try {
         title = (await fetchJobTitle()).toLowerCase();
       } catch {
         title = 'intern';
       }
-      // TEST için:
-      //title = 'mentor';
-
       if (!title.includes('intern')) {
-        // mentor formu göremez
         return { name: 'Home' };
       }
       return true;
@@ -155,25 +125,18 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: async (to, from) => {
       const account = msalApp.getActiveAccount();
       if (!account) return { name: 'Login' };
-
       let title = '';
       try {
         title = (await fetchJobTitle()).toLowerCase();
       } catch {
         title = 'intern';
       }
-      // TEST için:
-      //title = 'mentor';
-
       if (title.includes('intern')) {
-        // internler NotIntern formunu göremez
         return { name: 'Home' };
       }
       return true;
     },
   },
-
-  // — Dashboards —
   {
     path: '/home',
     name: 'Home',
@@ -182,7 +145,7 @@ const routes: RouteRecordRaw[] = [
       { path: '/report', name: 'Report', component: ReportView },
       { path: 'profile', name: 'Profile', component: ProfileView },
       {
-        path: 'about', // /home/about
+        path: 'about',
         name: 'InternAbout',
         component: () => import('@/views/AboutView.vue'),
       },
@@ -238,7 +201,7 @@ const routes: RouteRecordRaw[] = [
         component: InternSupportView,
       },
       {
-        path: 'about', // /mentorhome/about
+        path: 'about',
         name: 'MentorAbout',
         component: () => import('@/views/AboutView.vue'),
       },
@@ -251,7 +214,7 @@ const router = createRouter({
   routes,
 });
 
-// global guard: public’ı atla, değilse login+register+dash koruması
+// GLOBAL GUARD — GÜNCEL VE DOĞRU HALİ
 router.beforeEach(async (to, from) => {
   // 1) Public rotalar hep açık
   if ((to.meta as any).public) {
@@ -269,7 +232,7 @@ router.beforeEach(async (to, from) => {
     return { name: 'Register' };
   }
 
-  // 4) Direkt /home veya /mentorhome URL bypass’ını engelle
+  // 4) Direkt /home veya /mentorhome URL bypass’ını engelle + CHILD ROUTES!
   const email = account.username;
   let title = '';
   try {
@@ -278,14 +241,13 @@ router.beforeEach(async (to, from) => {
     title = 'intern';
   }
 
-  // TEST için zorla mentor branch’ine girmek istersen uncomment et:
-  //title = 'mentor';
-
-  if (to.name === 'Home' && !title.includes('intern')) {
-    return { name: 'MentorHome' };
-  }
-  if (to.name === 'MentorHome' && title.includes('intern')) {
+  // Internlerin mentorhome ve altlarını görmesi engellenir
+  if (to.path.startsWith('/mentorhome') && title.includes('intern')) {
     return { name: 'Home' };
+  }
+  // Mentor olmayanların home ve altlarını görmesi engellenir
+  if (to.path.startsWith('/home') && !title.includes('intern')) {
+    return { name: 'MentorHome' };
   }
 
   return true;
