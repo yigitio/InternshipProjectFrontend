@@ -13,7 +13,6 @@
           @click="$emit('delete', rel.relation_id)"
           title="Sil"
         >
-          <i class="fa-solid fa-trash"></i>
           Sil
         </button>
         <button
@@ -21,14 +20,12 @@
           @click="$emit('edit', rel)"
           title="Düzenle"
         >
-          <i class="fa-solid fa-pen"></i>
           Detay
         </button>
       </div>
     </li>
   </ul>
 </template>
-
 <script setup lang="ts">
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
