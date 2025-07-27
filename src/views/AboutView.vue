@@ -1,6 +1,6 @@
 <template>
   <div class="about-container">
-    <h1>Lantern Hakkında</h1>
+    <h1>Hakkında</h1>
     <div class="about-content">
       <p>
         Lantern, stajyerlerin şirket içerisindeki gelişim süreçlerinin daha
@@ -25,7 +25,6 @@
         süreci boyunca rehberlerimizin bizlere yön gösterici rolünü sembolik
         olarak yansıtmaktadır.
       </p>
-      <div class="about-version"><b>Versiyon:</b> v1.0.1</div>
     </div>
   </div>
 </template>
@@ -55,14 +54,5 @@
   margin-bottom: 16px;
   font-size: 16px;
   line-height: 1.6;
-}
-
-.about-version {
-  margin-top: 20px;
-  text-align: right;
-  font-size: 15px;
-  color: #242441;
-  font-weight: bold;
-  letter-spacing: 1px;
 }
 </style>
