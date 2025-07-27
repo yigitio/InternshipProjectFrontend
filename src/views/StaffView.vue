@@ -8,10 +8,6 @@
         class="team-card"
       >
         <div
-          class="card-header"
-          :style="{ backgroundColor: colorOf(sup.departmentName) }"
-        ></div>
-        <div
           class="avatar"
           :style="{ backgroundColor: colorOf(sup.departmentName) }"
         >
@@ -29,8 +25,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import api from '@/utils/apiClients'; // axios yerine kendi api'niz
-import { msalApp } from '@/main'; // Eğer MSAL kullanıyorsan
+import api from '@/utils/apiClients';
+import { msalApp } from '@/main';
 
 interface SupervisorDto {
   departmentName: string;
@@ -45,19 +41,12 @@ export default defineComponent({
 
     onMounted(async () => {
       try {
-        // 1. Aktif kullanıcının email'ini çek (MSAL ile)
         const account = msalApp.getActiveAccount();
         const email = account?.username ?? '';
-
-        // 2. Backend'den bu email'e karşılık gelen intern'in id'sini al
         const { data: intern } = await api.get<{ id: number }>(
           '/api/interns/by-email',
-          {
-            params: { email },
-          }
+          { params: { email } }
         );
-
-        // 3. Sadece bu intern'e atanan sorumluları çek
         const { data } = await api.get<SupervisorDto[]>('/api/supervisors', {
           params: { internId: intern.id },
         });
@@ -76,10 +65,10 @@ export default defineComponent({
 
     const colorOf = (dept: string) => {
       const d = dept.toLowerCase();
-      if (d.includes('insan')) return '#FF8C42'; // turuncu
-      if (d.includes('bilgi')) return '#005F99'; // koyu mavi
-      if (d.includes('finance')) return '#4CAF50'; // yeşil
-      return '#888'; // diğerler için gri
+      if (d.includes('insan')) return '#FF8C42';
+      if (d.includes('bilgi')) return '#005F99';
+      if (d.includes('finance')) return '#4CAF50';
+      return '#888';
     };
 
     return { supervisors, initials, colorOf };
@@ -88,81 +77,130 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Stil kodların aynen kalabilir */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
 .staff-section {
-  background: #ffffff;
+  background: #f9f9fa;
   padding: 4rem 1rem;
   text-align: center;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
 }
+
 .team-title {
-  font-size: 1.25rem;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: #242441;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   position: relative;
   display: inline-block;
+  letter-spacing: -1px;
 }
 .team-title::after {
   content: '';
   display: block;
-  width: 6rem;
+  width: 4rem;
   height: 4px;
   background: #ff8c42;
   margin: 0.5rem auto 0;
   border-radius: 2px;
 }
+
 .team-cards {
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  max-width: 1000px;
+  display: flex;
+  gap: 2.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 900px;
   margin: 0 auto;
 }
+
 .team-card {
+  position: relative;
   background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s, transform 0.2s;
+  min-width: 320px;
+  max-width: 360px;
+  min-height: 310px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 56px; /* Avatar alanı için boşluk */
+  padding-bottom: 2.3rem;
+  margin-top: 2.5rem;
 }
+
 .team-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px) scale(1.025);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.13);
 }
-.card-header {
-  height: 6px;
-  width: 100%;
-}
+
 .avatar {
-  width: 64px;
-  height: 64px;
+  position: absolute;
+  top: -46px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
-  margin: -32px auto 0;
-  font-size: 1.25rem;
-  font-weight: bold;
+  background: #005f99;
+  border: 6px solid #fff;
+  font-size: 2.3rem;
+  font-weight: 700;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  position: relative;
-  z-index: 1;
+  box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.18);
+  z-index: 3;
 }
+
 .card-body {
-  padding: 1.5rem 1rem 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
 }
+
 .card-dept {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #005f99;
-  margin-bottom: 0.75rem;
-}
-.card-name {
-  font-size: 1.2rem;
+  font-size: 1.22rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #242441;
+  letter-spacing: -0.5px;
 }
+
+.card-name {
+  font-size: 1.08rem;
+  color: #333;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
 .card-email {
-  font-size: 1rem;
-  color: #666;
+  font-size: 0.98rem;
+  color: #6d6d6d;
+  word-break: break-all;
+  margin-top: 0.12rem;
+  letter-spacing: 0.01em;
+}
+
+/* Mobilde daha derli toplu görünüm */
+@media (max-width: 700px) {
+  .team-cards {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.6rem;
+  }
+  .team-card {
+    min-width: 92vw;
+    max-width: 99vw;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+  }
 }
 </style>
