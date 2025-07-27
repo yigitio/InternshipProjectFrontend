@@ -31,7 +31,7 @@
 
 <style scoped>
 .about-container {
-  max-width: 800px;
+  max-width: 600px;
   margin: 40px auto;
   background: #fff;
   color: #242441;
