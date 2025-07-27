@@ -9,7 +9,6 @@ import {
 import { msalApp } from '@/main';
 import api from '@/utils/apiClients';
 import { fetchJobTitle } from '@/utils/graphClient';
-
 import LoginView from '@/views/LoginView.vue';
 import HomeView from '@/views/HomeView.vue';
 import InternView from '@/views/InternView.vue';

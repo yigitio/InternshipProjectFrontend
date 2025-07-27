@@ -9,6 +9,7 @@
       <router-link to="/assignmentForm">Görev İşlemleri</router-link>
       <router-link to="/assignmentTracking">Görev Takibi</router-link>
       <router-link to="/mentorhome/announcement">Duyuru İşlemleri</router-link>
+      <router-link to="/mentorhome/intern-support">Stajyer Destek</router-link>
       <router-link v-if="isAdmin === '3'" to="/mentorhome/admin">
         Admin Paneli
       </router-link>
