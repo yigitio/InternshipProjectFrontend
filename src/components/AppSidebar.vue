@@ -18,13 +18,13 @@
     <div class="sidebar-bottom">
       <router-link to="/home/faq" class="faq-link">S.S.S</router-link>
       <router-link to="/home/about" class="about-link">Hakkında</router-link>
-      <div class="sidebar-version">v1.0.1</div>
+      <div class="sidebar-version">{{ APP_VERSION }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// (no changes needed here)
+import { APP_VERSION } from '@/utils/version';
 </script>
 
 <style scoped>

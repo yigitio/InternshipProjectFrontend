@@ -14,10 +14,12 @@
         Lantern, Aykut Eren, Asude Güven, Mustafa Göktuğ Yılmaz ve Yiğit Emre
         Çay’dan oluşan dört kişilik bir stajyer ekibi tarafından hayata
         geçirilmiştir. Proje süresince Erol Safa Uzun, Mert Erdoğan, Mustafa Şen
-        ve Süleyman Atakan Keçeci rehberlik görevini üstlenmiş, bilgi ve
-        tecrübeleriyle geliştirme sürecine yön vermiştir. Proje fikri, Erol Safa
-        Uzun tarafından ortaya koyulmuş ve ekip tarafından tasarlanarak
-        uygulamaya geçirilmiştir.
+        ve Süleyman Atakan Keçeci rehberlik görevini üstlenmiş; geliştirme
+        süreci, rehberlerimizin bilgi ve tecrübeleriyle yönlendirilmiştir. Takım
+        liderleri Anıl Çiçek ve Mert Karabulut ise teknik süreçlerde destek
+        sağlamış ve sürece katkıda bulunmuşlardır. Proje fikri, Erol Safa Uzun
+        tarafından ortaya koyulmuş, ekip tarafından tasarlanarak uygulamaya
+        geçirilmiştir.
       </p>
       <p>
         Projenin ismi olan Lantern, bir deniz fenerinin karanlıkta yolunu arayan

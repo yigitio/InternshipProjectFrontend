@@ -31,7 +31,7 @@
     "src/shims-vue3-msal-plugin.d.ts",
     "src/**/*.ts",
     "src/**/*.vue"
-  ],
+, "src/utils"  ],
   "exclude": [
    "node_modules",
    "src/components/SupervisorCard.vue"   // <— silinen dosyayı buraya ekle

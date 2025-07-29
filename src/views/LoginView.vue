@@ -1,7 +1,11 @@
 <template>
   <div class="login-wrapper">
     <div class="login-card">
-      <img src="@/assets/etiya-logo.png" alt="Etiya" class="etiya-logo" />
+      <img
+        src="@/assets/lantern_main_logo.png"
+        alt="Etiya"
+        class="etiya-logo"
+      />
       <img
         src="@/assets/lighthouse-logo.png"
         alt="Lighthouse"
@@ -10,7 +14,7 @@
       <h1>Lantern'a Hoşgeldiniz!</h1>
       <p class="subtitle"></p>
       <button class="login-button" @click="login">GİRİŞ YAP</button>
-      <div class="app-version">v1.0.1</div>
+      <div class="app-version">{{ APP_VERSION }}</div>
     </div>
   </div>
 </template>
@@ -20,6 +24,7 @@ import { useMsal } from 'vue3-msal-plugin';
 import { loginRequest } from '@/utils/authConfig';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import { APP_VERSION } from '@/utils/version';
 
 const { instance } = useMsal();
 const router = useRouter();
@@ -67,7 +72,7 @@ async function login() {
 
 /* 3. Logo */
 .etiya-logo {
-  width: 100px;
+  width: 200px;
   margin-bottom: 16px;
 }
 

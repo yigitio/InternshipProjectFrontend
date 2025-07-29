@@ -23,13 +23,14 @@
       <router-link to="/mentorhome/about" class="about-link"
         >Hakkında</router-link
       >
-      <div class="sidebar-version">v1.0.1</div>
+      <div class="sidebar-version">{{ APP_VERSION }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 defineProps<{ isAdmin: string }>();
+import { APP_VERSION } from '@/utils/version';
 </script>
 
 <style scoped>
