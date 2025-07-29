@@ -161,32 +161,35 @@ async function assign() {
       'Bu stajyer için IK ve IT atamaları zaten tanımlı. Yeni atama yapamazsınız.'
     );
   }
-  if (
-    selectedIntern.value === null ||
-    !hrName.value ||
-    !hrLocal.value ||
-    !itName.value ||
-    !itLocal.value
-  ) {
-    return alert('Lütfen tüm alanları doldurun.');
+  if (selectedIntern.value === null) {
+    return alert('Lütfen bir stajyer seçin.');
+  }
+
+  if ((!hrName.value || !hrLocal.value) && (!itName.value || !itLocal.value)) {
+    return alert('Lütfen en az bir destek sorumlusu girin.');
   }
 
   const hrEmail = `${hrLocal.value}@etiya.com`;
   const itEmail = `${itLocal.value}@etiya.com`;
 
   try {
-    await api.post('/api/supervisors', {
-      internId: selectedIntern.value,
-      supervisorDepartmentId: 1,
-      supervisorName: hrName.value,
-      supervisorEmail: hrEmail,
-    });
-    await api.post('/api/supervisors', {
-      internId: selectedIntern.value,
-      supervisorDepartmentId: 2,
-      supervisorName: itName.value,
-      supervisorEmail: itEmail,
-    });
+    if (hrName.value && hrLocal.value) {
+      await api.post('/api/supervisors', {
+        internId: selectedIntern.value,
+        supervisorDepartmentId: 1,
+        supervisorName: hrName.value,
+        supervisorEmail: `${hrLocal.value}@etiya.com`,
+      });
+    }
+
+    if (itName.value && itLocal.value) {
+      await api.post('/api/supervisors', {
+        internId: selectedIntern.value,
+        supervisorDepartmentId: 2,
+        supervisorName: itName.value,
+        supervisorEmail: `${itLocal.value}@etiya.com`,
+      });
+    }
     const res = await api.get<Assignment[]>('/api/supervisors', {
       params: { internId: selectedIntern.value },
     });
