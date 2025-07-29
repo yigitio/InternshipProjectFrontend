@@ -216,6 +216,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
 .assignment-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 .assignment-table th,
 .assignment-table td {
@@ -223,10 +224,20 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   font-size: 13px;
   border-bottom: 1px solid #ddd;
   text-align: left;
+  vertical-align: top;
+}
+
+.assignment-table td:nth-child(1),
+.assignment-table td:nth-child(3),
+.assignment-table td:nth-child(4),
+.assignment-table th:nth-child(1),
+.assignment-table th:nth-child(3),
+.assignment-table th:nth-child(4) {
+  width: 120px;
 }
 
 .assignment-table td:nth-child(2) {
-  max-width: 160px;
+  max-width: 200px;
   white-space: normal;
   word-break: break-word;
 }
