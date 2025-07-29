@@ -124,6 +124,7 @@ onMounted(async () => {
   background-color: #ffffff;
 }
 .office-card {
+  font-family: sans-serif;
   width: 100%;
   max-width: 600px;
   background-color: white;

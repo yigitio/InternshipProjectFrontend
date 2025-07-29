@@ -83,7 +83,7 @@ export default defineComponent({
   background: #ffffff;
   padding: 4rem 1rem;
   text-align: center;
-  font-family: 'Poppins', sans-serif;
+  font-family: sans-serif;
   min-height: 100vh;
 }
 

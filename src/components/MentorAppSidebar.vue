@@ -63,6 +63,7 @@ defineProps<{ isAdmin: string }>();
 
 /* Menü alanı */
 .sidebar {
+  font-family: sans-serif;
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
@@ -103,6 +104,7 @@ defineProps<{ isAdmin: string }>();
   border-radius: 10px;
 }
 .sidebar-bottom {
+  font-family: sans-serif;
   margin-top: auto;
   padding-bottom: 30px;
   display: flex;

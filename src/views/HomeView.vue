@@ -117,6 +117,7 @@ async function handleLogout() {
 }
 
 .dropdown-menu {
+  font-family: sans-serif;
   position: absolute;
   right: 0;
   top: 40px;

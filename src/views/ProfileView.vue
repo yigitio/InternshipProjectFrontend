@@ -88,12 +88,14 @@ function goHome() {
 }
 
 .profile-info p {
+  font-family: sans-serif;
   font-size: 16px;
   margin-bottom: 12px;
   color: #222;
 }
 
 .back-button {
+  font-family: sans-serif;
   background-color: white;
   border: 1px solid #ccc;
   padding: 8px 12px;
@@ -106,6 +108,7 @@ function goHome() {
 }
 
 .back-button:hover {
+  font-family: sans-serif;
   background-color: #f5f5f5;
 }
 </style>

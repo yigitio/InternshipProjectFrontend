@@ -92,12 +92,14 @@ import AppSidebar from '@/components/AppSidebar.vue';
   line-height: 1.6;
   color: #444;
   font-size: 1rem;
+  font-family: sans-serif;
 }
 
 .report-list {
   list-style: none;
   padding: 0;
   margin-top: 1.5rem;
+  font-family: sans-serif;
 }
 .report-list li {
   margin-bottom: 0.75rem;

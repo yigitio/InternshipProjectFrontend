@@ -66,6 +66,7 @@
 
 /* Menü öğeleri */
 .sidebar a {
+  font-family: sans-serif;
   color: white;
   text-decoration: none;
   padding: 10px 14px;
@@ -99,6 +100,7 @@
 }
 /* Alt kısım */
 .sidebar-bottom {
+  font-family: sans-serif;
   margin-top: auto;
   padding-bottom: 30px;
   display: flex;
