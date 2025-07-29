@@ -13,6 +13,15 @@ import '@fortawesome/fontawesome-free/css/all.css'; // <--- BU ÇOK ÖNEMLİ
 const msalApp = msalInstance(msalConfig as Configuration);
 (globalThis as any).msalApp = msalApp;
 
+router.afterEach(to => {
+  const defaultTitle = 'Lantern';
+  if (to.meta && to.meta.title) {
+    document.title = to.meta.title as string;
+  } else {
+    document.title = defaultTitle;
+  }
+});
+
 // 2) Uygulamayı ayağa kaldır
 async function bootstrap() {
   // A) MSAL initialize & varsa önceki hesabı aktif et

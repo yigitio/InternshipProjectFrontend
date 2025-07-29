@@ -36,14 +36,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
+    meta: { title: 'Lantern | Giriş', public: true },
     component: LoginView,
-    meta: { public: true },
   },
   {
     path: '/register',
     name: 'Register',
     component: RouterView,
-    meta: { public: true },
+    meta: { title: 'Lantern | Kayıt', public: true },
     beforeEnter: async (
       to: RouteLocationNormalized,
       from: RouteLocationNormalized
@@ -102,6 +102,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/register/intern',
     name: 'RegisterIntern',
+    meta: { title: 'Lantern | Stajyer Kaydı' },
     component: InternView,
     beforeEnter: async (to, from) => {
       const account = msalApp.getActiveAccount();
@@ -121,6 +122,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/register/not-intern',
     name: 'NotIntern',
+    meta: { title: 'Lantern | Çalışan Kaydı' },
     component: CreateAccount,
     beforeEnter: async (to, from) => {
       const account = msalApp.getActiveAccount();
@@ -140,37 +142,63 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/home',
     name: 'Home',
+    meta: { title: 'Lantern | Ana Sayfa' },
     component: HomeView,
     children: [
-      { path: '/report', name: 'Report', component: ReportView },
-      { path: 'profile', name: 'Profile', component: ProfileView },
+      {
+        path: '/report',
+        name: 'Report',
+        component: ReportView,
+        meta: { title: 'Lantern | Rapor Bilgileri' },
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+        meta: { title: 'Lantern | Profil' },
+      },
       {
         path: 'about',
         name: 'InternAbout',
+        meta: { title: 'Lantern | Hakkında' },
         component: () => import('@/views/AboutView.vue'),
       },
       {
         path: '/assignmentlist',
         name: 'AssignmentList',
+        meta: { title: 'Lantern | Görevler' },
         component: AssignmentList,
       },
-      { path: '/office', name: 'Office', component: OfficeView },
-      { path: '/staff', name: 'Staff', component: StaffView },
+      {
+        path: '/office',
+        name: 'Office',
+        component: OfficeView,
+        meta: { title: 'Lantern | Ofis Bilgileri' },
+      },
+      {
+        path: '/staff',
+        name: 'Staff',
+        component: StaffView,
+        meta: { title: 'Lantern | Destek' },
+      },
     ],
   },
   {
     path: '/mentorhome',
     name: 'MentorHome',
+    meta: { title: 'Lantern | Ana Sayfa' },
     component: MentorHomeView,
     children: [
       {
         path: 'mentorprofile',
         name: 'MentorProfile',
+        meta: { title: 'Lantern | Profil' },
         component: MentorProfileView,
       },
       {
         path: 'admin',
         name: 'Admin',
+        meta: { title: 'Lantern | Admin' },
         component: AdminView,
         beforeEnter: () => {
           const account = msalApp.getActiveAccount();
@@ -183,26 +211,31 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/assignmentform',
         name: 'AssignmentForm',
+        meta: { title: 'Lantern | Görev İşlemleri' },
         component: AssignmentForm,
       },
       {
         path: '/assignmenttracking',
         name: 'AssignmentTracking',
+        meta: { title: 'Lantern | Görev Takip' },
         component: AssignmentTracking,
       },
       {
         path: 'announcement',
         name: 'MentorAnnouncementForm',
+        meta: { title: 'Lantern | Duyuru İşlemleri' },
         component: MentorAnnouncementForm,
       },
       {
         path: 'intern-support',
         name: 'InternSupport',
+        meta: { title: 'Lantern | Destek İşlemleri' },
         component: InternSupportView,
       },
       {
         path: 'about',
         name: 'MentorAbout',
+        meta: { title: 'Lantern | Hakkında' },
         component: () => import('@/views/AboutView.vue'),
       },
     ],
