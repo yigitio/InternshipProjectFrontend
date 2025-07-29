@@ -15,6 +15,11 @@ const props = defineProps<{ data: { name: string; value: number }[] }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 let chart: Chart | null = null;
 
+const COLOR_MAP: Record<string, string> = {
+  Yapıldı: '#242441', // Lacivert
+  Yapılmadı: '#f58220', // Turuncu
+};
+
 const renderChart = () => {
   if (!canvas.value) return;
 
@@ -29,8 +34,8 @@ const renderChart = () => {
       datasets: [
         {
           data: props.data.map(d => d.value),
-          backgroundColor: ['#f58220', '#242441', '#8884d8', '#FFBB28'],
-          borderColor: '#ffffff', // Beyaz çerçeve
+          backgroundColor: props.data.map(d => COLOR_MAP[d.name] || '#ccc'),
+          borderColor: '#ffffff',
           borderWidth: 2,
         },
       ],
