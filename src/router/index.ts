@@ -146,7 +146,7 @@ const routes: RouteRecordRaw[] = [
     component: HomeView,
     children: [
       {
-        path: '/report',
+        path: 'report',
         name: 'Report',
         component: ReportView,
         meta: { title: 'Lantern | Rapor Bilgileri' },
@@ -164,19 +164,19 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/AboutView.vue'),
       },
       {
-        path: '/assignmentlist',
+        path: 'assignmentlist',
         name: 'AssignmentList',
         meta: { title: 'Lantern | Görevler' },
         component: AssignmentList,
       },
       {
-        path: '/office',
+        path: 'office',
         name: 'Office',
         component: OfficeView,
         meta: { title: 'Lantern | Ofis Bilgileri' },
       },
       {
-        path: '/staff',
+        path: 'staff',
         name: 'Staff',
         component: StaffView,
         meta: { title: 'Lantern | Destek' },
@@ -209,13 +209,13 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/assignmentform',
+        path: 'assignmentform',
         name: 'AssignmentForm',
         meta: { title: 'Lantern | Görev İşlemleri' },
         component: AssignmentForm,
       },
       {
-        path: '/assignmenttracking',
+        path: 'assignmenttracking',
         name: 'AssignmentTracking',
         meta: { title: 'Lantern | Görev Takip' },
         component: AssignmentTracking,
@@ -281,6 +281,12 @@ router.beforeEach(async (to, from) => {
   // Mentor olmayanların home ve altlarını görmesi engellenir
   if (to.path.startsWith('/home') && !title.includes('intern')) {
     return { name: 'MentorHome' };
+  }
+  if (to.path.startsWith('/register/not-intern') && account) {
+    return { name: 'MentorHome' };
+  }
+  if (to.path.startsWith('/register/intern') && account) {
+    return { name: 'Home' };
   }
 
   return true;
