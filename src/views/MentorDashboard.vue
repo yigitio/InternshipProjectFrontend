@@ -1,28 +1,48 @@
 <template>
   <div class="dashboard-grid">
+    <!-- PieChart -->
+    <DashboardCard title="Stajyer Görev Durumu" class="card-pie">
+      <PieChart :data="mentorStats" v-if="mentorStats.length" />
+      <p v-else>Henüz bir assignment atanmadı.</p>
+    </DashboardCard>
+
     <!-- Greeting -->
     <DashboardCard title="" class="card-greeting">
       <div class="greeting-box">{{ greetingMessage }}</div>
     </DashboardCard>
 
-    <!-- Mesajlar -->
-    <DashboardCard title="Mesajlar" class="card-messages">
-      <div class="table-scroll">
-        <p>Mesaj kutusu burada olacak.</p>
-      </div>
-    </DashboardCard>
-
-    <!-- Atanmış Görevler -->
-    <DashboardCard title="Atanmış Görevler" class="card-assigned">
-      <div class="table-scroll">
-        <p>Atanmış görevler burada listelenecek.</p>
+    <!-- Atanılan Görevler -->
+    <DashboardCard title="Atanmış Görevler" class="card-todo">
+      <div class="assignment-table-scroll">
+        <table class="assignment-table" v-if="assignments.length">
+          <thead>
+            <tr>
+              <th>Stajyer</th>
+              <th>Görev</th>
+              <th>Öncelik</th>
+              <th>Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="a in assignments" :key="a.id">
+              <td>{{ a.internName }}</td>
+              <td>{{ a.assignmentName }}</td>
+              <td>
+                <span :class="['priority-dot', a.priority.toLowerCase()]"></span
+                >{{ a.priority }}
+              </td>
+              <td>{{ a.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else>Henüz atanmış görev bulunamadı.</p>
       </div>
     </DashboardCard>
 
     <!-- Stajyerler -->
-    <DashboardCard title="Stajyerler" class="card-interns">
-      <div class="table-scroll">
-        <table class="assignment-table" v-if="interns.length">
+    <DashboardCard title="Stajyerler" class="card-announcement">
+      <div class="intern-table-scroll">
+        <table class="intern-table" v-if="interns.length">
           <thead>
             <tr>
               <th>Ad Soyad</th>
@@ -52,9 +72,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import DashboardCard from '@/components/DashboardCard.vue';
-import apiClient from '@/utils/apiClients';
 import { useMsal } from 'vue3-msal-plugin';
+import DashboardCard from '@/components/DashboardCard.vue';
+import PieChart from '@/components/PieChart.vue';
+import apiClient from '@/utils/apiClients';
 
 interface Intern {
   id: number;
@@ -67,12 +88,23 @@ interface Intern {
   endDate: string;
 }
 
-const interns = ref<Intern[]>([]);
-const mentorName = ref('');
-const greetingMessage = ref('');
-const mentorId = ref<number | null>(null);
+interface Assignment {
+  id: number;
+  assignmentName: string;
+  priority: string;
+  status: string;
+  internName: string;
+}
+
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
+
+const greetingMessage = ref('');
+const mentorStats = ref<{ name: string; value: number }[]>([]);
+const mentorId = ref<number | null>(null);
+const mentorName = ref('');
+const interns = ref<Intern[]>([]);
+const assignments = ref<Assignment[]>([]);
 
 onMounted(async () => {
   const hour = new Date().getHours();
@@ -93,14 +125,32 @@ onMounted(async () => {
   }
 
   try {
+    const res = await apiClient.get(
+      `/api/assignments/stats/mentor?email=${email}`
+    );
+    const statsData = res.data;
+    mentorStats.value = Object.entries(statsData).map(([name, value]) => ({
+      name,
+      value: value as number,
+    }));
+  } catch (err) {
+    console.error('PieChart verisi alınamadı:', err);
+  }
+
+  try {
     if (mentorId.value !== null) {
       const internsRes = await apiClient.get(
         `/api/interns/${mentorId.value}/interns`
       );
       interns.value = internsRes.data;
+
+      const assignmentsRes = await apiClient.get(
+        `/api/assignments/by-mentor/${mentorId.value}`
+      );
+      assignments.value = assignmentsRes.data;
     }
   } catch (err) {
-    console.error('Stajyerler alınamadı:', err);
+    console.error('Veriler alınamadı:', err);
   }
 });
 
@@ -113,9 +163,9 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr auto;
   grid-template-areas:
-    'greeting greeting'
-    'messages assigned'
-    'interns interns';
+    'pie greeting'
+    'pie announcement'
+    'todo todo';
   gap: 12px;
   padding: 12px;
   max-width: 1100px;
@@ -123,17 +173,17 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   box-sizing: border-box;
 }
 
+.card-pie {
+  grid-area: pie;
+}
 .card-greeting {
   grid-area: greeting;
 }
-.card-messages {
-  grid-area: messages;
+.card-announcement {
+  grid-area: announcement;
 }
-.card-assigned {
-  grid-area: assigned;
-}
-.card-interns {
-  grid-area: interns;
+.card-todo {
+  grid-area: todo;
 }
 
 .greeting-box {
@@ -146,19 +196,19 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   color: #333;
 }
 
-.table-scroll {
+.assignment-table-scroll {
   overflow-y: auto;
-  max-height: 220px;
+  max-height: 170px;
   border-top: 1px solid #eee;
   margin-top: 10px;
   padding-right: 6px;
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 transparent;
 }
-.table-scroll::-webkit-scrollbar {
+.assignment-table-scroll::-webkit-scrollbar {
   width: 6px;
 }
-.table-scroll::-webkit-scrollbar-thumb {
+.assignment-table-scroll::-webkit-scrollbar-thumb {
   background-color: #c1c1c1;
   border-radius: 4px;
 }
@@ -175,14 +225,66 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('tr-TR');
   text-align: left;
 }
 
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'greeting'
-      'messages'
-      'assigned'
-      'interns';
-  }
+.assignment-table td:nth-child(2) {
+  max-width: 160px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.intern-table-scroll {
+  max-height: 170px;
+  min-height: 170px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+.intern-table-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.intern-table-scroll::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+.intern-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.intern-table th,
+.intern-table td {
+  padding: 8px;
+  font-size: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.priority-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.priority-dot.urgent {
+  background-color: red;
+}
+.priority-dot.high {
+  background-color: orange;
+}
+.priority-dot.medium {
+  background-color: gold;
+}
+.priority-dot.low {
+  background-color: green;
+}
+.priority-dot.optional {
+  background-color: lightgray;
+}
+.priority-dot.normal {
+  background-color: #5c6bc0;
 }
 </style>
