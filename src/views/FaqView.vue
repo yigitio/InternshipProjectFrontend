@@ -79,6 +79,7 @@ onMounted(async () => {
 
 .title {
   text-align: center;
+  font-size: 20px;
   margin-bottom: 2.5rem;
   color: #242441;
 }
@@ -97,7 +98,7 @@ onMounted(async () => {
   border: none;
   cursor: pointer;
   text-align: left;
-  font-size: 1.1rem;
+  font-size: 13px;
   color: #242441;
   transition: background-color 0.2s ease;
 }
@@ -119,8 +120,6 @@ onMounted(async () => {
 .question.active .arrow {
   transform: rotate(90deg);
 }
-
-/* Cevabın açılıp kapanma animasyonu için */
 .answer-container {
   max-height: 0;
   overflow: hidden;
@@ -134,6 +133,7 @@ onMounted(async () => {
 .answer-content {
   padding: 0 1rem 1.5rem 1rem;
   color: #555;
+  font-size: 13px;
   line-height: 1.6;
 }
 </style>

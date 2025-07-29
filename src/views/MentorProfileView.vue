@@ -72,12 +72,14 @@ function goHome() {
 
 .profile-card h2 {
   font-size: 24px;
+  font-family: sans-serif;
   margin-bottom: 24px;
   color: #333;
 }
 
 .profile-info p {
   font-size: 16px;
+  font-family: sans-serif;
   margin-bottom: 12px;
   color: #222;
 }

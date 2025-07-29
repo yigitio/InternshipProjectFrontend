@@ -4,6 +4,12 @@ import apiClient from '@/utils/apiClients';
 export async function fetchJobTitle(): Promise<string> {
   const account = msalApp.getActiveAccount();
   if (!account) throw new Error('No active account');
+  const fakeEmail = account.username;
+  // SADECE TEST AMAÇLI: Bu kullanıcı mentor gibi tanımlansın
+  /*if (fakeEmail === 'asude.guven@etiya.com') {
+    console.log('TEST OVERRIDE: Kullanıcı mentor olarak tanıtıldı.');
+    return 'Mentor';
+  }*/
 
   const result = await msalApp.acquireTokenSilent({
     account,

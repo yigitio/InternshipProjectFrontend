@@ -13,6 +13,7 @@ interface Assignment {
   assignedAt: string;
   startedAt: string;
   dueDate: string;
+  priority: 'Optional' | 'Urgent' | 'High' | 'Medium' | 'Low';
   status: 'To Do' | 'In Progress' | 'Completed';
   internName: string; // Stajyerin adı
   completedAt: string; // Bitiş tarihini tutmak için
@@ -103,6 +104,7 @@ onMounted(async () => {
             <th>Açıklama</th>
             <th>Başlangıç Tarihi</th>
             <th>Tamamlanma Tarihi</th>
+            <th>Öncelik</th>
             <th>Statü</th>
           </tr>
         </thead>
@@ -133,6 +135,7 @@ onMounted(async () => {
                   : '-'
               }}
             </td>
+            <td data-label="Öncelik">{{ assignment.priority }}</td>
             <td data-label="Statü">{{ assignment.status }}</td>
           </tr>
         </tbody>
@@ -155,7 +158,7 @@ h2 {
 }
 
 table {
-  width: 100%;
+  width: 60%;
   border-collapse: collapse;
   margin-top: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -168,7 +171,7 @@ thead {
 
 th,
 td {
-  padding: 12px 15px;
+  padding: 8px 10px;
   border: 1px solid #ddd;
   text-align: left;
 }
