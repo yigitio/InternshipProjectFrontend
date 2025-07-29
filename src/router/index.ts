@@ -25,6 +25,7 @@ import OfficeView from '@/views/OfficeView.vue';
 import StaffView from '@/views/StaffView.vue';
 import MentorAnnouncementForm from '@/views/MentorAnnouncementForm.vue';
 import InternSupportView from '@/views/InternSupportView.vue';
+import FaqView from '@/views/FaqView.vue';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const routes: RouteRecordRaw[] = [
@@ -180,6 +181,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Staff',
         component: StaffView,
         meta: { title: 'Lantern | Destek' },
+      },
+      {
+        path: 'faq',
+        name: 'Faq',
+        meta: { title: 'Lantern | S.S.S' },
+        component: FaqView,
       },
     ],
   },

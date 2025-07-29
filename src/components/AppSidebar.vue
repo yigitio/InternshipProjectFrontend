@@ -16,6 +16,7 @@
 
     <!-- Versiyon rozetini en alta ekliyoruz -->
     <div class="sidebar-bottom">
+      <router-link to="/home/faq" class="faq-link">S.S.S</router-link>
       <router-link to="/home/about" class="about-link">Hakkında</router-link>
       <div class="sidebar-version">v1.0.1</div>
     </div>
@@ -106,6 +107,22 @@
   padding-left: 20px; /* Üstteki menülerle aynı padding */
 }
 
+.faq-link {
+  color: white;
+  text-decoration: none;
+  padding: 10px 14px;
+  background-color: transparent;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  width: 84%; /* EKLENDİ: diğer öğelerle hizalanması için */
+}
+
 .about-link {
   color: white;
   text-decoration: none;
@@ -120,6 +137,10 @@
   font-weight: 500;
   transition: background-color 0.2s ease;
   width: 84%; /* EKLENDİ: diğer öğelerle hizalanması için */
+}
+
+.faq-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .about-link:hover {
