@@ -289,13 +289,6 @@ router.beforeEach(async (to, from) => {
   if (to.path.startsWith('/home') && !title.includes('intern')) {
     return { name: 'MentorHome' };
   }
-  if (to.path.startsWith('/register/not-intern') && account) {
-    return { name: 'MentorHome' };
-  }
-  if (to.path.startsWith('/register/intern') && account) {
-    return { name: 'Home' };
-  }
-
   return true;
 });
 

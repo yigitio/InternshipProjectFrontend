@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import apiClient from '@/utils/apiClients';
+import apiClient from '@/utils/apiClients'; // Your configured axios instance
 
 interface Faq {
   id: number;
@@ -28,7 +28,7 @@ const toggleQuestion = (id: number) => {
 
 onMounted(async () => {
   try {
-    const response = await apiClient.get<Faq[]>('/api/faqs');
+    const response = await apiClient.get('/api/faqs');
     faqs.value = response.data;
   } catch (err) {
     error.value = 'Sorular yüklenirken bir hata oluştu.';
