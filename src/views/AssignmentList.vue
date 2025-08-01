@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'; // <-- EKLENDİ
+import { ref, reactive, onMounted, watch } from 'vue';
 import {
-  fetchAssignments,
+  fetchAssignmentsPaged,
   updateAssignment,
   type Assignment,
 } from '@/utils/assignmentService';
@@ -9,127 +9,214 @@ import { useMsal } from 'vue3-msal-plugin';
 import { formatDate } from '@/utils/formatters';
 import apiClient from '@/utils/apiClients';
 
-// Reaktif değişkenler
 const assignments = ref<Assignment[]>([]);
+const totalPages = ref(0);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
+
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
 
-const statusOptions = ['To Do', 'In Progress', 'Completed'];
+const currentPage = ref(0);
+const filters = reactive({
+  status: '',
+  sort: 'assignedAt',
+  size: 5,
+});
 
-// DÜZELTİLMİŞ FONKSİYON
+const statusOptions = ['To Do', 'In Progress', 'Completed'];
+const sortOptions = [
+  { label: 'Atanma Tarihi', value: 'assignedAt' },
+  { label: 'Bitiş Tarihi', value: 'dueDate' },
+];
+
+// Modal kontrolü
+const showModal = ref(false);
+const selectedAssignment = ref<Assignment | null>(null);
+const previousStatus = ref<string>('');
+
+// Modal üzerinden onaylama akışı
+const handleStatusChange = (assignment: Assignment) => {
+  if (assignment.status === 'Completed') {
+    selectedAssignment.value = assignment;
+    showModal.value = true;
+  } else {
+    updateStatusDirectly(assignment);
+  }
+};
+
+const updateStatusDirectly = async (assignment: Assignment) => {
+  if (!assignment.id) return;
+  try {
+    await updateAssignment(assignment.id, { status: assignment.status });
+    window.location.reload(); // ✅ PieChart + Dashboard assignment'ları tekrar çeker
+  } catch (err) {
+    console.error('Statü güncellenirken hata:', err);
+    alert('Statü güncellenemedi.');
+  }
+};
+
+const confirmCompletion = () => {
+  if (selectedAssignment.value) {
+    updateStatusDirectly(selectedAssignment.value);
+    selectedAssignment.value = null;
+    showModal.value = false;
+  }
+};
+
+const cancelCompletion = () => {
+  if (selectedAssignment.value) {
+    selectedAssignment.value.status = previousStatus.value;
+    selectedAssignment.value = null;
+    showModal.value = false;
+  }
+};
+
 const loadAssignments = async (internId: number) => {
   try {
     isLoading.value = true;
     error.value = null;
-    const fetchedAssignments: Assignment[] = await fetchAssignments(internId);
-    assignments.value = fetchedAssignments.map(assignment => {
-      if (!assignment.status) {
-        assignment.status = 'To Do';
-      }
-      return assignment;
+
+    const response = await fetchAssignmentsPaged({
+      internId,
+      page: currentPage.value,
+      size: filters.size,
+      sort: filters.sort,
+      status: filters.status,
     });
+
+    assignments.value = response.content;
+    totalPages.value = response.totalPages;
   } catch (err) {
-    console.error('Görevler çekilirken bir hata oluştu:', err);
-    error.value =
-      'Görevler yüklenirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.';
+    console.error('Görevler çekilirken hata:', err);
+    error.value = 'Görevler yüklenemedi.';
   } finally {
     isLoading.value = false;
   }
 };
 
-// Bu fonksiyonunuz zaten doğruydu
-const handleStatusChange = async (assignment: Assignment) => {
-  if (typeof assignment.id === 'undefined' || assignment.id === null) {
-    console.error("Görev ID'si tanımsız, güncelleme yapılamaz.");
-    alert('Geçersiz görev IDsi nedeniyle işlem yapılamadı.');
-    return;
-  }
-  try {
-    await updateAssignment(assignment.id, assignment);
-  } catch (err) {
-    console.error('Görev durumu güncellenirken hata oluştu:', err);
-    alert('Durum güncellenirken bir hata oluştu. Değişiklikler geri alınacak.'); // Hata durumunda listeyi yeniden yüklemek için ID'yi bilmemiz gerekir.
-    // Bu kısmı basitleştirebilir veya mevcut ID'yi saklayabilirsiniz.
-    // Şimdilik sadece sayfayı yenilemesini isteyebiliriz.
-    window.location.reload();
-  }
-};
-
-// DÜZELTİLMİŞ onMounted
 onMounted(async () => {
   try {
-    const internRes = await apiClient.get(
-      `/api/interns/by-email?email=${email}`
-    );
-    const internData = internRes.data;
-    if (internData && internData.id) {
-      loadAssignments(internData.id);
+    const res = await apiClient.get(`/api/interns/by-email?email=${email}`);
+    const internId = res.data?.id;
+    if (internId) {
+      await loadAssignments(internId);
+      watch(
+        [
+          () => currentPage.value,
+          () => filters.status,
+          () => filters.sort,
+          () => filters.size,
+        ],
+        () => loadAssignments(internId)
+      );
     } else {
-      error.value = 'Oturum açan kullanıcıya ait stajyer bilgisi bulunamadı.';
-      isLoading.value = false;
+      error.value = 'Stajyer bilgisi alınamadı.';
     }
   } catch (err) {
-    console.error('Stajyer bilgileri çekilirken hata oluştu:', err);
-    error.value =
-      'Stajyer bilgileri alınamadı, bu nedenle görevler listelenemiyor.';
-    isLoading.value = false;
+    error.value = 'Kullanıcı bilgisi alınamadı.';
   }
 });
 </script>
 
 <template>
   <div class="assignment-container">
-    <h2>Atanan Görevler</h2>
+    <h2>Görev Takibi</h2>
+
+    <div class="filter-bar">
+      <select v-model="filters.status">
+        <option value="">Statü (Tümü)</option>
+        <option v-for="s in statusOptions" :key="s" :value="s">{{ s }}</option>
+      </select>
+
+      <select v-model="filters.sort">
+        <option v-for="o in sortOptions" :key="o.value" :value="o.value">
+          {{ o.label }}
+        </option>
+      </select>
+
+      <select v-model="filters.size">
+        <option :value="5">5</option>
+        <option :value="15">15</option>
+        <option :value="20">20</option>
+      </select>
+    </div>
 
     <div v-if="isLoading" class="state-message">Yükleniyor...</div>
-
     <div v-else-if="error" class="state-message error">{{ error }}</div>
 
     <div v-else>
       <div v-if="assignments.length === 0" class="state-message">
-        Henüz atanmış bir görev bulunmuyor.
+        Henüz atanmış görev yok.
       </div>
 
-      <table v-else>
-        <thead>
-          <tr>
-            <th>Görev Adı</th>
-            <th>Açıklama</th>
-            <th>Atanma Tarihi</th>
-            <th>Hedeflenen Bitiş Tarihi</th>
-            <th>Önem Derecesi</th>
-            <th>Mentor</th>
-            <th>Statü</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in assignments" :key="item.id">
-            <td data-label="Görev Adı">{{ item.assignmentName || 'N/A' }}</td>
-            <td data-label="Açıklama">{{ item.assignmentDesc }}</td>
-            <td data-label="Atanma Tarihi">
-              {{ formatDate(item.assignedAt) }}
-            </td>
-            <td data-label="Hedeflenen Bitiş Tarihi">
-              {{ formatDate(item.dueDate) }}
-            </td>
-            <td data-label="Önem Derecesi">{{ item.priority }}</td>
-            <td data-label="Mentor">{{ item.mentorName }}</td>
-            <td data-label="Statü">
-              <select v-model="item.status" @change="handleStatusChange(item)">
-                <option
-                  v-for="status in statusOptions"
-                  :key="status"
-                  :value="status"
+      <div class="table-scroll" v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>Görev Adı</th>
+              <th>Açıklama</th>
+              <th>Atanma</th>
+              <th>Bitiş</th>
+              <th>Öncelik</th>
+              <th>Mentor</th>
+              <th>Statü</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in assignments" :key="item.id">
+              <td>{{ item.assignmentName }}</td>
+              <td>{{ item.assignmentDesc }}</td>
+              <td>{{ formatDate(item.assignedAt) }}</td>
+              <td>{{ formatDate(item.dueDate) }}</td>
+              <td>{{ item.priority }}</td>
+              <td>{{ item.mentorName }}</td>
+              <td>
+                <select
+                  v-model="item.status"
+                  @focus="previousStatus = item.status || ''"
+                  @change="handleStatusChange(item)"
+                  :disabled="item.status === 'Completed'"
+                  :title="
+                    item.status === 'Completed'
+                      ? 'Bu görev tamamlandı ve artık değiştirilemez.'
+                      : ''
+                  "
                 >
-                  {{ status }}
-                </option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  <option v-for="s in statusOptions" :key="s" :value="s">
+                    {{ s }}
+                  </option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button @click="currentPage--" :disabled="currentPage === 0">◀</button>
+        <span>Sayfa {{ currentPage + 1 }} / {{ totalPages }}</span>
+        <button
+          @click="currentPage++"
+          :disabled="currentPage + 1 >= totalPages"
+        >
+          ▶
+        </button>
+      </div>
+    </div>
+
+    <!-- ✅ MODAL -->
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content">
+        <p>
+          Bu görevi <strong>tamamlandı</strong> olarak işaretlemek
+          istediğinizden emin misiniz?
+        </p>
+        <div class="modal-buttons">
+          <button @click="confirmCompletion">Evet</button>
+          <button @click="cancelCompletion">Vazgeç</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -140,51 +227,45 @@ onMounted(async () => {
   font-family: sans-serif;
   width: 100%;
   box-sizing: border-box;
-  overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
 }
-
-.assignment-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
-}
-
 h2 {
   color: #2c3e50;
   margin-bottom: 1.5rem;
 }
-
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.filter-bar select {
+  padding: 6px;
+}
+.table-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+}
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-
 thead {
   background-color: #242441;
   color: white;
 }
-
 th,
 td {
-  padding: 12px 15px;
+  padding: 12px 18px;
   border: 1px solid #ddd;
   text-align: left;
 }
-
-tbody tr {
-  transition: background-color 0.2s ease;
-}
-
 tbody tr:nth-child(even) {
   background-color: #f8f9fa;
 }
-
 tbody tr:hover {
   background-color: #e9ecef;
 }
-
 .state-message {
   padding: 2rem;
   text-align: center;
@@ -194,54 +275,57 @@ tbody tr:hover {
   color: #555;
   margin-top: 1rem;
 }
-
 .error {
   background-color: #ffebee;
   color: #c62828;
 }
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
 
-/* --- MOBİL UYUMLULUK (MEDIA QUERY) --- */
-/* Ekran genişliği 768px veya daha az olduğunda bu stiller uygulanır */
-@media (max-width: 768px) {
-  thead {
-    /* Başlık satırını mobilde gizliyoruz çünkü başlıkları kartların içine taşıyacağız */
-    display: none;
-  }
-
-  tr {
-    /* Her satırı bir kart gibi göster */
-    display: block;
-    margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  td {
-    /* Hücreleri alt alta sırala */
-    display: block;
-    text-align: right; /* Veriyi sağa yasla */
-    position: relative;
-    padding-left: 50%; /* Başlık için solda yer aç */
-    border-bottom: 1px solid #eee;
-  }
-
-  td:last-child {
-    border-bottom: none;
-  }
-
-  /* Bu kısım sihrin gerçekleştiği yer */
-  td::before {
-    /* data-label içeriğini başlık olarak hücrenin başına ekle */
-    content: attr(data-label);
-    position: absolute;
-    left: 15px; /* Soldan boşluk */
-    width: 45%;
-    padding-right: 10px;
-    white-space: nowrap;
-    text-align: left; /* Başlığı sola yasla */
-    font-weight: bold;
-    color: #242441;
-  }
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+.modal-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.modal-buttons button {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.modal-buttons button:first-child {
+  background-color: #242441;
+  color: white;
+}
+.modal-buttons button:last-child {
+  background-color: #e0e0e0;
 }
 </style>
