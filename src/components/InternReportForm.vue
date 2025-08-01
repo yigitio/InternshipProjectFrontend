@@ -33,7 +33,6 @@ import { ref, onMounted } from 'vue';
 import { useMsal } from 'vue3-msal-plugin';
 import { getAccessToken } from '@/utils/msalHelpers';
 import apiClient from '@/utils/apiClients';
-import { getManagerEmail } from '@/utils/getManagerEmail';
 
 const file = ref<File | null>(null);
 const mentorEmail = ref('');
@@ -54,7 +53,7 @@ onMounted(async () => {
     );
     mentorEmail.value = res.data.mentorEmail;
     mentorName.value = res.data.mentorName || 'Mentor';
-    managerEmail.value = await getManagerEmail();
+    managerEmail.value = res.data.managerEmail || '';
   } catch (e) {
     message.value = 'Mentor email alınamadı';
     status.value = 'error';
