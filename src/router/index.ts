@@ -27,6 +27,7 @@ import MentorAnnouncementForm from '@/views/MentorAnnouncementForm.vue';
 import InternSupportView from '@/views/InternSupportView.vue';
 import FaqView from '@/views/FaqView.vue';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import InternReportForm from '@/components/InternReportForm.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -187,6 +188,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Faq',
         meta: { title: 'Lantern | S.S.S' },
         component: FaqView,
+      },
+      {
+        path: 'sendreport',
+        name: 'Rapor Gönder',
+        component: InternReportForm,
+        meta: { title: 'Lantern | Rapor Gönder', requiresAuth: true },
       },
     ],
   },

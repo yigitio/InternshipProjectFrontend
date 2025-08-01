@@ -6,21 +6,23 @@ import { useMsal } from 'vue3-msal-plugin';
 import AppNotification from '@/components/AppNotification.vue';
 import { formatDate } from '@/utils/formatters';
 import apiClient from '@/utils/apiClients';
+import { getAccessToken } from '@/utils/msalHelpers';
 
-// --- Reaktif Değişkenler ---
 const interns = ref<{ id: number; name: string }[]>([]);
 const currentMentor = ref<{ id: number; name: string } | null>(null);
 const router = useRouter();
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
+
 const notificationMessage = ref('');
 const notificationType = ref<'success' | 'error' | 'info'>('info');
 const notificationShow = ref(false);
+
 function showNotification(
   message: string,
   type: 'success' | 'error' | 'info' = 'info'
 ) {
-  notificationShow.value = false; // Retrigger için sıfırla
+  notificationShow.value = false;
   notificationMessage.value = message;
   notificationType.value = type;
   setTimeout(() => {
@@ -28,12 +30,9 @@ function showNotification(
   }, 10);
 }
 
-// --- Form Seçenekleri ve Varsayılan Değerler ---
 const priorityOptions = ['Urgent', 'High', 'Medium', 'Low', 'Optional'];
-// Başlangıç tarihini bugünün tarihi olarak ayarlar (YYYY-MM-DD formatında)
 const today = new Date().toISOString().split('T')[0];
 
-// Form verileri
 const form = ref({
   internId: 0,
   mentorId: 0,
@@ -41,88 +40,122 @@ const form = ref({
   assignmentDesc: '',
   dueDate: '',
   priority: 'Optional',
-  assignedAt: today, // Başlangıç tarihi otomatik olarak bugün
+  assignedAt: today,
   completedAt: '',
   status: 'To Do',
 });
+
 const resetForm = () => {
-  form.value.internId = 0; // Stajyer seçimini sıfırla
-  form.value.assignmentName = ''; // Görev adını temizle
-  form.value.assignmentDesc = ''; // Açıklamayı temizle
-  form.value.priority = 'Optional'; // Önceliği varsayılana çek (bu aynı zamanda dueDate'i de temizler)
-  form.value.dueDate = ''; // Hedef tarihi temizle (watch tarafından yapılsa da garanti olsun)
+  form.value.internId = 0;
+  form.value.assignmentName = '';
+  form.value.assignmentDesc = '';
+  form.value.priority = 'Optional';
+  form.value.dueDate = '';
 };
+
 const formattedAssignedAt = computed(() => {
   return formatDate(form.value.assignedAt);
 });
+
 watch(
   () => form.value.priority,
   newPriority => {
-    // Eğer 'Optional' seçilirse, tarihi temizle ve kullanıcıya seçim yapma imkanı ver
     if (newPriority === 'Optional') {
       form.value.dueDate = '';
-      return; // Fonksiyonu burada sonlandır
+      return;
     }
-
-    // Otomatik tarih hesaplaması için gün sayılarını bir haritada tutalım
     const daysToAddMap: { [key: string]: number } = {
       Urgent: 1,
       High: 2,
       Medium: 4,
       Low: 8,
     };
-
     const daysToAdd = daysToAddMap[newPriority];
-
     if (daysToAdd) {
       const startDate = new Date(form.value.assignedAt);
-      // Başlangıç tarihine ilgili gün sayısını ekle
       startDate.setDate(startDate.getDate() + daysToAdd);
-      // Sonucu YYYY-MM-DD formatına çevirip formdaki dueDate'e ata
       form.value.dueDate = startDate.toISOString().split('T')[0];
     }
   }
 );
 
-// Sayfa yüklendiğinde mevcut mentor ve ona bağlı stajyerleri çeker
 onMounted(async () => {
   try {
-    // Mentor bilgisini email ile al
     const mentorRes = await apiClient.get(`/api/mentors/email/${email}`);
     const mentorData = mentorRes.data;
 
     currentMentor.value = {
       id: mentorData.id,
       name: mentorData.name + ' ' + mentorData.surname,
-    }; // Formdaki mentorId'yi otomatik olarak o anki mentorun ID'si yap
+    };
+    form.value.mentorId = mentorData.id;
 
-    form.value.mentorId = mentorData.id; // Mentora bağlı stajyerleri çek
-
-    if (mentorData.id) {
-      const internRes = await apiClient.get(
-        // Bu URL'in backend'inizle uyumlu olduğundan emin olun
-        `/api/interns/${mentorData.id}/interns`
-      );
-      interns.value = internRes.data.map((i: any) => ({
-        id: i.id,
-        name: i.name + ' ' + i.surname,
-      }));
-    }
+    const internRes = await apiClient.get(
+      `/api/interns/${mentorData.id}/interns`
+    );
+    interns.value = internRes.data.map((i: any) => ({
+      id: i.id,
+      name: i.name + ' ' + i.surname,
+    }));
   } catch (error) {
-    console.error('Veri çekilirken bir hata oluştu:', error);
+    console.error('Veri çekilirken hata:', error);
   }
 });
 
-// Yeni görev ekleme fonksiyonu
 const submitAssignment = async () => {
   try {
     await addAssignment(form.value);
     showNotification('Görev başarıyla eklendi!', 'success');
+
+    const internRes = await apiClient.get(
+      `/api/interns/${form.value.internId}`
+    );
+    const internEmail = internRes.data.email;
+    const internName = `${internRes.data.name} ${internRes.data.surname}`;
+    const accessToken = await getAccessToken(['Mail.Send']);
+
+    const mailPayload = {
+      message: {
+        subject: `Yeni Görev Atandı: ${form.value.assignmentName}`,
+        body: {
+          contentType: 'Text',
+          content: `Merhaba ${internName},
+
+Aşağıdaki görev mentorunuz ${
+            currentMentor.value?.name
+          } tarafından Lantern uygulaması üzerinden size atanmıştır:
+
+• Görev: ${form.value.assignmentName}
+• Açıklama: ${form.value.assignmentDesc || '-'}
+• Öncelik: ${form.value.priority}
+• Hedef Tarih: ${form.value.dueDate || 'Belirtilmedi'}
+
+İyi çalışmalar.`,
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              address: internEmail,
+            },
+          },
+        ],
+      },
+      saveToSentItems: true,
+    };
+
+    await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(mailPayload),
+    });
+
     resetForm();
-    // İsteğe bağlı: Başarılı eklemeden sonra formu temizleyebilir veya başka bir sayfaya yönlendirebilirsiniz.
-    // router.push('/mentor-dashboard');
   } catch (err) {
-    showNotification('Görev eklenirken bir hata oluştu.', 'error');
+    showNotification('Görev eklenirken hata oluştu.', 'error');
+    console.error('Hata:', err);
   }
 };
 </script>

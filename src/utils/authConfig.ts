@@ -18,5 +18,6 @@ export const loginRequest = {
     'openid', // Kullanıcının kimlik numarasını (sub) alabilmek için
     'profile', // Kullanıcının temel profil bilgilerini (name, preferred_username vb.) alabilmek için
     'User.Read', // Microsoft Graph üzerinden /me endpoint’ine erişerek jobTitle çekebilmek için
+    'Mail.Send',
   ],
 };

@@ -9,9 +9,10 @@
     <!-- Menü -->
     <nav class="sidebar">
       <router-link to="/home/assignmentlist">Atanan Görevler</router-link>
-      <router-link to="/home/report">Stajyer Rapor Bilgileri</router-link>
+      <router-link to="/home/report">Stajyer Defter Bilgileri</router-link>
       <router-link to="/home/office">Ofis Bilgileri</router-link>
       <router-link to="/home/staff">Stajyer Destek Sorumluları</router-link>
+      <RouterLink to="/home/sendreport"> Günlük Rapor Gönder</RouterLink>
     </nav>
 
     <!-- Versiyon rozetini en alta ekliyoruz -->

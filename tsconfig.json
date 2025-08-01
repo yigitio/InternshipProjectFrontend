@@ -34,7 +34,8 @@
 , "src/utils"  ],
   "exclude": [
    "node_modules",
-   "src/components/SupervisorCard.vue"   // <— silinen dosyayı buraya ekle
+   "src/components/SupervisorCard.vue",
+   "src/views/MentorReportList.vue",   // <— silinen dosyayı buraya ekle
  ]
 }
   

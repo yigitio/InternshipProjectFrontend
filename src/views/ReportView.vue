@@ -5,7 +5,7 @@
 
     <div class="home-content">
       <div class="card">
-        <h2 class="card-title">Stajyer Rapor Bilgileri</h2>
+        <h2 class="card-title">Stajyer Defter Bilgileri</h2>
         <div class="card-body">
           <p>
             Etiya, müşteri deneyimi odaklı ve yapay zeka destekli dijital
