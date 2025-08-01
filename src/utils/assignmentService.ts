@@ -1,3 +1,5 @@
+// src/utils/assignmentService.ts
+
 import apiClient from '@/utils/apiClients';
 
 export interface Assignment {
@@ -12,38 +14,67 @@ export interface Assignment {
   completedAt?: string;
   status?: string;
   mentorName?: string;
+  internName?: string;
 }
 
+// 🆕 Paged response tip tanımı
+export interface PagedResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number; // current page
+  size: number;
+}
+
+// 🆕 Paged filtre parametreleri
+interface FetchAssignmentsParams {
+  internId: number;
+  page: number;
+  size: number;
+  sort: string;
+  status?: string;
+}
+
+// ✅ Normal görevleri al (statik liste)
 export const fetchAssignments = async (
   internId: number
 ): Promise<Assignment[]> => {
-  // 1. Fonksiyon artık bir 'internId' parametresi alıyor.
   if (!internId) {
-    // internId yoksa boş bir liste döndürerek hatayı önle
     console.error('fetchAssignments çağrıldı ancak internId tanımsız.');
     return [];
   }
 
-  // 2. API isteği, gelen internId'yi kullanarak doğru adrese yapılıyor.
-  // Bu adresin backend'deki AssignmentController'ınızdaki adresle eşleştiğinden emin olun.
   const response = await apiClient.get(
     `/api/assignments/${internId}/assignments`
   );
   return response.data;
 };
 
+// ✅ 🆕 Sayfalı, filtreli görev listesi al
+export const fetchAssignmentsPaged = async (
+  params: FetchAssignmentsParams
+): Promise<PagedResponse<Assignment>> => {
+  const response = await apiClient.get<PagedResponse<Assignment>>(
+    '/api/assignments/paged',
+    { params }
+  );
+  return response.data;
+};
+
+// ✅ Yeni görev ekle
 export const addAssignment = async (assignment: Assignment): Promise<void> => {
   await apiClient.post('/api/assignments', assignment);
 };
 
+// ✅ Görev güncelle
 export const updateAssignment = async (
   id: number,
   assignmentUpdate: Partial<Assignment>
 ): Promise<void> => {
-  // Backend'e de sadece değişen kısmı gönderiyoruz
   await apiClient.put(`/api/assignments/${id}`, assignmentUpdate);
 };
 
+// ✅ Görev sil
 export const deleteAssignment = async (id: number): Promise<void> => {
   await apiClient.delete(`/api/assignments/${id}`);
 };
