@@ -7,14 +7,14 @@
       :duration="2200"
     />
     <div class="admin-card">
-      <h1>⚙️ Admin Paneli</h1>
-      <p>Mentor ve Stajyer Eşleştirme Ekranı</p>
+      <h1>⚙️ {{ $t('admin.title') }}</h1>
+      <p>{{ $t('admin.subtitle') }}</p>
 
       <!-- Eşleştirme Formu -->
       <div class="form-group">
-        <label>Mentor:</label>
+        <label>{{ $t('admin.mentor') }}:</label>
         <select v-model.number="selectedMentor">
-          <option value="">Tümü</option>
+          <option value="">{{ $t('admin.all') }}</option>
           <option
             v-for="mentor in activeMentors"
             :key="mentor.id"
@@ -26,9 +26,9 @@
       </div>
 
       <div class="form-group">
-        <label>Stajyer:</label>
+        <label>{{ $t('admin.intern') }}:</label>
         <select v-model.number="selectedIntern">
-          <option value="">Tümü</option>
+          <option value="">{{ $t('admin.all') }}</option>
           <option
             v-for="intern in activeInterns"
             :key="intern.id"
@@ -39,20 +39,24 @@
         </select>
       </div>
 
-      <button class="assign-button" @click="assignMentor">Eşleştir</button>
+      <button class="assign-button" @click="assignMentor">
+        {{ $t('admin.assign') }}
+      </button>
 
       <hr class="divider" />
 
-      <!-- Eşleşme Listesi -->
+      <!-- Liste başlığı -->
       <h2 class="list-title">
-        Mevcut Eşleşmeler ({{ enrichedRelationsFiltered.length }})
+        {{ $t('admin.currentRelations') }} ({{
+          enrichedRelationsFiltered.length
+        }})
       </h2>
 
       <div v-if="enrichedRelationsFiltered.length === 0">
-        Hiçbir eşleşme bulunamadı.
+        {{ $t('admin.noRelations') }}
       </div>
 
-      <!-- EŞLEŞMELERİN COMPONENT HALİ -->
+      <!-- Eşleşmelerin listesi -->
       <RelationList
         v-if="enrichedRelationsFiltered.length > 0"
         :relations="enrichedRelationsFiltered"
@@ -61,28 +65,30 @@
       />
     </div>
   </div>
+
+  <!-- Edit popup -->
   <div v-if="editPopupVisible" class="modal-overlay">
     <div class="modal-content">
-      <h3>Eşleşme Detayları</h3>
+      <h3>{{ $t('admin.relationDetail') }}</h3>
       <div v-if="editRelation">
         <p>
-          <strong>Mentor Email:</strong> {{ editRelation.mentorEmail || '...' }}
+          <strong>{{ $t('admin.mentorEmail') }}:</strong>
+          {{ editRelation.mentorEmail || '...' }}
         </p>
         <p>
-          <strong>Stajyer Email:</strong>
+          <strong>{{ $t('admin.internEmail') }}:</strong>
           {{ editRelation.internEmail || '...' }}
         </p>
         <p>
-          <strong>Başlangıç Tarihi:</strong>
+          <strong>{{ $t('admin.startDate') }}:</strong>
           {{ formatDate(editRelation.startDate) }}
         </p>
         <p>
-          <strong>Bitiş Tarihi:</strong>
+          <strong>{{ $t('admin.endDate') }}:</strong>
           {{ formatDate(editRelation.endDate) }}
         </p>
 
         <div class="popup-actions-row">
-          <!-- Sol altta Pasifleştir -->
           <button
             class="pasifle-btn"
             v-if="
@@ -90,12 +96,11 @@
             "
             @click="makePassive"
           >
-            Pasifleştir
+            {{ $t('admin.deactivate') }}
           </button>
-          <!-- Sağ altta Kaydet/Kapat -->
           <div class="right-actions">
             <button @click="closeEditPopup" style="margin-left: 8px">
-              Kapat
+              {{ $t('buttons.close') }}
             </button>
           </div>
         </div>

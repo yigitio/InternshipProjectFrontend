@@ -1,23 +1,23 @@
 <template>
   <div class="register-wrapper">
-    <h2>📝 Mentor Kayıt Formu</h2>
+    <h2>📝 {{ $t('mentorView.title') }}</h2>
     <form @submit.prevent="onSubmit">
       <div class="field">
-        <label>Ad:</label>
+        <label>{{ $t('mentorView.name') }}:</label>
         <input v-model="form.name" required />
       </div>
 
       <div class="field">
-        <label>Soyad:</label>
+        <label>{{ $t('mentorView.surname') }}:</label>
         <input v-model="form.surname" required />
       </div>
 
       <div class="field">
-        <label>Uzmanlık Alanı:</label>
+        <label>{{ $t('mentorView.expertise') }}:</label>
         <input v-model="form.expertise" required />
       </div>
 
-      <button type="submit">Kaydı Tamamla</button>
+      <button type="submit">{{ $t('mentorView.submit') }}</button>
     </form>
   </div>
 </template>
@@ -47,7 +47,6 @@ async function onSubmit() {
       email: account.username,
       role: 'Mentor',
     });
-    // Kayıt tamamlandı → Home sayfasına dön
     router.replace({ name: 'Home' });
   } catch (err) {
     console.error('Mentor kayıt hatası:', err);

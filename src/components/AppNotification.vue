@@ -1,8 +1,8 @@
-/* global defineProps */
+<!-- src/components/AppNotification.vue -->
 <template>
   <transition name="fade">
     <div v-if="visible" :class="['notification', type]">
-      {{ message }}
+      {{ $t(message) }}
     </div>
   </transition>
 </template>
@@ -11,7 +11,7 @@
 import { ref, watch } from 'vue';
 
 const props = defineProps({
-  message: { type: String, required: true },
+  message: { type: String, required: true }, // Artık key olarak kullanılacak
   type: { type: String, default: 'info' }, // 'success', 'error', 'info'
   show: { type: Boolean, default: false },
   duration: { type: Number, default: 2500 },
@@ -50,7 +50,6 @@ watch(
   background-color: #0eafc5;
 }
 
-/* Tip renkleri */
 .notification.success {
   background: #0ebc08;
   color: #fff;
@@ -62,7 +61,6 @@ watch(
   background: #0eafc5;
 }
 
-/* Geçiş animasyonu */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;

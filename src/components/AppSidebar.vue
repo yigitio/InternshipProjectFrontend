@@ -8,17 +8,41 @@
 
     <!-- Menü -->
     <nav class="sidebar">
-      <router-link to="/home/assignmentlist">Atanan Görevler</router-link>
-      <router-link to="/home/report">Stajyer Defter Bilgileri</router-link>
-      <router-link to="/home/office">Ofis Bilgileri</router-link>
-      <router-link to="/home/staff">Stajyer Destek Sorumluları</router-link>
-      <RouterLink to="/home/sendreport"> Günlük Rapor Gönder</RouterLink>
+      <router-link to="/home/assignmentlist">{{
+        $t('sidebar.assignments')
+      }}</router-link>
+      <router-link to="/home/report">{{ $t('sidebar.journal') }}</router-link>
+      <router-link to="/home/office">{{
+        $t('sidebar.officeInfo')
+      }}</router-link>
+      <router-link to="/home/staff">{{
+        $t('sidebar.supportStaff')
+      }}</router-link>
+      <router-link to="/home/sendreport">{{
+        $t('sidebar.sendReport')
+      }}</router-link>
     </nav>
 
-    <!-- Versiyon rozetini en alta ekliyoruz -->
+    <!-- Alt Kısım -->
     <div class="sidebar-bottom">
-      <router-link to="/home/faq" class="faq-link">S.S.S</router-link>
-      <router-link to="/home/about" class="about-link">Hakkında</router-link>
+      <router-link to="/home/faq" class="faq-link">{{
+        $t('sidebar.faq')
+      }}</router-link>
+
+      <!-- Dil Seçici -->
+      <div class="language-switch">
+        <button @click="setLanguage('tr')" :class="{ active: locale === 'tr' }">
+          TR
+        </button>
+        <button @click="setLanguage('en')" :class="{ active: locale === 'en' }">
+          EN
+        </button>
+      </div>
+
+      <router-link to="/home/about" class="about-link">{{
+        $t('sidebar.about')
+      }}</router-link>
+
       <div class="sidebar-version">{{ APP_VERSION }}</div>
     </div>
   </div>
@@ -26,6 +50,13 @@
 
 <script setup lang="ts">
 import { APP_VERSION } from '@/utils/version';
+import { useI18n } from 'vue-i18n';
+
+const { locale } = useI18n();
+
+function setLanguage(lang: string) {
+  locale.value = lang;
+}
 </script>
 
 <style scoped>
@@ -44,20 +75,19 @@ import { APP_VERSION } from '@/utils/version';
   overflow-y: auto;
 }
 
-/* Logo */
 .logo-link {
   margin-bottom: 20px;
   text-align: center;
   display: block;
   padding-left: 20px;
 }
+
 .logo {
   max-width: 150px;
   max-height: 80px;
   object-fit: contain;
 }
 
-/* Menü alanı */
 .sidebar {
   flex: 1 1 auto;
   display: flex;
@@ -65,7 +95,6 @@ import { APP_VERSION } from '@/utils/version';
   padding-left: 20px;
 }
 
-/* Menü öğeleri */
 .sidebar a {
   font-family: sans-serif;
   color: white;
@@ -86,46 +115,30 @@ import { APP_VERSION } from '@/utils/version';
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Aktif (seçili) link */
 .sidebar a.router-link-exact-active {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Scrollbar özelleştirmesi */
 .sidebar-container::-webkit-scrollbar {
   width: 6px;
 }
+
 .sidebar-container::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 10px;
 }
-/* Alt kısım */
+
 .sidebar-bottom {
   font-family: sans-serif;
   margin-top: auto;
   padding-bottom: 30px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* ÖNEMLİ: soldan hizalı! */
-  padding-left: 20px; /* Üstteki menülerle aynı padding */
+  align-items: flex-start;
+  padding-left: 20px;
 }
 
-.faq-link {
-  color: white;
-  text-decoration: none;
-  padding: 10px 14px;
-  background-color: transparent;
-  margin-bottom: 8px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-  width: 84%; /* EKLENDİ: diğer öğelerle hizalanması için */
-}
-
+.faq-link,
 .about-link {
   color: white;
   text-decoration: none;
@@ -139,23 +152,18 @@ import { APP_VERSION } from '@/utils/version';
   font-size: 15px;
   font-weight: 500;
   transition: background-color 0.2s ease;
-  width: 84%; /* EKLENDİ: diğer öğelerle hizalanması için */
+  width: 84%;
 }
 
-.faq-link:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
+.faq-link:hover,
 .about-link:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Aktif (seçili) 'Hakkında' linki için */
 .about-link.router-link-exact-active {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Versiyon tam alt-ortada */
 .sidebar-version {
   width: 100%;
   position: absolute;
@@ -166,5 +174,29 @@ import { APP_VERSION } from '@/utils/version';
   color: #ccc;
   letter-spacing: 1px;
   text-align: center;
+}
+
+/* 🌐 Dil Seçici */
+.language-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.language-switch button {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.language-switch button.active,
+.language-switch button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
 }
 </style>

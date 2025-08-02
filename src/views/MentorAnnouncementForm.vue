@@ -6,15 +6,19 @@
       :show="notificationShow"
       :duration="2200"
     />
-    <h2>Yeni Duyuru Ekle</h2>
+    <h2>{{ $t('mentorAnnouncementForm.title') }}</h2>
     <form @submit.prevent="submitAnnouncement">
-      <label for="title">Başlık:</label>
+      <label for="title">{{ $t('mentorAnnouncementForm.labelTitle') }}</label>
       <input id="title" v-model="title" type="text" required />
 
-      <label for="content">İçerik:</label>
+      <label for="content">{{
+        $t('mentorAnnouncementForm.labelContent')
+      }}</label>
       <textarea id="content" v-model="content" required />
 
-      <button type="submit">Duyuru Ekle</button>
+      <button type="submit">
+        {{ $t('mentorAnnouncementForm.submitButton') }}
+      </button>
     </form>
   </div>
 </template>
@@ -56,18 +60,18 @@ onMounted(async () => {
     mentorId.value = res.data.id;
   } catch (err) {
     console.error('Mentor ID alınamadı:', err);
-    showNotification('Mentor bilgisi alınamadı.', 'error');
+    showNotification('mentorAnnouncementForm.mentorError', 'error');
   }
 });
 
 const submitAnnouncement = async () => {
   if (!title.value || !content.value) {
-    showNotification('Lütfen başlık ve içerik girin.', 'error');
+    showNotification('mentorAnnouncementForm.emptyFields', 'error');
     return;
   }
 
   if (!mentorId.value) {
-    showNotification('Mentor ID bulunamadı.', 'error');
+    showNotification('mentorAnnouncementForm.mentorMissing', 'error');
     return;
   }
 
@@ -78,11 +82,11 @@ const submitAnnouncement = async () => {
       mentorId: mentorId.value,
     });
 
-    showNotification('Duyuru başarıyla eklendi!', 'success');
+    showNotification('mentorAnnouncementForm.success', 'success');
     title.value = '';
     content.value = '';
   } catch (err) {
-    showNotification('Duyuru eklenirken bir hata oluştu.', 'error');
+    showNotification('mentorAnnouncementForm.failure', 'error');
     console.error(err);
   }
 };

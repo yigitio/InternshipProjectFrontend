@@ -1,9 +1,12 @@
 <template>
   <div class="dashboard-grid">
     <!-- PieChart -->
-    <DashboardCard title="Assignment Durumu" class="card-pie">
+    <DashboardCard
+      :title="$t('internDashboard.assignmentStatus')"
+      class="card-pie"
+    >
       <PieChart :data="assignmentStats[email]" v-if="assignmentStats[email]" />
-      <p v-else>Henüz bir assignment atanmadı.</p>
+      <p v-else>{{ $t('internDashboard.noAssignment') }}</p>
     </DashboardCard>
 
     <!-- Greeting -->
@@ -12,13 +15,16 @@
     </DashboardCard>
 
     <!-- Duyurular -->
-    <DashboardCard title="Sana Özel Duyurular" class="card-announcement">
+    <DashboardCard
+      :title="$t('internDashboard.announcements')"
+      class="card-announcement"
+    >
       <div class="announcement-table-scroll">
         <table class="announcement-table" v-if="announcements.length">
           <thead>
             <tr>
-              <th>Duyuru</th>
-              <th>Tarih</th>
+              <th>{{ $t('internDashboard.table.announcement') }}</th>
+              <th>{{ $t('internDashboard.table.date') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -33,23 +39,25 @@
           </tbody>
         </table>
 
+        <p v-else-if="!announcements.length">
+          {{ $t('internDashboard.noAnnouncements') }}
+        </p>
+
         <!-- Popup gösterimi -->
         <div v-if="selectedAnnouncement" class="popup-overlay">
           <div class="popup-content">
             <h4>{{ selectedAnnouncement.title }}</h4>
             <p>{{ selectedAnnouncement.content }}</p>
-            <button @click="closePopup" class="popup-close">Kapat</button>
+            <button @click="closePopup" class="popup-close">
+              {{ $t('buttons.close') }}
+            </button>
           </div>
         </div>
-
-        <p v-else-if="!announcements.length">
-          Şu anda herhangi bir duyuru yok.
-        </p>
       </div>
     </DashboardCard>
 
     <!-- Yapılacaklar -->
-    <DashboardCard title="Yapılacaklar" class="card-todo">
+    <DashboardCard :title="$t('internDashboard.todo')" class="card-todo">
       <div class="table-scroll">
         <table
           class="assignment-table"
@@ -60,10 +68,10 @@
         >
           <thead>
             <tr>
-              <th>Görev</th>
-              <th>Atanma</th>
-              <th>Öncelik</th>
-              <th>Durum</th>
+              <th>{{ $t('internDashboard.table.task') }}</th>
+              <th>{{ $t('internDashboard.table.assigned') }}</th>
+              <th>{{ $t('internDashboard.table.priority') }}</th>
+              <th>{{ $t('internDashboard.table.status') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -79,20 +87,22 @@
                 <span
                   :class="['priority-dot', a.priority.toLowerCase()]"
                 ></span>
-                {{ a.priority }}
+                {{ $t(`priorities.${a.priority}`) }}
               </td>
-              <td>{{ a.status }}</td>
+              <td>{{ $t(`statuses.${a.status}`) }}</td>
             </tr>
           </tbody>
         </table>
-        <p v-else>Henüz görev atanmadı ya da tüm görevler tamamlandı.</p>
+
+        <p v-else>{{ $t('internDashboard.noTodos') }}</p>
       </div>
     </DashboardCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useMsal } from 'vue3-msal-plugin';
 import PieChart from '@/components/PieChart.vue';
 import DashboardCard from '@/components/DashboardCard.vue';
@@ -120,6 +130,7 @@ interface Announcement {
 }
 
 const { accounts } = useMsal();
+const { t, locale } = useI18n();
 const email = accounts.value[0].username;
 
 const assignmentStats = ref<Record<string, { name: string; value: number }[]>>(
@@ -139,36 +150,7 @@ const closePopup = () => {
   selectedAnnouncement.value = null;
 };
 
-onMounted(async () => {
-  const hour = new Date().getHours();
-  const baseGreeting =
-    hour < 12 ? 'Günaydın' : hour < 18 ? 'İyi günler' : 'İyi akşamlar';
-
-  try {
-    const internRes = await apiClient.get(
-      `/api/interns/by-email?email=${email}`
-    );
-    internName.value = internRes.data.name;
-    greetingMessage.value = `${baseGreeting}, ${internName.value}! ${
-      hour < 18 ? '🌤️' : '🌙'
-    }`;
-  } catch (err) {
-    console.error('İsim alınamadı:', err);
-    greetingMessage.value = `${baseGreeting}! 🌤️`;
-  }
-
-  try {
-    const res = await apiClient.get<Announcement[]>(
-      `/api/announcements/recent?email=${email}`
-    );
-    announcements.value = res.data.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  } catch (err) {
-    console.error('Duyurular alınamadı:', err);
-  }
-
+const updateAssignmentStats = async () => {
   try {
     const res = await apiClient.get('/api/assignments/stats');
     const transformed = Object.fromEntries(
@@ -183,6 +165,52 @@ onMounted(async () => {
   } catch (err) {
     console.error('Assignment stats alınamadı:', err);
   }
+};
+
+const updateGreeting = async () => {
+  const hour = new Date().getHours();
+  const baseGreeting =
+    hour < 12
+      ? 'greetings.morning'
+      : hour < 18
+      ? 'greetings.afternoon'
+      : 'greetings.evening';
+
+  try {
+    const internRes = await apiClient.get(
+      `/api/interns/by-email?email=${email}`
+    );
+    internName.value = internRes.data.name;
+    greetingMessage.value = `${t(baseGreeting)}, ${internName.value}! ${
+      hour < 18 ? '🌤️' : '🌙'
+    }`;
+  } catch (err) {
+    console.error('İsim alınamadı:', err);
+    greetingMessage.value = `${t(baseGreeting)}! 🌤️`;
+  }
+};
+
+watch(locale, () => {
+  updateAssignmentStats();
+  updateGreeting();
+});
+
+onMounted(async () => {
+  updateGreeting();
+
+  try {
+    const res = await apiClient.get<Announcement[]>(
+      `/api/announcements/recent?email=${email}`
+    );
+    announcements.value = res.data.sort(
+      (a: Announcement, b: Announcement) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } catch (err) {
+    console.error('Duyurular alınamadı:', err);
+  }
+
+  updateAssignmentStats();
 
   try {
     const res = await apiClient.get(`/api/assignments/intern?email=${email}`);

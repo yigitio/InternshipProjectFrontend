@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useMsal } from 'vue3-msal-plugin';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
 import apiClient from '@/utils/apiClients'; // Your configured axios instance
@@ -18,6 +19,7 @@ const isLoading = ref(true);
 const error = ref<string | null>(null);
 
 const { instance, accounts } = useMsal();
+const { t } = useI18n();
 
 onMounted(async () => {
   try {
@@ -76,10 +78,9 @@ onMounted(async () => {
     console.error('Ofis bilgileri alınırken hata oluştu:', err);
     // Check if the error is a 404 Not Found from our backend
     if (err.response && err.response.status === 404) {
-      error.value = 'Size atanmış bir ofis bilgisi sistemde bulunamadı.';
+      error.value = t('officeInfo.error404');
     } else {
-      error.value =
-        'Ofis bilgileri yüklenemedi. Lütfen sistem yöneticinizle görüşün.';
+      error.value = t('officeInfo.errorGeneral');
     }
   } finally {
     isLoading.value = false;
@@ -90,27 +91,29 @@ onMounted(async () => {
 <template>
   <div class="office-container">
     <div v-if="isLoading" class="state-message">
-      Ofis bilgileri yükleniyor...
+      {{ $t('officeInfo.loading') }}
     </div>
     <div v-else-if="error" class="state-message error-message">{{ error }}</div>
 
     <div v-else-if="officeInfo" class="office-card">
-      <h2>📍 {{ officeInfo.name }} Ofisi Bilgileri</h2>
+      <h2>📍 {{ officeInfo.name }} {{ $t('officeInfo.officeTitle') }}</h2>
       <div class="info-item">
-        <strong>Adres:</strong>
+        <strong>{{ $t('officeInfo.address') }}:</strong>
         <p>{{ officeInfo.address }}</p>
       </div>
       <div class="info-item">
-        <strong>Telefon:</strong>
+        <strong>{{ $t('officeInfo.phone') }}:</strong>
         <p>{{ officeInfo.phoneNumber }}</p>
       </div>
       <div class="info-item">
-        <strong>Ulaşım:</strong>
+        <strong>{{ $t('officeInfo.transport') }}:</strong>
         <p>{{ officeInfo.transportDetails }}</p>
       </div>
     </div>
 
-    <div v-else class="state-message">Ofis bilgileri bulunamadı.</div>
+    <div v-else class="state-message">
+      {{ $t('officeInfo.notFound') }}
+    </div>
   </div>
 </template>
 

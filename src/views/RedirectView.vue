@@ -11,7 +11,6 @@ onMounted(async () => {
   const account = instance.getActiveAccount();
   if (!account) return;
 
-  // Azure profilinden title ve email al
   const title = account.idTokenClaims?.title;
   const email = account.username;
 
@@ -36,5 +35,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>Yönlendiriliyorsunuz...</div>
+  <div>{{ $t('redirect.redirecting') }}</div>
 </template>

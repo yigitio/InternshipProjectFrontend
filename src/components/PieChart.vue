@@ -8,6 +8,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { defineProps } from 'vue';
 import { Chart, PieController, ArcElement, Tooltip, Legend } from 'chart.js';
+import { useI18n } from 'vue-i18n';
 
 Chart.register(PieController, ArcElement, Tooltip, Legend);
 
@@ -15,9 +16,17 @@ const props = defineProps<{ data: { name: string; value: number }[] }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 let chart: Chart | null = null;
 
+const { t } = useI18n();
+
+// Backend Türkçe gönderdiği için mapping yapıyoruz
+const LABEL_KEY_MAP: Record<string, string> = {
+  Yapıldı: 'done',
+  Yapılmadı: 'notDone',
+};
+
 const COLOR_MAP: Record<string, string> = {
-  Yapıldı: '#242441', // Lacivert
-  Yapılmadı: '#f58220', // Turuncu
+  done: '#242441',
+  notDone: '#f58220',
 };
 
 const renderChart = () => {
@@ -30,11 +39,13 @@ const renderChart = () => {
   chart = new Chart(canvas.value, {
     type: 'pie',
     data: {
-      labels: props.data.map(d => d.name),
+      labels: props.data.map(d => t(`pie.${LABEL_KEY_MAP[d.name] || d.name}`)),
       datasets: [
         {
           data: props.data.map(d => d.value),
-          backgroundColor: props.data.map(d => COLOR_MAP[d.name] || '#ccc'),
+          backgroundColor: props.data.map(
+            d => COLOR_MAP[LABEL_KEY_MAP[d.name] || d.name] || '#ccc'
+          ),
           borderColor: '#ffffff',
           borderWidth: 2,
         },

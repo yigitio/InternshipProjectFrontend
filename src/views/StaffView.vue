@@ -1,6 +1,6 @@
 <template>
   <section class="staff-section">
-    <h1 class="team-title">Senin İçin Buradayız</h1>
+    <h1 class="team-title">{{ $t('staffView.title') }}</h1>
     <div class="team-cards">
       <div
         v-for="sup in supervisors"

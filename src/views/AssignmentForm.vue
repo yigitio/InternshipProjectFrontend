@@ -168,20 +168,23 @@ Aşağıdaki görev mentorunuz ${
       :show="notificationShow"
       :duration="2200"
     />
-    <h2>Yeni Görev Ekle</h2>
+    <h2>{{ $t('assignmentForm.title') }}</h2>
+
     <form @submit.prevent="submitAssignment">
-      <label for="mentor">Mentor:</label>
+      <label for="mentor">{{ $t('assignmentForm.mentor') }}:</label>
       <input id="mentor" :value="currentMentor?.name" type="text" disabled />
 
-      <label for="intern">Stajyer:</label>
+      <label for="intern">{{ $t('assignmentForm.intern') }}:</label>
       <select id="intern" v-model="form.internId" required>
-        <option value="0" disabled>Lütfen bir stajyer seçiniz</option>
+        <option value="0" disabled>
+          {{ $t('assignmentForm.selectIntern') }}
+        </option>
         <option v-for="intern in interns" :key="intern.id" :value="intern.id">
           {{ intern.name }}
         </option>
       </select>
 
-      <label for="assignmentName">Görev Adı:</label>
+      <label for="assignmentName">{{ $t('assignmentForm.name') }}:</label>
       <input
         id="assignmentName"
         v-model="form.assignmentName"
@@ -189,17 +192,19 @@ Aşağıdaki görev mentorunuz ${
         required
       />
 
-      <label for="assignmentDesc">Açıklama:</label>
+      <label for="assignmentDesc"
+        >{{ $t('assignmentForm.description') }}:</label
+      >
       <textarea id="assignmentDesc" v-model="form.assignmentDesc"></textarea>
 
-      <label for="priority">Öncelik:</label>
+      <label for="priority">{{ $t('assignmentForm.priority') }}:</label>
       <select id="priority" v-model="form.priority">
         <option v-for="option in priorityOptions" :key="option" :value="option">
-          {{ option }}
+          {{ $t(`priorities.${option}`) }}
         </option>
       </select>
 
-      <label for="assignedAt">Atanma Tarihi:</label>
+      <label for="assignedAt">{{ $t('assignmentForm.assignedAt') }}:</label>
       <input
         id="assignedAt"
         :value="formattedAssignedAt"
@@ -207,7 +212,7 @@ Aşağıdaki görev mentorunuz ${
         disabled
       />
 
-      <label for="dueDate">Hedeflenen Bitiş Tarihi:</label>
+      <label for="dueDate">{{ $t('assignmentForm.dueDate') }}:</label>
       <input
         id="dueDate"
         v-model="form.dueDate"
@@ -215,7 +220,7 @@ Aşağıdaki görev mentorunuz ${
         :disabled="form.priority !== 'Optional'"
       />
 
-      <button type="submit">Görev Ekle</button>
+      <button type="submit">{{ $t('assignmentForm.submit') }}</button>
     </form>
   </div>
 </template>

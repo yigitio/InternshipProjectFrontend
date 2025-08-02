@@ -2,6 +2,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import i18n from './i18n';
 
 import { msalPlugin, msalInstance } from 'vue3-msal-plugin';
 import type { Configuration } from '@azure/msal-browser';
@@ -33,6 +34,7 @@ async function bootstrap() {
 
   // B) Vue app
   const app = createApp(App);
+  app.use(i18n);
   app.use(router);
   app.use(msalPlugin, msalApp);
   app.mount('#app');

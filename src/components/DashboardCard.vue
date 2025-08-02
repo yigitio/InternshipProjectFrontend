@@ -1,6 +1,7 @@
+<!-- src/components/DashboardCard.vue -->
 <template>
   <div class="dashboard-card">
-    <h2 class="dashboard-title" v-if="title">{{ title }}</h2>
+    <h2 class="dashboard-title" v-if="title">{{ $t(title) }}</h2>
     <slot />
   </div>
 </template>

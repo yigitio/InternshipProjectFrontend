@@ -5,41 +5,37 @@
 
     <div class="home-content">
       <div class="card">
-        <h2 class="card-title">Stajyer Defter Bilgileri</h2>
+        <h2 class="card-title">{{ $t('reportView.title') }}</h2>
         <div class="card-body">
-          <p>
-            Etiya, müşteri deneyimi odaklı ve yapay zeka destekli dijital
-            dönüşüm çözümleri sunan global bir teknoloji şirketidir. Şirket, 3
-            kıtada ve 7 ülkede faaliyet göstermekte olup 1600’den fazla
-            çalışanıyla sektörde hizmet vermektedir.
-          </p>
-          <p>
-            2004 yılında kurulan Etiya, birlikte başarmanın gücüne inanarak hem
-            şirket içi ekiplerine hem müşterilerine hem de çevre ve topluma
-            katkı sağlamak için çalışmalarını sürdürmektedir. Hedeflerini,
-            sınırlarını ve karşılaştığı zorlukları her geçen gün aşarak
-            durmaksızın ilerlemeyi misyon edinmiştir.
-          </p>
-          <p>
-            Şirketin kadrosu, %39 kadın ve %61 erkek çalışan oranına sahiptir.
-            Ortalama yaşın 31 olduğu Etiya’da genç ve dinamik bir ekip yapısı
-            dikkat çekmektedir. Çok uluslu yapısıyla farklı lokasyonlarda etkin
-            bir şekilde faaliyet gösteren şirket, teknolojiyi insan odaklı bir
-            yaklaşımla birleştirmektedir.
-          </p>
+          <p>{{ $t('reportView.p1') }}</p>
+          <p>{{ $t('reportView.p2') }}</p>
+          <p>{{ $t('reportView.p3') }}</p>
 
           <ul class="report-list">
             <li>
-              <span class="label">Şirket Ünvanı:</span> Etiya Bilgi
-              Teknolojileri Yazılım San ve Tic A.Ş.
+              <span class="label">{{ $t('reportView.fields.company') }}</span>
+              Etiya Bilgi Teknolojileri Yazılım San ve Tic A.Ş.
             </li>
-            <li><span class="label">Hesap:</span> 1670 - 6296510 TL</li>
             <li>
-              <span class="label">IBAN:</span> TR64 0006 2001 6700 0006 2965 10
+              <span class="label">{{ $t('reportView.fields.account') }}</span>
+              1670 - 6296510 TL
             </li>
-            <li><span class="label">Şube:</span> Topkapı Ticari (Kodu: 286)</li>
-            <li><span class="label">Meris No:</span> 0381044304100019</li>
-            <li><span class="label">Vergi No:</span> 3810443041</li>
+            <li>
+              <span class="label">{{ $t('reportView.fields.iban') }}</span>
+              TR64 0006 2001 6700 0006 2965 10
+            </li>
+            <li>
+              <span class="label">{{ $t('reportView.fields.branch') }}</span>
+              Topkapı Ticari (Kodu: 286)
+            </li>
+            <li>
+              <span class="label">{{ $t('reportView.fields.meris') }}</span>
+              0381044304100019
+            </li>
+            <li>
+              <span class="label">{{ $t('reportView.fields.tax') }}</span>
+              3810443041
+            </li>
           </ul>
         </div>
       </div>

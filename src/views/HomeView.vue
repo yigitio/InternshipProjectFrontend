@@ -39,7 +39,9 @@ import { msalApp } from '@/main';
 import AppSidebar from '@/components/AppSidebar.vue';
 import type { AccountInfo } from '@azure/msal-browser';
 import Dashboard from '@/views/InternDashboard.vue';
+import { useI18n } from 'vue-i18n';
 
+const { t, locale } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const showMenu = ref(false);
@@ -72,7 +74,7 @@ async function handleLogout() {
     router.push({ name: 'Login' });
   } catch (error) {
     console.error('Logout error:', error);
-    alert('Çıkış yapılamadı!');
+    alert(t('home.logoutError'));
   }
 }
 </script>
@@ -153,5 +155,27 @@ async function handleLogout() {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
+}
+
+.language-switch {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+}
+
+.language-switch button {
+  background-color: transparent;
+  border: 1px solid #aaa;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #333;
+  transition: background 0.2s ease;
+}
+
+.language-switch button:hover {
+  background-color: #f0f0f0;
 }
 </style>

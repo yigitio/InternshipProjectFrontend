@@ -1,32 +1,10 @@
 <template>
   <div class="about-container">
-    <h1>Hakkında</h1>
+    <h1>{{ $t('about.title') }}</h1>
     <div class="about-content">
-      <p>
-        Lantern, stajyerlerin şirket içerisindeki gelişim süreçlerinin daha
-        sistemli ve etkin bir şekilde izlenebilmesi amacıyla geliştirilen bir
-        staj takip platformudur. Bu proje, mentor-stajyer iletişiminin yalnızca
-        Teams gibi iletişim araçlarıyla sınırlı kalmasının önüne geçerek, şirket
-        sistemine entegre bir yapı üzerinden takip ve geri bildirim süreçlerini
-        daha verimli hale getirmeyi hedeflemektedir.
-      </p>
-      <p>
-        Lantern, Aykut Eren, Asude Güven, Mustafa Göktuğ Yılmaz ve Yiğit Emre
-        Çay’dan oluşan dört kişilik bir stajyer ekibi tarafından hayata
-        geçirilmiştir. Proje süresince Erol Safa Uzun, Mert Erdoğan, Mustafa Şen
-        ve Süleyman Atakan Keçeci rehberlik görevini üstlenmiş; geliştirme
-        süreci, rehberlerimizin bilgi ve tecrübeleriyle yönlendirilmiştir. Takım
-        liderleri Anıl Çiçek ve Mert Karabulut ise teknik süreçlerde destek
-        sağlamış ve sürece katkıda bulunmuşlardır. Proje fikri, Erol Safa Uzun
-        tarafından ortaya koyulmuş, ekip tarafından tasarlanarak uygulamaya
-        geçirilmiştir.
-      </p>
-      <p>
-        Projenin ismi olan Lantern, bir deniz fenerinin karanlıkta yolunu arayan
-        gemilere rehberlik etmesi fikrinden esinlenmiştir. Bu metafor, staj
-        süreci boyunca rehberlerimizin bizlere yön gösterici rolünü sembolik
-        olarak yansıtmaktadır.
-      </p>
+      <p>{{ $t('about.p1') }}</p>
+      <p>{{ $t('about.p2') }}</p>
+      <p>{{ $t('about.p3') }}</p>
     </div>
   </div>
 </template>

@@ -1,11 +1,18 @@
 <template>
   <div class="profile-wrapper">
     <div class="profile-card">
-      <button class="back-button" @click="goHome">← Ana Sayfaya Dön</button>
-      <h2>👤 Profil Bilgileri</h2>
+      <button class="back-button" @click="goHome">
+        ← {{ $t('mentorProfile.back') }}
+      </button>
+      <h2>👤 {{ $t('mentorProfile.title') }}</h2>
       <div class="profile-info">
-        <p><strong>Ad Soyad:</strong> {{ mentor.name }} {{ mentor.surname }}</p>
-        <p><strong>Email:</strong> {{ mentor.email }}</p>
+        <p>
+          <strong>{{ $t('mentorProfile.name') }}:</strong> {{ mentor.name }}
+          {{ mentor.surname }}
+        </p>
+        <p>
+          <strong>{{ $t('mentorProfile.email') }}:</strong> {{ mentor.email }}
+        </p>
       </div>
     </div>
   </div>
@@ -17,16 +24,8 @@ import { useRouter } from 'vue-router';
 import { useMsal } from 'vue3-msal-plugin';
 import apiClient from '@/utils/apiClients';
 
-// Vue Router kullanımı
 const router = useRouter();
-
-const mentor = ref({
-  name: '',
-  surname: '',
-  email: '',
-});
-
-// Azure üzerinden login olan kullanıcının email adresini al
+const mentor = ref({ name: '', surname: '', email: '' });
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
 

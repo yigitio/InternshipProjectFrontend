@@ -41,10 +41,10 @@ onMounted(async () => {
 
 <template>
   <div class="faq-container">
-    <h2 class="title">Sıkça Sorulan Sorular</h2>
+    <h2 class="title">{{ $t('faq.title') }}</h2>
 
-    <div v-if="isLoading">Yükleniyor...</div>
-    <div v-else-if="error" class="error-message">{{ error }}</div>
+    <div v-if="isLoading">{{ $t('faq.loading') }}</div>
+    <div v-else-if="error" class="error-message">{{ $t('faq.loadError') }}</div>
 
     <div v-else class="faq-list">
       <div v-for="faq in faqs" :key="faq.id" class="faq-item">

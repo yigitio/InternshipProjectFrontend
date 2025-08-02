@@ -2,35 +2,40 @@
   <div class="register-bg">
     <div class="register-card">
       <img src="@/assets/etiya-logo.png" alt="Etiya" class="form-logo" />
-      <div class="welcome-text">HOŞGELDİN ETİYALI!</div>
-      <h2>Mentor Kayıt Formu</h2>
+      <div class="welcome-text">{{ $t('createAccount.welcome') }}</div>
+      <h2>{{ $t('createAccount.title') }}</h2>
+
       <form @submit.prevent="onSubmit">
         <div class="field">
-          <label>Ad:</label>
-          <input v-model="form.name" required placeholder="Adınızı giriniz" />
-        </div>
-        <div class="field">
-          <label>Soyad:</label>
+          <label>{{ $t('createAccount.name') }}:</label>
           <input
-            v-model="form.surname"
+            v-model="form.name"
             required
-            placeholder="Soyadınızı giriniz"
+            :placeholder="$t('createAccount.namePlaceholder')"
           />
         </div>
         <div class="field">
-          <label>Email:</label>
+          <label>{{ $t('createAccount.surname') }}:</label>
+          <input
+            v-model="form.surname"
+            required
+            :placeholder="$t('createAccount.surnamePlaceholder')"
+          />
+        </div>
+        <div class="field">
+          <label>{{ $t('createAccount.email') }}:</label>
           <input v-model="form.email" type="email" readonly />
         </div>
         <div class="field">
-          <label>Telefon:</label>
+          <label>{{ $t('createAccount.phone') }}:</label>
           <input
             v-model="form.phone"
             type="tel"
             required
-            placeholder="05xx xxx xx xx"
+            :placeholder="$t('createAccount.phonePlaceholder')"
           />
         </div>
-        <button type="submit">Kaydı Tamamla</button>
+        <button type="submit">{{ $t('createAccount.submit') }}</button>
       </form>
     </div>
   </div>

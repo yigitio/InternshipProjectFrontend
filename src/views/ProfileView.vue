@@ -1,14 +1,30 @@
 <template>
   <div class="profile-wrapper">
     <div class="profile-card">
-      <button class="back-button" @click="goHome">← Ana Sayfaya Dön</button>
-      <h2>👤 Profil Bilgileri</h2>
+      <button class="back-button" @click="goHome">
+        ← {{ $t('internProfile.back') }}
+      </button>
+      <h2>👤 {{ $t('internProfile.title') }}</h2>
       <div class="profile-info">
-        <p><strong>Ad Soyad:</strong> {{ intern.name }} {{ intern.surname }}</p>
-        <p><strong>Email:</strong> {{ intern.email }}</p>
-        <p><strong>Üniversite:</strong> {{ intern.university }}</p>
-        <p><strong>Bölüm:</strong> {{ intern.department }}</p>
-        <p><strong>Mentor:</strong> {{ intern.mentorName }}</p>
+        <p>
+          <strong>{{ $t('internProfile.name') }}:</strong> {{ intern.name }}
+          {{ intern.surname }}
+        </p>
+        <p>
+          <strong>{{ $t('internProfile.email') }}:</strong> {{ intern.email }}
+        </p>
+        <p>
+          <strong>{{ $t('internProfile.university') }}:</strong>
+          {{ intern.university }}
+        </p>
+        <p>
+          <strong>{{ $t('internProfile.department') }}:</strong>
+          {{ intern.department }}
+        </p>
+        <p>
+          <strong>{{ $t('internProfile.mentor') }}:</strong>
+          {{ intern.mentorName }}
+        </p>
       </div>
     </div>
   </div>
@@ -20,10 +36,8 @@ import { useRouter } from 'vue-router';
 import { useMsal } from 'vue3-msal-plugin';
 import apiClient from '@/utils/apiClients';
 
-// Vue Router kullanımı
 const router = useRouter();
 
-// Intern bilgileri
 const intern = ref({
   name: '',
   surname: '',
@@ -33,11 +47,9 @@ const intern = ref({
   mentorName: '',
 });
 
-// Azure üzerinden login olan kullanıcının email adresini al
 const { accounts } = useMsal();
 const email = accounts.value[0].username;
 
-// Sayfa yüklendiğinde backend'den intern bilgilerini çek
 onMounted(async () => {
   try {
     const res = await apiClient.get(`/api/interns/by-email?email=${email}`);

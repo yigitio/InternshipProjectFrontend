@@ -11,9 +11,11 @@
         alt="Lighthouse"
         class="lighthouse-img"
       />
-      <h1>Lantern'a Hoşgeldiniz!</h1>
-      <p class="subtitle"></p>
-      <button class="login-button" @click="login">GİRİŞ YAP</button>
+      <h1>{{ $t('loginView.title') }}</h1>
+      <p class="subtitle">{{ $t('loginView.subtitle') }}</p>
+      <button class="login-button" @click="login">
+        {{ $t('loginView.button') }}
+      </button>
       <div class="app-version">{{ APP_VERSION }}</div>
     </div>
   </div>
@@ -32,13 +34,9 @@ const { handlePostLogin } = useAuth();
 
 async function login() {
   try {
-    // MSAL popup ile giriş
     const resp = await instance.loginPopup(loginRequest);
-    // Aktif hesabı ayarla
     instance.setActiveAccount(resp.account);
-    // “/register” guard’ını tetikle (intern/mentor ayrımı yapılacak)
     router.push({ name: 'Register' });
-    // Gerekli ek post-login işlemleri
     await handlePostLogin();
   } catch (e) {
     console.error('Login hatası:', e);
@@ -47,7 +45,6 @@ async function login() {
 </script>
 
 <style scoped>
-/* 1. Tam ekran, sabit konumlu wrapper */
 .login-wrapper {
   position: fixed;
   top: 0;
@@ -59,8 +56,6 @@ async function login() {
   align-items: center;
   background: linear-gradient(135deg, #201b51, #242441);
 }
-
-/* 2. Kart kutusu */
 .login-card {
   background-color: #ffffff;
   width: 360px;
@@ -69,21 +64,15 @@ async function login() {
   text-align: center;
   border-radius: 16px;
 }
-
-/* 3. Logo */
 .etiya-logo {
   width: 200px;
   margin-bottom: 16px;
 }
-
-/* 4. Fener görseli */
 .lighthouse-img {
   width: 100%;
   border-radius: 8px;
   margin-bottom: 20px;
 }
-
-/* 5. Başlık ve alt yazı */
 h1 {
   font-size: 22px;
   margin-bottom: 8px;
@@ -95,8 +84,6 @@ h1 {
   color: #555;
   margin-bottom: 24px;
 }
-
-/* 6. Giriş butonu */
 .login-button {
   width: 100%;
   padding: 12px;
@@ -111,7 +98,6 @@ h1 {
 .login-button:hover {
   background-color: #1e1e3f;
 }
-
 .app-version {
   margin-top: 16px;
   font-size: 13px;

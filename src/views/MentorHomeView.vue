@@ -12,8 +12,12 @@
         >
           <img src="@/assets/avatar.png" alt="Profile" class="profile-img" />
           <div v-if="showMenu" class="dropdown-menu">
-            <router-link to="/mentorhome/mentorprofile">👤 Profil</router-link>
-            <a href="#" @click.prevent="handleLogout">🚪 Çıkış Yap</a>
+            <router-link to="/mentorhome/mentorprofile"
+              >👤 {{ $t('home.profile') }}</router-link
+            >
+            <a href="#" @click.prevent="handleLogout"
+              >🚪 {{ $t('home.logout') }}</a
+            >
           </div>
         </div>
 
@@ -34,6 +38,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { msalApp } from '@/main';
 import type { AccountInfo } from '@azure/msal-browser';
 
@@ -41,6 +46,7 @@ import MentorAppSidebar from '@/components/MentorAppSidebar.vue';
 import MentorDashboard from '@/views/MentorDashboard.vue';
 
 const router = useRouter();
+const { locale } = useI18n();
 const showMenu = ref(false);
 const account = ref<AccountInfo | null>(null);
 const isMsalReady = ref(false);

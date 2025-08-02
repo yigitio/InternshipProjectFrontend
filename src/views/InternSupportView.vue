@@ -1,15 +1,15 @@
 <!-- src/views/InternSupportView.vue -->
 <template>
   <div class="intern-support-page">
-    <h1>Stajyer Destek</h1>
+    <h1>{{ $t('internSupport.title') }}</h1>
 
     <div class="form">
       <!-- 1. Satır: Stajyer Seçimi -->
       <div class="row">
         <div class="field full-width">
-          <label>Stajyer:</label>
+          <label>{{ $t('internSupport.intern') }}:</label>
           <select v-model="selectedIntern">
-            <option disabled value="">-- SEÇİN --</option>
+            <option disabled value="">-- {{ $t('common.select') }} --</option>
             <option
               v-for="intern in interns"
               :key="intern.id"
@@ -21,10 +21,10 @@
         </div>
       </div>
 
-      <!-- 2. Satır: IK Adı ve Email -->
+      <!-- 2. Satır: IK -->
       <div class="row">
         <div class="field">
-          <label>İnsan Kaynakları Adı:</label>
+          <label>{{ $t('internSupport.hrName') }}:</label>
           <input
             class="name-input"
             v-model="hrName"
@@ -32,7 +32,7 @@
           />
         </div>
         <div class="field">
-          <label>İnsan Kaynakları Email:</label>
+          <label>{{ $t('internSupport.hrEmail') }}:</label>
           <div class="email-input">
             <input v-model="hrLocal" @input="hrLocal = hrLocal.toLowerCase()" />
             <span>@etiya.com</span>
@@ -40,10 +40,10 @@
         </div>
       </div>
 
-      <!-- 3. Satır: IT Adı ve Email -->
+      <!-- 3. Satır: IT -->
       <div class="row">
         <div class="field">
-          <label>Bilgi Teknolojileri Adı:</label>
+          <label>{{ $t('internSupport.itName') }}:</label>
           <input
             class="name-input"
             v-model="itName"
@@ -51,7 +51,7 @@
           />
         </div>
         <div class="field">
-          <label>Bilgi Teknolojileri Email:</label>
+          <label>{{ $t('internSupport.itEmail') }}:</label>
           <div class="email-input">
             <input v-model="itLocal" @input="itLocal = itLocal.toLowerCase()" />
             <span>@etiya.com</span>
@@ -59,25 +59,27 @@
         </div>
       </div>
 
-      <!-- 4. Satır: Eşleştir Butonu -->
+      <!-- 4. Satır: Buton -->
       <div class="row">
-        <button class="assign-btn" @click="assign">Eşleştir</button>
+        <button class="assign-btn" @click="assign">
+          {{ $t('internSupport.assign') }}
+        </button>
       </div>
     </div>
 
-    <!-- Mevcut Atamalar Tablosu: sadece seçili intern varsa ve atama varsa -->
+    <!-- Atama tablosu -->
     <div
       v-if="selectedIntern !== null && assignments.length > 0"
       class="assignments-table"
     >
-      <h3>Mevcut Atamalar</h3>
+      <h3>{{ $t('internSupport.existingAssignments') }}</h3>
       <table>
         <thead>
           <tr>
-            <th>Departman</th>
-            <th>İsim</th>
-            <th>Email</th>
-            <th>İşlem</th>
+            <th>{{ $t('internSupport.department') }}</th>
+            <th>{{ $t('internSupport.name') }}</th>
+            <th>{{ $t('internSupport.email') }}</th>
+            <th>{{ $t('internSupport.action') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +89,7 @@
             <td>{{ a.supervisorEmail }}</td>
             <td>
               <button class="delete-btn" @click="deleteAssignment(a.id)">
-                Sil
+                {{ $t('common.delete') }}
               </button>
             </td>
           </tr>
@@ -99,8 +101,11 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { msalApp } from '@/main';
 import api from '@/utils/apiClients';
+
+const { t } = useI18n();
 
 interface Intern {
   id: number;
@@ -117,13 +122,11 @@ interface Assignment {
 const interns = ref<Intern[]>([]);
 const assignments = ref<Assignment[]>([]);
 const selectedIntern = ref<number | null>(null);
-
 const hrName = ref('');
 const hrLocal = ref('');
 const itName = ref('');
 const itLocal = ref('');
 
-// Seçili intern değişince atamaları yükle veya temizle
 watch(selectedIntern, async id => {
   if (id === null) {
     assignments.value = [];
@@ -139,13 +142,12 @@ onMounted(async () => {
   try {
     const email = msalApp.getActiveAccount()?.username || '';
     const { data: m } = await api.get<{ id: number }>(
-      `/api/mentors/email/${encodeURIComponent(email)}`
+      `/api/mentors/email/${email}`
     );
     const resp = await api.get<Intern[]>(`/api/interns/${m.id}/interns`);
     interns.value = resp.data;
-    assignments.value = [];
   } catch {
-    alert('Veri çekerken hata oluştu.');
+    alert(t('internSupport.fetchError'));
   }
 });
 
@@ -156,21 +158,16 @@ async function assign() {
   const hasIT = assignments.value.some(
     a => a.departmentName === 'Bilgi Teknolojileri'
   );
+
   if (hasHR && hasIT) {
-    return alert(
-      'Bu stajyer için IK ve IT atamaları zaten tanımlı. Yeni atama yapamazsınız.'
-    );
+    return alert(t('internSupport.alreadyAssigned'));
   }
   if (selectedIntern.value === null) {
-    return alert('Lütfen bir stajyer seçin.');
+    return alert(t('internSupport.selectIntern'));
   }
-
   if ((!hrName.value || !hrLocal.value) && (!itName.value || !itLocal.value)) {
-    return alert('Lütfen en az bir destek sorumlusu girin.');
+    return alert(t('internSupport.enterOneSupport'));
   }
-
-  const hrEmail = `${hrLocal.value}@etiya.com`;
-  const itEmail = `${itLocal.value}@etiya.com`;
 
   try {
     if (hrName.value && hrLocal.value) {
@@ -181,7 +178,6 @@ async function assign() {
         supervisorEmail: `${hrLocal.value}@etiya.com`,
       });
     }
-
     if (itName.value && itLocal.value) {
       await api.post('/api/supervisors', {
         internId: selectedIntern.value,
@@ -190,25 +186,26 @@ async function assign() {
         supervisorEmail: `${itLocal.value}@etiya.com`,
       });
     }
+
     const res = await api.get<Assignment[]>('/api/supervisors', {
       params: { internId: selectedIntern.value },
     });
     assignments.value = res.data;
     hrName.value = hrLocal.value = itName.value = itLocal.value = '';
-    alert('Eşleştirme başarıyla tamamlandı.');
+    alert(t('internSupport.success'));
   } catch {
-    alert('Eşleştirme sırasında hata oluştu.');
+    alert(t('internSupport.error'));
   }
 }
 
 async function deleteAssignment(id: number) {
-  if (!confirm('Silmek istediğine emin misiniz?')) return;
+  if (!confirm(t('common.confirmDelete'))) return;
   try {
     await api.delete(`/api/supervisors/${id}`);
     assignments.value = assignments.value.filter(x => x.id !== id);
     hrName.value = hrLocal.value = itName.value = itLocal.value = '';
   } catch {
-    alert('Silme sırasında hata oluştu.');
+    alert(t('internSupport.deleteError'));
   }
 }
 </script>

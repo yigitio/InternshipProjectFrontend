@@ -2,34 +2,38 @@
   <div class="register-bg">
     <div class="register-card">
       <img src="@/assets/etiya-logo.png" alt="Etiya" class="form-logo" />
-      <div class="welcome-text">HOŞGELDİN ETİYALI!</div>
-      <h2>Intern Kayıt Formu</h2>
+      <div class="welcome-text">{{ $t('internView.welcome') }}</div>
+      <h2>{{ $t('internView.title') }}</h2>
       <form @submit.prevent="onSubmit">
         <div class="field">
-          <label>Ad:</label>
+          <label>{{ $t('internView.name') }}</label>
           <input v-model="form.name" readonly />
         </div>
         <div class="field">
-          <label>Soyad:</label>
+          <label>{{ $t('internView.surname') }}</label>
           <input v-model="form.surname" readonly />
         </div>
         <div class="field">
-          <label>Üniversite:</label>
+          <label>{{ $t('internView.university') }}</label>
           <select v-model="form.university" required @change="fetchDepartments">
-            <option value="" disabled selected>Üniversite Seçiniz</option>
+            <option value="" disabled selected>
+              {{ $t('internView.selectUniversity') }}
+            </option>
             <option v-for="uni in universities" :key="uni" :value="uni">
               {{ uni }}
             </option>
           </select>
         </div>
         <div class="field">
-          <label>Bölüm:</label>
+          <label>{{ $t('internView.department') }}</label>
           <select
             v-model="form.department"
             required
             :disabled="!departments.length"
           >
-            <option value="" disabled selected>Bölüm Seçiniz</option>
+            <option value="" disabled selected>
+              {{ $t('internView.selectDepartment') }}
+            </option>
             <option
               v-for="dep in departments"
               :key="dep.ID"
@@ -40,7 +44,7 @@
           </select>
         </div>
         <div class="field">
-          <label>Staj Başlangıç Tarihi:</label>
+          <label>{{ $t('internView.startDate') }}</label>
           <input
             v-model="form.internshipStart"
             type="date"
@@ -49,7 +53,7 @@
           />
         </div>
         <div class="field">
-          <label>Staj Bitiş Tarihi:</label>
+          <label>{{ $t('internView.endDate') }}</label>
           <input
             v-model="form.internshipEnd"
             type="date"
@@ -58,21 +62,21 @@
           />
         </div>
         <div class="field">
-          <label>Email:</label>
+          <label>{{ $t('internView.email') }}</label>
           <input v-model="form.email" type="email" readonly />
         </div>
         <div class="field">
-          <label>Telefon:</label>
+          <label>{{ $t('internView.phone') }}</label>
           <input
             v-model="form.phone"
             type="tel"
             required
             maxlength="14"
-            placeholder="05xx xxx xx xx"
+            :placeholder="$t('internView.phonePlaceholder')"
             @input="formatPhone"
           />
         </div>
-        <button type="submit">Kaydı Tamamla</button>
+        <button type="submit">{{ $t('internView.submit') }}</button>
       </form>
     </div>
   </div>

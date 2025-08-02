@@ -1,28 +1,36 @@
 <template>
   <div class="assignment-container">
-    <h2>Görev Takibi</h2>
+    <h2>{{ $t('assignmentTracker.title') }}</h2>
 
-    <div v-if="isLoading" class="state-message">Yükleniyor...</div>
+    <div v-if="isLoading" class="state-message">
+      {{ $t('assignmentTracker.loading') }}
+    </div>
     <div v-else-if="error" class="state-message error">{{ error }}</div>
 
     <div v-else>
       <div class="filter-bar">
         <select v-model="filters.internName">
-          <option value="">Stajyer (Tümü)</option>
+          <option value="">
+            {{ $t('assignmentTracker.filter.internAll') }}
+          </option>
           <option v-for="name in internNames" :key="name" :value="name">
             {{ name }}
           </option>
         </select>
 
         <select v-model="filters.status">
-          <option value="">Statü (Tümü)</option>
+          <option value="">
+            {{ $t('assignmentTracker.filter.statusAll') }}
+          </option>
           <option>To Do</option>
           <option>In Progress</option>
           <option>Completed</option>
         </select>
 
         <select v-model="filters.priority">
-          <option value="">Öncelik (Tümü)</option>
+          <option value="">
+            {{ $t('assignmentTracker.filter.priorityAll') }}
+          </option>
           <option>Urgent</option>
           <option>High</option>
           <option>Medium</option>
@@ -31,9 +39,14 @@
         </select>
 
         <select v-model="filters.sort">
-          <option value="assignedAt">Atanma Tarihi</option>
-          <option value="dueDate">Bitiş Tarihi</option>
+          <option value="assignedAt">
+            {{ $t('assignmentTracker.sort.assignedAt') }}
+          </option>
+          <option value="dueDate">
+            {{ $t('assignmentTracker.sort.dueDate') }}
+          </option>
         </select>
+
         <select v-model="filters.size">
           <option :value="5">5</option>
           <option :value="15">15</option>
@@ -42,33 +55,33 @@
       </div>
 
       <div v-if="assignments.length === 0" class="state-message">
-        Henüz atanmış bir görev bulunmuyor.
+        {{ $t('assignmentTracker.noAssignments') }}
       </div>
+
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th>Görev Adı</th>
-              <th>Açıklama</th>
-              <th>Atanma</th>
-              <th>Bitiş</th>
-              <th>Öncelik</th>
-              <th>Mentor</th>
-              <th>Stajyer</th>
-              <th>Durum</th>
+              <th>{{ $t('assignmentTracker.table.name') }}</th>
+              <th>{{ $t('assignmentTracker.table.desc') }}</th>
+              <th>{{ $t('assignmentTracker.table.assigned') }}</th>
+              <th>{{ $t('assignmentTracker.table.due') }}</th>
+              <th>{{ $t('assignmentTracker.table.priority') }}</th>
+              <th>{{ $t('assignmentTracker.table.mentor') }}</th>
+              <th>{{ $t('assignmentTracker.table.intern') }}</th>
+              <th>{{ $t('assignmentTracker.table.status') }}</th>
             </tr>
           </thead>
-
           <tbody>
             <tr v-for="item in assignments" :key="item.id">
               <td>{{ item.assignmentName }}</td>
               <td>{{ item.assignmentDesc }}</td>
               <td>{{ formatDate(item.assignedAt) }}</td>
               <td>{{ formatDate(item.dueDate) }}</td>
-              <td>{{ item.priority }}</td>
+              <td>{{ $t(`priorities.${item.priority}`) }}</td>
               <td>{{ item.mentorName }}</td>
               <td>{{ item.internName }}</td>
-              <td>{{ item.status }}</td>
+              <td>{{ $t(`statuses.${item.status}`) }}</td>
             </tr>
           </tbody>
         </table>
@@ -76,7 +89,10 @@
 
       <div class="pagination">
         <button @click="currentPage--" :disabled="currentPage === 0">◀</button>
-        <span>Sayfa {{ currentPage + 1 }} / {{ totalPages }}</span>
+        <span
+          >{{ $t('assignmentTracker.page') }} {{ currentPage + 1 }} /
+          {{ totalPages }}</span
+        >
         <button
           @click="currentPage++"
           :disabled="currentPage + 1 >= totalPages"

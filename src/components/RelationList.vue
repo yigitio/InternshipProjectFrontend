@@ -2,30 +2,31 @@
   <ul class="relation-list">
     <li v-for="rel in relations" :key="rel.relation_id" class="relation-item">
       <div>
-        <span class="names"
-          >{{ rel.mentorName }} <span class="swap-arrow">↔</span>
-          {{ rel.internName }}</span
-        >
+        <span class="names">
+          {{ rel.mentorName }} <span class="swap-arrow">↔</span>
+          {{ rel.internName }}
+        </span>
       </div>
       <div class="actions">
         <button
           class="icon-btn delete-btn"
           @click="$emit('delete', rel.relation_id)"
-          title="Sil"
+          :title="$t('buttons.delete')"
         >
-          Sil
+          {{ $t('buttons.delete') }}
         </button>
         <button
           class="icon-btn edit-btn"
           @click="$emit('edit', rel)"
-          title="Düzenle"
+          :title="$t('buttons.detail')"
         >
-          Detay
+          {{ $t('buttons.detail') }}
         </button>
       </div>
     </li>
   </ul>
 </template>
+
 <script setup lang="ts">
 import '@fortawesome/fontawesome-free/css/all.min.css';
 

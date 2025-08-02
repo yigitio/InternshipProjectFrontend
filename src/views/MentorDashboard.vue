@@ -1,26 +1,26 @@
 <template>
   <div class="dashboard-grid">
-    <!-- PieChart -->
-    <DashboardCard title="Stajyer Görev Durumu" class="card-pie">
+    <DashboardCard
+      :title="$t('mentorDashboard.assignmentStatus')"
+      class="card-pie"
+    >
       <PieChart :data="mentorStats" v-if="mentorStats.length" />
-      <p v-else>Henüz bir assignment atanmadı.</p>
+      <p v-else>{{ $t('mentorDashboard.noAssignment') }}</p>
     </DashboardCard>
 
-    <!-- Greeting -->
     <DashboardCard title="" class="card-greeting">
       <div class="greeting-box">{{ greetingMessage }}</div>
     </DashboardCard>
 
-    <!-- Atanılan Görevler -->
-    <DashboardCard title="Atanmış Görevler" class="card-todo">
+    <DashboardCard :title="$t('mentorDashboard.assignments')" class="card-todo">
       <div class="assignment-table-scroll">
         <table class="assignment-table" v-if="assignments.length">
           <thead>
             <tr>
-              <th>Stajyer</th>
-              <th>Görev</th>
-              <th>Öncelik</th>
-              <th>Durum</th>
+              <th>{{ $t('mentorDashboard.table.intern') }}</th>
+              <th>{{ $t('mentorDashboard.table.task') }}</th>
+              <th>{{ $t('mentorDashboard.table.priority') }}</th>
+              <th>{{ $t('mentorDashboard.table.status') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -28,29 +28,33 @@
               <td>{{ a.internName }}</td>
               <td>{{ a.assignmentName }}</td>
               <td>
-                <span :class="['priority-dot', a.priority.toLowerCase()]"></span
-                >{{ a.priority }}
+                <span
+                  :class="['priority-dot', a.priority.toLowerCase()]"
+                ></span>
+                {{ $t('priorities.' + a.priority) }}
               </td>
-              <td>{{ a.status }}</td>
+              <td>{{ $t('statuses.' + a.status) }}</td>
             </tr>
           </tbody>
         </table>
-        <p v-else>Henüz atanmış görev bulunamadı.</p>
+        <p v-else>{{ $t('mentorDashboard.noAssignments') }}</p>
       </div>
     </DashboardCard>
 
-    <!-- Stajyerler -->
-    <DashboardCard title="Stajyerler" class="card-announcement">
+    <DashboardCard
+      :title="$t('mentorDashboard.interns')"
+      class="card-announcement"
+    >
       <div class="intern-table-scroll">
         <table class="intern-table" v-if="interns.length">
           <thead>
             <tr>
-              <th>Ad Soyad</th>
-              <th>Email</th>
-              <th>Üniversite</th>
-              <th>Bölüm</th>
-              <th>Başlangıç</th>
-              <th>Bitiş</th>
+              <th>{{ $t('mentorDashboard.table.name') }}</th>
+              <th>{{ $t('mentorDashboard.table.email') }}</th>
+              <th>{{ $t('mentorDashboard.table.university') }}</th>
+              <th>{{ $t('mentorDashboard.table.department') }}</th>
+              <th>{{ $t('mentorDashboard.table.startDate') }}</th>
+              <th>{{ $t('mentorDashboard.table.endDate') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -64,14 +68,15 @@
             </tr>
           </tbody>
         </table>
-        <p v-else>Henüz stajyer bilgisi bulunamadı.</p>
+        <p v-else>{{ $t('mentorDashboard.noInterns') }}</p>
       </div>
     </DashboardCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useMsal } from 'vue3-msal-plugin';
 import DashboardCard from '@/components/DashboardCard.vue';
 import PieChart from '@/components/PieChart.vue';
@@ -97,6 +102,7 @@ interface Assignment {
 }
 
 const { accounts } = useMsal();
+const { t, locale } = useI18n();
 const email = accounts.value[0].username;
 
 const greetingMessage = ref('');
@@ -106,36 +112,66 @@ const mentorName = ref('');
 const interns = ref<Intern[]>([]);
 const assignments = ref<Assignment[]>([]);
 
-onMounted(async () => {
+const updateAssignmentStats = async () => {
+  try {
+    const res = await apiClient.get(
+      `/api/assignments/stats/mentor?email=${email}`
+    );
+    mentorStats.value = Object.entries(res.data).map(([name, value]) => ({
+      name,
+      value: value as number,
+    }));
+  } catch (err) {
+    console.error('Failed to load mentor stats:', err);
+  }
+};
+
+const updateGreeting = async () => {
   const hour = new Date().getHours();
   const baseGreeting =
-    hour < 12 ? 'Günaydın' : hour < 18 ? 'İyi günler' : 'İyi akşamlar';
+    hour < 12
+      ? 'greetings.morning'
+      : hour < 18
+      ? 'greetings.afternoon'
+      : 'greetings.evening';
 
   try {
     const mentorRes = await apiClient.get(`/api/mentors/email/${email}`);
     mentorName.value = mentorRes.data.name;
     mentorId.value = mentorRes.data.id;
 
-    greetingMessage.value = `${baseGreeting}, ${mentorName.value}! ${
+    greetingMessage.value = `${t(baseGreeting)}, ${mentorName.value}! ${
       hour < 18 ? '🌤️' : '🌙'
     }`;
   } catch (err) {
-    console.error('Mentor bilgisi alınamadı:', err);
-    greetingMessage.value = `${baseGreeting}! 🌤️`;
+    greetingMessage.value = `${t(baseGreeting)}! 🌤️`;
   }
+};
 
-  try {
-    const res = await apiClient.get(
-      `/api/assignments/stats/mentor?email=${email}`
-    );
-    const statsData = res.data;
-    mentorStats.value = Object.entries(statsData).map(([name, value]) => ({
-      name,
-      value: value as number,
-    }));
-  } catch (err) {
-    console.error('PieChart verisi alınamadı:', err);
+watch(locale, () => {
+  updateAssignmentStats();
+  updateGreeting();
+});
+
+watch(mentorId, async newId => {
+  if (newId !== null) {
+    try {
+      const internsRes = await apiClient.get(`/api/interns/${newId}/interns`);
+      interns.value = internsRes.data;
+
+      const assignmentsRes = await apiClient.get(
+        `/api/assignments/by-mentor/${newId}`
+      );
+      assignments.value = assignmentsRes.data;
+    } catch (err) {
+      console.error('Mentora bağlı veriler alınamadı:', err);
+    }
   }
+});
+
+onMounted(async () => {
+  updateGreeting();
+  updateAssignmentStats();
 
   try {
     if (mentorId.value !== null) {
@@ -150,7 +186,7 @@ onMounted(async () => {
       assignments.value = assignmentsRes.data;
     }
   } catch (err) {
-    console.error('Veriler alınamadı:', err);
+    console.error('Failed to load mentor data:', err);
   }
 });
 

@@ -1,8 +1,8 @@
 <template>
   <div class="form-container">
-    <h2>Günlük Rapor Gönder</h2>
+    <h2>{{ $t('report.title') }}</h2>
     <form @submit.prevent="openConfirmation">
-      <label for="file">Rapor Dosyası (.pdf, .docx):</label>
+      <label for="file">{{ $t('report.label') }}</label>
       <input
         id="file"
         type="file"
@@ -11,17 +11,21 @@
         required
       />
 
-      <button type="submit">Gönder</button>
-      <p v-if="message" :class="status">{{ message }}</p>
+      <button type="submit">{{ $t('buttons.send') }}</button>
+      <p v-if="message" :class="status">{{ $t(message) }}</p>
     </form>
 
     <!-- MODAL -->
     <div class="modal-overlay" v-if="showModal">
       <div class="modal-box">
-        <h3>Raporu göndermek istediğinize emin misiniz?</h3>
+        <h3>{{ $t('report.confirm') }}</h3>
         <div class="modal-buttons">
-          <button class="confirm" @click="sendReport">Evet, Gönder</button>
-          <button class="cancel" @click="showModal = false">İptal</button>
+          <button class="confirm" @click="sendReport">
+            {{ $t('report.confirmYes') }}
+          </button>
+          <button class="cancel" @click="showModal = false">
+            {{ $t('buttons.cancel') }}
+          </button>
         </div>
       </div>
     </div>
@@ -39,7 +43,7 @@ const mentorEmail = ref('');
 const mentorName = ref('');
 const message = ref('');
 const status = ref<'success' | 'error'>('success');
-const showModal = ref(false); // ✅ Modal kontrolü
+const showModal = ref(false);
 
 const { accounts } = useMsal();
 const internEmail = accounts.value[0].username;
@@ -55,7 +59,7 @@ onMounted(async () => {
     mentorName.value = res.data.mentorName || 'Mentor';
     managerEmail.value = res.data.managerEmail || '';
   } catch (e) {
-    message.value = 'Mentor email alınamadı';
+    message.value = 'report.errorMentorEmail';
     status.value = 'error';
   }
 });
@@ -69,10 +73,10 @@ const handleFile = (e: Event) => {
   const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
 
   if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-    message.value = '❌ Yalnızca .pdf ve .docx dosyalarına izin verilmektedir.';
+    message.value = 'report.invalidFile';
     status.value = 'error';
     file.value = null;
-    (document.getElementById('file') as HTMLInputElement).value = ''; // input'u sıfırla
+    (document.getElementById('file') as HTMLInputElement).value = '';
     return;
   }
 
@@ -107,7 +111,6 @@ const sendReport = async () => {
         ccRecipients: managerEmail.value
           ? [{ emailAddress: { address: managerEmail.value } }]
           : [],
-
         attachments: [
           {
             '@odata.type': '#microsoft.graph.fileAttachment',
@@ -128,12 +131,12 @@ const sendReport = async () => {
       body: JSON.stringify(mailPayload),
     });
 
-    message.value = '✅ Rapor başarıyla gönderildi!';
+    message.value = 'report.success';
     status.value = 'success';
     (document.getElementById('file') as HTMLInputElement).value = '';
   } catch (err) {
     console.error('Hata:', err);
-    message.value = '❌ Gönderim sırasında hata oluştu.';
+    message.value = 'report.fail';
     status.value = 'error';
     (document.getElementById('file') as HTMLInputElement).value = '';
   }

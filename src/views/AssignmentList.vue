@@ -121,17 +121,19 @@ onMounted(async () => {
 
 <template>
   <div class="assignment-container">
-    <h2>Görev Takibi</h2>
+    <h2>{{ $t('assignmentList.title') }}</h2>
 
     <div class="filter-bar">
       <select v-model="filters.status">
-        <option value="">Statü (Tümü)</option>
-        <option v-for="s in statusOptions" :key="s" :value="s">{{ s }}</option>
+        <option value="">{{ $t('assignmentList.statusAll') }}</option>
+        <option v-for="s in statusOptions" :key="s" :value="s">
+          {{ $t(`statuses.${s}`) }}
+        </option>
       </select>
 
       <select v-model="filters.sort">
         <option v-for="o in sortOptions" :key="o.value" :value="o.value">
-          {{ o.label }}
+          {{ $t(`assignmentList.sortOptions.${o.value}`) }}
         </option>
       </select>
 
@@ -142,25 +144,29 @@ onMounted(async () => {
       </select>
     </div>
 
-    <div v-if="isLoading" class="state-message">Yükleniyor...</div>
-    <div v-else-if="error" class="state-message error">{{ error }}</div>
+    <div v-if="isLoading" class="state-message">
+      {{ $t('assignmentList.loading') }}
+    </div>
+    <div v-else-if="error" class="state-message error">
+      {{ $t('assignmentList.loadError') }}
+    </div>
 
     <div v-else>
       <div v-if="assignments.length === 0" class="state-message">
-        Henüz atanmış görev yok.
+        {{ $t('assignmentList.noAssignments') }}
       </div>
 
       <div class="table-scroll" v-else>
         <table>
           <thead>
             <tr>
-              <th>Görev Adı</th>
-              <th>Açıklama</th>
-              <th>Atanma</th>
-              <th>Bitiş</th>
-              <th>Öncelik</th>
-              <th>Mentor</th>
-              <th>Statü</th>
+              <th>{{ $t('assignmentList.table.name') }}</th>
+              <th>{{ $t('assignmentList.table.desc') }}</th>
+              <th>{{ $t('assignmentList.table.assigned') }}</th>
+              <th>{{ $t('assignmentList.table.due') }}</th>
+              <th>{{ $t('assignmentList.table.priority') }}</th>
+              <th>{{ $t('assignmentList.table.mentor') }}</th>
+              <th>{{ $t('assignmentList.table.status') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -169,7 +175,7 @@ onMounted(async () => {
               <td>{{ item.assignmentDesc }}</td>
               <td>{{ formatDate(item.assignedAt) }}</td>
               <td>{{ formatDate(item.dueDate) }}</td>
-              <td>{{ item.priority }}</td>
+              <td>{{ $t(`priorities.${item.priority}`) }}</td>
               <td>{{ item.mentorName }}</td>
               <td>
                 <select
@@ -179,12 +185,12 @@ onMounted(async () => {
                   :disabled="item.status === 'Completed'"
                   :title="
                     item.status === 'Completed'
-                      ? 'Bu görev tamamlandı ve artık değiştirilemez.'
+                      ? $t('assignmentList.statusLocked')
                       : ''
                   "
                 >
                   <option v-for="s in statusOptions" :key="s" :value="s">
-                    {{ s }}
+                    {{ $t(`statuses.${s}`) }}
                   </option>
                 </select>
               </td>
@@ -195,7 +201,10 @@ onMounted(async () => {
 
       <div class="pagination">
         <button @click="currentPage--" :disabled="currentPage === 0">◀</button>
-        <span>Sayfa {{ currentPage + 1 }} / {{ totalPages }}</span>
+        <span>
+          {{ $t('assignmentList.page') }} {{ currentPage + 1 }} /
+          {{ totalPages }}
+        </span>
         <button
           @click="currentPage++"
           :disabled="currentPage + 1 >= totalPages"
@@ -209,12 +218,11 @@ onMounted(async () => {
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content">
         <p>
-          Bu görevi <strong>tamamlandı</strong> olarak işaretlemek
-          istediğinizden emin misiniz?
+          {{ $t('assignmentList.confirmComplete') }}
         </p>
         <div class="modal-buttons">
-          <button @click="confirmCompletion">Evet</button>
-          <button @click="cancelCompletion">Vazgeç</button>
+          <button @click="confirmCompletion">{{ $t('buttons.yes') }}</button>
+          <button @click="cancelCompletion">{{ $t('buttons.no') }}</button>
         </div>
       </div>
     </div>
