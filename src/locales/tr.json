@@ -138,6 +138,16 @@
     "sort": {
       "assignedAt": "Atanma Tarihi",
       "dueDate": "Bitiş Tarihi"
+    },
+    "table": {
+      "name": "Görev Adı",
+      "desc": "Açıklama",
+      "assigned": "Atanma",
+      "due": "Bitiş",
+      "priority": "Öncelik",
+      "mentor": "Mentor",
+      "intern": "Stajyer",
+      "status": "Durum"
     }
     },
     "createAccount": {

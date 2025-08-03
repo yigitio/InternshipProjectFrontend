@@ -138,6 +138,16 @@
         "sort": {
           "assignedAt": "Assigned Date",
           "dueDate": "Due Date"
+        },
+        "table": {
+          "name": "Task Name",
+          "desc": "Description",
+          "assigned": "Assigned At",
+          "due": "Due Date",
+          "priority": "Priority",
+          "mentor": "Mentor",
+          "intern": "Intern",
+          "status": "Status"
         }
       },
         "createAccount": {
